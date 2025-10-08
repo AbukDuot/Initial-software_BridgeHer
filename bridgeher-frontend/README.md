@@ -82,12 +82,11 @@ bridgeher-backend/
 Figma Mockups
 ```
 
-### View BridgeHer UI Designs on Figma
+### View BridgeHer UI Designs on Figma Screenshots
+```
+Login Page  Register page Home page  Courses page
 
- Screenshots
-Login Page	Dashboard	Course Detail
-
-	
+![Uploading Screenshot 2025-10-08 115616.png…]()
 
 ```
 (Add your actual screenshots inside /screenshots folder and update the image links.)
