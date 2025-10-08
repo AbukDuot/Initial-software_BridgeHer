@@ -79,14 +79,12 @@ bridgeher-backend/
     └── authMiddleware.js
 
  Designs & Mockups
-Figma Mockups
-```
 
 ### View BridgeHer UI Designs on Figma Screenshots
-
+```
 Login Page  Register page Home page  Courses page
 
-https://github.com/AbukDuot/Initial-software_BridgeHer/blob/22f9139097199ef39c69c5157087670cd3654d44/bridgeher-frontend/src/assets/images/Figma%20design.png
+Link to the Figma: https://github.com/AbukDuot/Initial-software_BridgeHer/blob/bridgeher-frontend/src/assets/images/Figma design.png
 
 
 ```
