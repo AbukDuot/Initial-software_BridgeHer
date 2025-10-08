@@ -86,7 +86,7 @@ Figma Mockups
 
 Login Page  Register page Home page  Courses page
 
-![Uploading Screenshot 2025-10-08 115616.png…]()
+
 
 ```
 (Add your actual screenshots inside /screenshots folder and update the image links.)
@@ -142,8 +142,11 @@ Database integration and API testing (REST Client / Postman)
 /screenshots	Screenshots and mockups for documentation
 
 ### REST API Endpoints
+
 Method	Endpoint	Description
+
 POST	/api/auth/register	Register a new user
+
 POST	/api/auth/login	Authenticate user and return token
 
  ### Developer Notes
@@ -155,9 +158,13 @@ Always restart the server after updating environment variables.
 ### Author
 
 Abuk Mayen Duot Lual
+
 Software Engineer & Founder — BridgeHer Initiative
+
 🌐 LinkedIn
- | ✉️ abukmayen@gmail.com
+
+ |✉️ abukmayen@gmail.com
+ 
  | 📞 +250789101234
 
  ### 📄 License
