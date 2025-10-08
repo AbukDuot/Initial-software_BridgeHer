@@ -83,7 +83,7 @@ Figma Mockups
 ```
 
 ### View BridgeHer UI Designs on Figma Screenshots
-```
+
 Login Page  Register page Home page  Courses page
 
 ![Uploading Screenshot 2025-10-08 115616.png…]()
