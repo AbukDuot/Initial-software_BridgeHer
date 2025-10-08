@@ -18,6 +18,8 @@ Provide localized, bilingual access (English & Arabic).
 Offer scalable, secure, and user-friendly online learning tools.
 
 
+Link to the repo: [https://github.com/AbukDuot/Initial-software_BridgeHer]
+
 ## Tech Stack
 
 Layer	Technology
