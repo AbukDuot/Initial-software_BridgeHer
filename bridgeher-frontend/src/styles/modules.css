@@ -1,0 +1,85 @@
+.modules-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.module-card {
+  background: #fff;
+  border: 2px solid #e1bee7;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: left;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.module-card:hover {
+  transform: translateY(-5px);
+}
+
+.module-card h3 {
+  color: #6a1b9a;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.video-player iframe {
+  width: 100%;
+  height: 400px;
+  border-radius: 10px;
+  margin-top: 1rem;
+}
+
+.notes-card {
+  background: #f3e5f5;
+  padding: 1rem 1.5rem;
+  margin-top: 1.5rem;
+  border-radius: 10px;
+}
+
+.notes-card ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.notes-card li {
+  margin-bottom: 0.3rem;
+  color: #333;
+}
+
+.quiz-btn {
+  display: inline-block;
+  margin-top: 2rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+}
+
+.btn.primary {
+  background: #6a1b9a;
+  color: #fff;
+  border: none;
+}
+
+.btn.secondary {
+  background: #e1bee7;
+  color: #4a0072;
+  border: none;
+}
+
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .video-player iframe {
+    height: 220px;
+  }
+}

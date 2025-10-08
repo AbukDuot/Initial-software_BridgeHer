@@ -1,0 +1,30 @@
+.language-toggle button {
+  padding: 6px 12px;
+  border: 1px solid #6a1b9a;
+  background: #fff;
+  color: #6a1b9a;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.language-toggle button:hover {
+  background: #6a1b9a;
+  color: #fff;
+}
+
+
+@media (max-width: 768px) {
+  .language-toggle button {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .language-toggle button {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+}

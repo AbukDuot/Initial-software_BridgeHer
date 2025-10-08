@@ -1,0 +1,117 @@
+.certificate-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+  padding: 1rem;
+}
+
+.certificate-card {
+  background: #fff;
+  border: 6px double #6a1b9a;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  max-width: 800px;
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  font-family: "Poppins", sans-serif;
+}
+
+.cert-title {
+  font-size: 2.2rem;
+  color: #4a0072;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cert-text {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+
+.cert-seal {
+  font-size: 3rem;
+  margin: 1rem 0;
+}
+
+.cert-signature {
+  font-size: 1rem;
+  color: #6a1b9a;
+  font-weight: 600;
+  margin-top: 1rem;
+  border-top: 2px solid #6a1b9a;
+  display: inline-block;
+  padding-top: 0.5rem;
+}
+
+.cert-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn.primary {
+  background: #6a1b9a;
+  color: #fff;
+  border: none;
+}
+
+.btn.primary:hover {
+  background: #4a0072;
+}
+
+.btn.secondary {
+  background: #e1bee7;
+  color: #4a0072;
+  border: none;
+}
+
+.btn.secondary:hover {
+  background: #d1a7dc;
+}
+
+
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+@media print {
+  .certificate-modal {
+    position: static;
+    background: white;
+  }
+  .cert-buttons {
+    display: none;
+  }
+}

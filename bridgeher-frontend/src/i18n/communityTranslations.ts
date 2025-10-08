@@ -1,0 +1,39 @@
+const communityTranslations = {
+  English: {
+    communityForum: "Community Forum",
+    popularCategories: "Popular Categories",
+    categories: ["User Support", "Announcements", "Usability & Feedback", "Suggestion Box", "Development"],
+    topTags: "Top Tags",
+    newTopic: "New Topic",
+    createTopic: "Create New Topic",
+    topicTitle: "Topic Title",
+    category: "Category",
+    description: "Description",
+    postTopic: "Post Topic",
+    topics: "Topics",
+    replies: "Replies",
+    views: "Views",
+    activity: "Activity",
+    noTopics: "No topics yet. Be the first to start a discussion!",
+  },
+
+  Arabic: {
+    communityForum: "منتدى المجتمع",
+    popularCategories: "الفئات الشائعة",
+    categories: ["دعم المستخدم", "الإعلانات", "سهولة الاستخدام والملاحظات", "صندوق الاقتراحات", "التطوير"],
+    topTags: "الوسوم الأكثر استخدامًا",
+    newTopic: "موضوع جديد",
+    createTopic: "إنشاء موضوع جديد",
+    topicTitle: "عنوان الموضوع",
+    category: "الفئة",
+    description: "الوصف",
+    postTopic: "نشر الموضوع",
+    topics: "المواضيع",
+    replies: "الردود",
+    views: "المشاهدات",
+    activity: "النشاط",
+    noTopics: "لا توجد مواضيع بعد. كوني أول من يبدأ المناقشة!",
+  },
+};
+
+export default communityTranslations;

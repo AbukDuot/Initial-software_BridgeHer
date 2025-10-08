@@ -1,0 +1,246 @@
+{
+  "English": [
+    {
+      "id": 1,
+      "question": "What is the first step in financial planning?",
+      "options": ["Setting goals", "Spending freely", "Borrowing money", "Ignoring expenses"],
+      "answer": "Setting goals"
+    },
+    {
+      "id": 2,
+      "question": "Which of the following is a good saving habit?",
+      "options": ["Saving after spending", "Saving before spending", "Ignoring savings", "Relying on credit"],
+      "answer": "Saving before spending"
+    },
+    {
+      "id": 3,
+      "question": "What is an example of a fixed expense?",
+      "options": ["Rent", "Groceries", "Movie tickets", "Transportation"],
+      "answer": "Rent"
+    },
+    {
+      "id": 4,
+      "question": "Which tool helps track income and expenses?",
+      "options": ["Budget", "Notebook", "Receipt", "Calendar"],
+      "answer": "Budget"
+    },
+    {
+      "id": 5,
+      "question": "What does 'investment' mean?",
+      "options": ["Using money to make more money", "Keeping money in cash", "Spending on shopping", "Borrowing loans"],
+      "answer": "Using money to make more money"
+    },
+    {
+      "id": 6,
+      "question": "Which is an example of an emergency expense?",
+      "options": ["Medical bill", "Rent", "Groceries", "Phone data"],
+      "answer": "Medical bill"
+    },
+    {
+      "id": 7,
+      "question": "Why is saving important?",
+      "options": ["To prepare for future needs", "To waste money", "To impress others", "To avoid work"],
+      "answer": "To prepare for future needs"
+    },
+    {
+      "id": 8,
+      "question": "Which of the following can help reduce spending?",
+      "options": ["Impulse buying", "Budgeting", "Borrowing", "Avoiding records"],
+      "answer": "Budgeting"
+    },
+    {
+      "id": 9,
+      "question": "What should you do before taking a loan?",
+      "options": ["Check interest rate", "Ignore repayment terms", "Borrow more than needed", "Avoid reading details"],
+      "answer": "Check interest rate"
+    },
+    {
+      "id": 10,
+      "question": "Which is an example of a short-term goal?",
+      "options": ["Buying a phone", "Retirement", "Buying a house", "Starting a company"],
+      "answer": "Buying a phone"
+    },
+    {
+      "id": 11,
+      "question": "What is a good percentage of income to save?",
+      "options": ["10%-20%", "1%", "70%", "0%"],
+      "answer": "10%-20%"
+    },
+    {
+      "id": 12,
+      "question": "What is the main benefit of budgeting?",
+      "options": ["Financial control", "Spending more", "Getting debt", "Avoiding plans"],
+      "answer": "Financial control"
+    },
+    {
+      "id": 13,
+      "question": "Which is an example of a variable expense?",
+      "options": ["Electricity bill", "Rent", "Insurance", "Loan payment"],
+      "answer": "Electricity bill"
+    },
+    {
+      "id": 14,
+      "question": "Why should you set financial goals?",
+      "options": ["To guide spending decisions", "To waste time", "To avoid responsibility", "To earn less money"],
+      "answer": "To guide spending decisions"
+    },
+    {
+      "id": 15,
+      "question": "What is compound interest?",
+      "options": ["Interest on both principal and past interest", "Interest on loans only", "A simple profit", "Tax on savings"],
+      "answer": "Interest on both principal and past interest"
+    },
+    {
+      "id": 16,
+      "question": "Which of the following increases savings?",
+      "options": ["Automatic transfers", "Spending all income", "Ignoring goals", "Borrowing frequently"],
+      "answer": "Automatic transfers"
+    },
+    {
+      "id": 17,
+      "question": "What should you avoid when investing?",
+      "options": ["High risk without research", "Long-term planning", "Learning about markets", "Diversification"],
+      "answer": "High risk without research"
+    },
+    {
+      "id": 18,
+      "question": "What is financial literacy?",
+      "options": ["Understanding how to manage money", "Knowing fashion trends", "Avoiding math", "Reading books only"],
+      "answer": "Understanding how to manage money"
+    },
+    {
+      "id": 19,
+      "question": "What does it mean to live within your means?",
+      "options": ["Spending less than you earn", "Spending more than you earn", "Ignoring your budget", "Relying on debt"],
+      "answer": "Spending less than you earn"
+    },
+    {
+      "id": 20,
+      "question": "Which of the following represents good financial behavior?",
+      "options": ["Tracking expenses", "Ignoring savings", "Impulse buying", "Borrowing often"],
+      "answer": "Tracking expenses"
+    }
+  ],
+  "Arabic": [
+    {
+      "id": 1,
+      "question": "ما هي الخطوة الأولى في التخطيط المالي؟",
+      "options": ["تحديد الأهداف", "الإنفاق بحرية", "الاقتراض", "تجاهل النفقات"],
+      "answer": "تحديد الأهداف"
+    },
+    {
+      "id": 2,
+      "question": "أي مما يلي يعتبر عادة ادخار جيدة؟",
+      "options": ["الادخار بعد الإنفاق", "الادخار قبل الإنفاق", "تجاهل الادخار", "الاعتماد على القروض"],
+      "answer": "الادخار قبل الإنفاق"
+    },
+    {
+      "id": 3,
+      "question": "ما هو مثال على مصروف ثابت؟",
+      "options": ["الإيجار", "البقالة", "السينما", "المواصلات"],
+      "answer": "الإيجار"
+    },
+    {
+      "id": 4,
+      "question": "أي أداة تساعد على تتبع الدخل والمصروفات؟",
+      "options": ["الميزانية", "دفتر الملاحظات", "الإيصال", "التقويم"],
+      "answer": "الميزانية"
+    },
+    {
+      "id": 5,
+      "question": "ماذا يعني الاستثمار؟",
+      "options": ["استخدام المال لكسب المزيد", "الاحتفاظ بالمال نقداً", "الإنفاق على التسوق", "الاقتراض"],
+      "answer": "استخدام المال لكسب المزيد"
+    },
+    {
+      "id": 6,
+      "question": "ما هو مثال على مصروف طارئ؟",
+      "options": ["فاتورة طبية", "الإيجار", "البقالة", "بيانات الهاتف"],
+      "answer": "فاتورة طبية"
+    },
+    {
+      "id": 7,
+      "question": "لماذا الادخار مهم؟",
+      "options": ["للاستعداد للاحتياجات المستقبلية", "لإضاعة المال", "لإبهار الآخرين", "لتجنب العمل"],
+      "answer": "للاستعداد للاحتياجات المستقبلية"
+    },
+    {
+      "id": 8,
+      "question": "أي مما يلي يساعد على تقليل الإنفاق؟",
+      "options": ["الشراء العشوائي", "إعداد الميزانية", "الاقتراض", "تجاهل السجلات"],
+      "answer": "إعداد الميزانية"
+    },
+    {
+      "id": 9,
+      "question": "ماذا يجب أن تفعل قبل أخذ قرض؟",
+      "options": ["التحقق من سعر الفائدة", "تجاهل شروط السداد", "الاقتراض أكثر من الحاجة", "عدم قراءة التفاصيل"],
+      "answer": "التحقق من سعر الفائدة"
+    },
+    {
+      "id": 10,
+      "question": "ما هو مثال على هدف قصير الأجل؟",
+      "options": ["شراء هاتف", "التقاعد", "شراء منزل", "بدء شركة"],
+      "answer": "شراء هاتف"
+    },
+    {
+      "id": 11,
+      "question": "ما هي النسبة الجيدة للادخار من الدخل؟",
+      "options": ["10%-20%", "1%", "70%", "0%"],
+      "answer": "10%-20%"
+    },
+    {
+      "id": 12,
+      "question": "ما هي الفائدة الرئيسية من الميزانية؟",
+      "options": ["التحكم المالي", "الإنفاق أكثر", "الدين", "تجنب الخطط"],
+      "answer": "التحكم المالي"
+    },
+    {
+      "id": 13,
+      "question": "ما هو مثال على مصروف متغير؟",
+      "options": ["فاتورة الكهرباء", "الإيجار", "التأمين", "القرض"],
+      "answer": "فاتورة الكهرباء"
+    },
+    {
+      "id": 14,
+      "question": "لماذا يجب وضع أهداف مالية؟",
+      "options": ["لتوجيه قرارات الإنفاق", "لإضاعة الوقت", "لتجنب المسؤولية", "لكسب مال أقل"],
+      "answer": "لتوجيه قرارات الإنفاق"
+    },
+    {
+      "id": 15,
+      "question": "ما هو الفائدة المركبة؟",
+      "options": ["الفائدة على الأصل والفوائد السابقة", "فائدة على القروض فقط", "ربح بسيط", "ضريبة على الادخار"],
+      "answer": "الفائدة على الأصل والفوائد السابقة"
+    },
+    {
+      "id": 16,
+      "question": "أي مما يلي يزيد من الادخار؟",
+      "options": ["التحويلات التلقائية", "إنفاق الدخل بالكامل", "تجاهل الأهداف", "الاقتراض المتكرر"],
+      "answer": "التحويلات التلقائية"
+    },
+    {
+      "id": 17,
+      "question": "ما الذي يجب تجنبه عند الاستثمار؟",
+      "options": ["المخاطرة العالية بدون بحث", "التخطيط الطويل الأجل", "التعلم عن الأسواق", "تنويع الاستثمارات"],
+      "answer": "المخاطرة العالية بدون بحث"
+    },
+    {
+      "id": 18,
+      "question": "ما هو معنى الثقافة المالية؟",
+      "options": ["فهم كيفية إدارة المال", "معرفة الموضة", "تجنب الرياضيات", "قراءة الكتب فقط"],
+      "answer": "فهم كيفية إدارة المال"
+    },
+    {
+      "id": 19,
+      "question": "ماذا يعني العيش ضمن حدود الدخل؟",
+      "options": ["الإنفاق أقل من الدخل", "الإنفاق أكثر من الدخل", "تجاهل الميزانية", "الاعتماد على الديون"],
+      "answer": "الإنفاق أقل من الدخل"
+    },
+    {
+      "id": 20,
+      "question": "أي مما يلي يمثل سلوكًا ماليًا جيدًا؟",
+      "options": ["تتبع النفقات", "تجاهل الادخار", "الشراء العشوائي", "الاقتراض كثيرًا"],
+      "answer": "تتبع النفقات"
+    }
+  ]
+}

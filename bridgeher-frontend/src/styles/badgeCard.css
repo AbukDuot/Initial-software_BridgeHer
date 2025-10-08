@@ -1,0 +1,95 @@
+.badge-card {
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  width: 220px;
+  background: #f9f9f9;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.badge-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.badge-card.earned {
+  border-color: #6a1b9a;
+  background: linear-gradient(145deg, #f3e8ff, #e0c3ff);
+}
+
+.badge-card.locked {
+  opacity: 0.6;
+  background: #f1f1f1;
+}
+
+.badge-card .icon {
+  font-size: 38px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.badge-card h4 {
+  margin: 5px 0;
+  color: #6a1b9a;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.badge-card p {
+  font-size: 0.9rem;
+  color: #444;
+  margin: 5px 0 10px;
+}
+
+.status {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.status.earned {
+  background: #6a1b9a;
+  color: white;
+}
+
+.status.locked {
+  background: #aaa;
+  color: white;
+}
+
+
+@media (max-width: 1024px) {
+  .badge-card {
+    width: 45%;
+    margin: 10px auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .badge-card {
+    width: 90%;
+    max-width: 350px;
+    margin: 10px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .badge-card {
+    padding: 14px;
+    font-size: 0.9rem;
+  }
+
+  .badge-card .icon {
+    font-size: 32px;
+  }
+
+  .badge-card h4 {
+    font-size: 1rem;
+  }
+}
