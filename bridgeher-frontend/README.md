@@ -86,6 +86,7 @@ Figma Mockups
 
 Login Page  Register page Home page  Courses page
 
+https://github.com/AbukDuot/Initial-software_BridgeHer/blob/22f9139097199ef39c69c5157087670cd3654d44/bridgeher-frontend/src/assets/images/Figma%20design.png
 
 
 ```
@@ -118,9 +119,6 @@ DATABASE_URL=...
 JWT_SECRET=...
 
 Deploy and test via the hosted URL.
-
-Video Demo
-
 
 ```
 ### Authentication (Register/Login)
