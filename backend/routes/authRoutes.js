@@ -1,4 +1,3 @@
-// routes/authRoutes.js
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -8,29 +7,23 @@ import dotenv from "dotenv";
 dotenv.config();
 const router = express.Router();
 
-/**
- * 🟩 REGISTER ENDPOINT
- * URL: POST http://localhost:5000/api/auth/register
- */
 router.post("/register", async (req, res) => {
   const { name, email, password, role } = req.body;
 
   try {
-    // 1️⃣ Validate all fields
+    
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "All fields are required" });
     }
-
-    // 2️⃣ Check if user already exists
+    
     const existingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // 3️⃣ Hash password
+    
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4️⃣ Insert user into PostgreSQL
     const result = await pool.query(
       `INSERT INTO users (name, email, password, role)
        VALUES ($1, $2, $3, $4)
