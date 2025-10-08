@@ -19,8 +19,8 @@ This backend integrates with the [BridgeHer Frontend](https://github.com/abukmay
 Make sure you have the following installed:
 - **Node.js** (v18+ recommended)
 - **PostgreSQL** (v14 or later)
-- **npm** (v9+) or **yarn**
-- **pgAdmin** or **DBeaver** (for database management)
+- **npm** (v9+) 
+- **pgAdmin** (for database management)
 - **VS Code** or any preferred code editor
 
 ---
@@ -158,7 +158,7 @@ Always restart the server after updating environment variables.
 Abuk Mayen Duot Lual
 Software Engineer & Founder — BridgeHer Initiative
 🌐 LinkedIn
- | ✉️ abukmayeng@gmail.com
+ | ✉️ abukmayen@gmail.com
  | 📞 +250789101234
 
  ### 📄 License
