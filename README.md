@@ -151,15 +151,170 @@ Responsive, mobile-first layouts
 
 RTL (Right-to-Left) support for Arabic
 
-## Style Guide
-Element	Description
-Primary Color	#6A1B9A (Purple of Empowerment)
-Accent Color	#FFD700 (Gold for Highlights)
-Typography	Poppins / Open Sans
-Buttons	, Rounded corners, gold hover state
-Layout	Flexbox-based responsive grid
-Direction	LTR / RTL toggle based on language
 
+## BridgeHer Design & Style Guide
+
+## Overview
+The **BridgeHer Style Guide** defines the visual language and design consistency of the BridgeHer Learning & Mentorship Platform.  
+It ensures every page — from login to dashboard — looks cohesive, accessible, and empowering.
+
+BridgeHer follows a **purple and gold** color identity, reflecting creativity, confidence, and empowerment.
+
+---
+
+## Design Principles
+
+| Principle | Description |
+|------------|--------------|
+| **Empowerment** | Purple tones inspire confidence and transformation. |
+| **Inclusivity** | Supports both English and Arabic users (RTL layout). |
+| **Clarity** | Clean, minimal layouts for intuitive navigation. |
+| **Responsiveness** | Optimized for mobile, tablet, and desktop. |
+| **Consistency** | All UI components share spacing, typography, and visual rhythm. |
+
+---
+
+## Color Palette
+
+| Color Role | HEX | Usage |
+|-------------|------|--------|
+| **Primary (Purple)** | `#6A1B9A` | Navbar, buttons, main highlights |
+| **Accent (Gold)** | `#FFD700` | Hover states, icons, and highlights |
+| **Background (Light)** | `#FFFFFF` | Page backgrounds and cards |
+| **Text (Primary)** | `#333333` | Standard text color |
+| **Text (Secondary)** | `#555555` | Subheadings and hints |
+| **Error (Red)** | `#E53935` | Form validation errors |
+
+
+🟣 *Purple (Primary)* symbolizes empowerment and unity.  
+🟡 *Gold (Accent)* conveys optimism and growth.
+
+---
+
+## Typography
+
+| Element | Font Family | Size | Weight | Color |
+|----------|--------------|------|--------|--------|
+| **Headings (H1–H3)** | Poppins, sans-serif | 24–32px | 600–700 | #333333 |
+| **Body Text** | Open Sans, sans-serif | 16px | 400 | #333333 |
+| **Buttons & Inputs** | Poppins | 14–16px | 500 | #FFFFFF (on purple) |
+| **Arabic Font** | Cairo or Amiri, sans-serif | Matches English sizes | Auto-adjusts for RTL |
+
+ *Font usage is consistent across login, registration, and navbar.*
+
+---
+
+##  Layout & Spacing
+
+###  Page Layout
+- **Navbar:** Fixed at top, purple background, white text  
+- **Forms:** Centered on screen with a card-style layout  
+- **Buttons:** Rounded corners, gold hover state  
+- **Cards:** White background, soft shadows, and padding for visual balance  
+
+### Spacing Tokens
+
+| Variable | Value | Description |
+|-----------|--------|-------------|
+| `--space-xs` | 4px | Very small margin/padding |
+| `--space-sm` | 8px | Small spacing between inputs |
+| `--space-md` | 16px | Section spacing |
+| `--space-lg` | 24px | Space between major components |
+| `--space-xl` | 40px | Page padding |
+
+---
+
+## Responsiveness & RTL Support
+BridgeHer is fully responsive and supports **Right-to-Left (RTL)** layout for Arabic.
+
+| Device | Layout Behavior |
+|---------|------------------|
+| **Mobile (<768px)** | Navbar collapses into a hamburger menu |
+| **Tablet (768–1024px)** | Flexible grid with moderate padding |
+| **Desktop (>1024px)** | Full layout with side padding |
+| **RTL (Arabic)** | Text and navigation automatically flip direction |
+
+---
+
+## UI Components
+
+### Buttons
+| Type | Background | Text | Border Radius | Hover Effect |
+|------|-------------|------|----------------|---------------|
+| **Primary** | #6A1B9A | White | 5px | Gold background (#FFD700), purple text |
+| **Secondary** | Transparent | #6A1B9A | 5px | Purple border highlight |
+| **Disabled** | #CCC | #666 | 5px | None |
+
+**Example CSS**
+```css
+.primary-btn {
+  background: #6A1B9A;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.primary-btn:hover {
+  background: #FFD700;
+  color: #6A1B9A;
+}
+ Input Fields
+Element	Property
+Background	#F2F2F2
+Border Radius	5px
+Padding	10px
+Focus Border	2px solid #6A1B9A
+Error Text	#E53935
+
+ Navbar
+Property	Value
+Background Color	#6A1B9A
+Text Color	#FFFFFF
+Hover State	Gold (#FFD700)
+RTL Mode	Links align right
+Responsive Behavior	Hamburger icon toggle
+
+ Cards
+Property	Value
+Background	#FFFFFF
+Border Radius	8px
+Box Shadow	0px 2px 6px rgba(0, 0, 0, 0.1)
+Padding	16px
+Hover Effect	Slight shadow increase
+
+````
+## Accessibility Guidelines
+Ensure contrast ratio meets WCAG AA (Purple text on white background is compliant).
+
+Add aria-labels for icons and navigation elements.
+
+All images must include descriptive alt text.
+
+Font size is scalable via browser settings.
+
+Keyboard navigable (Tab, Enter, and Escape keys supported).
+
+```
+ CSS Variables Reference
+css
+Copy code
+:root {
+  --primary-color: #6A1B9A;
+  --accent-color: #FFD700;
+  --background-color: #FFFFFF;
+  --text-color: #333333;
+  --error-color: #E53935;
+  --success-color: #2E7D32;
+  --radius: 5px;
+  --transition: all 0.3s ease;
+  --font-primary: "Poppins", sans-serif;
+  --font-secondary: "Open Sans", sans-serif;
+}
+
+```
 ## Figma Mockups & Screenshots
 
 Here are the design visuals used for BridgeHer’s interface:
@@ -176,9 +331,7 @@ Courses Page
 [https://github.com/AbukDuot/Initial-software_BridgeHer/blob/22f9139097199ef39c69c5157087670cd3654d44/bridgeher-frontend/src/assets/images/Figma%20design.png]
 
 
-```
-
-##  Deployment Plan
+## Deployment Plan
 
 Component	Platform
 
@@ -188,7 +341,7 @@ Backend	Render / Railway
 
 Database	PostgreSQL (Render or Supabase)
 
-Environment Variables	Managed securely in hosting dashboard
+Environment Variables	Managed securely in the hosting dashboard
 
 ## Deployment Steps
 
@@ -196,7 +349,7 @@ Push both frontend and backend repos to GitHub.
 
 On Render, deploy backend (Node.js + PostgreSQL).
 
-On Netlify, deploy frontend.
+On Netlify, deploy the frontend.
 
 Set environment variables in both dashboards.
 
@@ -230,7 +383,6 @@ Restart the server after modifying environment variables.
 
 Maintain consistent folder naming conventions.
 
-```
 
 ## Author
 
