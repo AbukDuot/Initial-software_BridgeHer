@@ -27,7 +27,7 @@
 
 
 .progress-fill {
-  background: #6a1b9a; /* BridgeHer purple */
+  background: #6a1b9a;
   height: 100%;
   transition: width 0.3s ease-in-out;
 }

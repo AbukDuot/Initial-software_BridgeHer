@@ -1,8 +1,8 @@
 import React from "react";
-import { useLanguage } from "../context/LanguageContext"; // ✅ import the context
+import { useLanguage } from "../context/LanguageContext"; 
 
 const LanguageToggle: React.FC = () => {
-  const { language, toggleLanguage } = useLanguage(); // ✅ access from context
+  const { language, toggleLanguage } = useLanguage(); 
 
   return (
     <button

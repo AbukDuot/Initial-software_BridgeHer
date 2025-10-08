@@ -1,164 +1,244 @@
-# BridgeHer Backend
+## BridgeHer – Learning & Mentorship Platform
+   Overview
 
-## Description
-The **BridgeHer Backend** powers the **BridgeHer Platform** — an inclusive digital learning and mentorship system that empowers women through **financial literacy, entrepreneurship, and digital skills education**.  
-It provides a secure RESTful API built with **Node.js**, **Express**, and **PostgreSQL**, supporting authentication, user profiles, course management, and progress tracking.  
+BridgeHer is a bilingual (English–Arabic) online learning and mentorship platform designed to empower women through digital education, financial literacy, and entrepreneurship training.
 
-This backend integrates with the [BridgeHer Frontend](https://github.com/abukmayen/bridgeher-frontend) built with **React + TypeScript**, ensuring a seamless learning experience.
+The platform provides a seamless user experience through a React + TypeScript frontend and a secure Node.js + Express + PostgreSQL backend, with multilingual and responsive design support.
 
----
+## Project Goals
 
-## GitHub Repository
-[BridgeHer Backend on GitHub](https://github.com/abukmayen/bridgeher-backend)
+## BridgeHer aims to:
 
----
+Empower women with accessible digital education.
+
+Connect mentors and learners in a supportive environment.
+
+Provide localized, bilingual access (English & Arabic).
+
+Offer scalable, secure, and user-friendly online learning tools.
+
+
+## Tech Stack
+
+Layer	Technology
+
+Frontend	React, TypeScript, CSS, Context API
+
+Backend	Node.js, Express.js
+
+Database	PostgreSQL
+
+Auth	JWT + bcryptjs
+
+Deployment	Netlify (Frontend) + Render (Backend)
+
+Design	Figma + CSS Flexbox + Media Queries
 
 ## Environment Setup
+1.  Clone the Repository
+git clone https://github.com/abukmayen/bridgeher-project.git
+``` bash
+cd bridgeher-project
 
-### Prerequisites
-Make sure you have the following installed:
-- **Node.js** (v18+ recommended)
-- **PostgreSQL** (v14 or later)
-- **npm** (v9+) 
-- **pgAdmin** (for database management)
-- **VS Code** or any preferred code editor
-
----
-
-### Installation Steps
-1. **Clone the repository**
-   ```
-bash
-   git clone https://github.com/abukmayen/bridgeher-backend.git
-
-   cd bridgeher-backend
-
-```
-### Install dependencies
-```
-bash
+Backend Setup
+cd backend
 npm install
 
-### Create a .env file in the root of the backend folder:
-```bash
+
+Create a .env file:
 
 PORT=5000
 DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/bridgeher_db
 JWT_SECRET=your_jwt_secret_key
-```
-### Ensure PostgreSQL is running, then create the database:
-```
+
+
+Create the database:
+
 CREATE DATABASE bridgeher_db;
-```
-### Run the development server
-```bash
+
+
+Run the backend:
+
 npm run dev
-```
-### The backend will be live at:
-````
-http://localhost:5000
-````
-### Folder structure
-```bash
 
-bridgeher-backend/
-├── package.json
-├── .env
-├── server.js
-├── /config
-│   └── db.js
-├── /models
-│   └── User.js
-├── /routes
-│   ├── authRoutes.js
-│   └── userRoutes.js
-├── /controllers
-│   ├── authController.js
-│   └── userController.js
-└── /middleware
-    └── authMiddleware.js
 
- Designs & Mockups
-Figma Mockups
-```
+This  backend runs at: http://localhost:5000
 
-### View BridgeHer UI Designs on Figma Screenshots
+Frontend Setup
+cd frontend
+npm install
+npm start
 
-Login Page  Register page Home page  Courses page
 
-![Uploading Screenshot 2025-10-08 115616.png…]()
+ Frontend runs at: http://localhost:5173
 
-```
-(Add your actual screenshots inside /screenshots folder and update the image links.)
-```
-### Deployment Plan
-### Deployment Stack
-
-Backend: Node.js + Express
-
-Database: PostgreSQL (Hosted on Render or Supabase)
-
-Hosting Platform: Render / Railway / Vercel
-
-Environment Variables: Managed via platform dashboard
-```
-
-### Deployment Steps
-
-Push code to GitHub.
-Create a Render or Railway web service.
-Connect to the GitHub repository.
-
-### Add environment variables:
-```bash
-PORT=5000
-
-DATABASE_URL=...
-
-JWT_SECRET=...
-
-Deploy and test via the hosted URL.
-
-Video Demo
+Project Folder Structure
+BridgeHer_Project/
+│
+├── README.md
+├── /frontend
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── styles/
+│   │   ├── context/
+│   │   └── App.tsx
+│   └── package.json
+│
+├── /backend
+│   ├── server.js
+│   ├── /config/db.js
+│   ├── /routes/authRoutes.js
+│   ├── /controllers/
+│   ├── /middleware/
+│   └── package.json
 
 
 ```
-### Authentication (Register/Login)
 
-User roles (Learner/Mentor)
-Dashboard features
-Quiz and course functionality
-Database integration and API testing (REST Client / Postman)
+##  Authentication (Register & Login)
 
-### Watch the Demo Video
-
-### Code Files Overview
-## **Folder	Description**
-/config	Database configuration and connection setup
-/models	PostgreSQL models (e.g., User, Course)
-/controllers	Core business logic for API endpoints
-/routes	Route definitions for user and authentication
-/middleware	JWT validation and authentication handling
-/screenshots	Screenshots and mockups for documentation
-
-### REST API Endpoints
 Method	Endpoint	Description
 POST	/api/auth/register	Register a new user
-POST	/api/auth/login	Authenticate user and return token
+POST	/api/auth/login	Authenticate user and return JWT
 
- ### Developer Notes
+Example: Register
+```bash
+{
+  "name": "Abuk",
+  "email": "abuk@example.com",
+  "password": "123456",
+  "role": "Learner"
+}
 
-Ensure your .env file is excluded from GitHub commits.
-Use bcryptjs for password hashing and jsonwebtoken for secure user sessions.
-Always restart the server after updating environment variables.
+```
 
-### Author
+Example: Login
+```bash
 
-Abuk Mayen Duot Lual
-Software Engineer & Founder — BridgeHer Initiative
-🌐 LinkedIn
- | ✉️ abukmayen@gmail.com
- | 📞 +250789101234
+{
+  "email": "abuk@example.com",
+  "password": "123456"
+}
 
- ### 📄 License
-This project is licensed under the MIT License — free for modification and distribution with attribution.
+ Database Schema
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+```
+
+## User Interface Design
+
+ Design Process
+
+BridgeHer’s UI focuses on simplicity, inclusivity, and accessibility for both English and Arabic users.
+
+## Design considerations:
+
+Clean, readable typography (Poppins / Open Sans)
+
+Purple and gold theme for empowerment and optimism
+
+Responsive, mobile-first layouts
+
+RTL (Right-to-Left) support for Arabic
+
+## Style Guide
+Element	Description
+Primary Color	#6A1B9A (Purple of Empowerment)
+Accent Color	#FFD700 (Gold for Highlights)
+Typography	Poppins / Open Sans
+Buttons	Rounded corners, gold hover state
+Layout	Flexbox-based responsive grid
+Direction	LTR / RTL toggle based on language
+
+## Figma Mockups & Screenshots
+
+Here are the design visuals used for BridgeHer’s interface:
+
+Page	Preview
+Login Page	
+
+Register Page	
+
+Home Page	
+
+Courses Page	
+```
+
+https://github.com/AbukDuot/Initial-software_BridgeHer/blob/22f9139097199ef39c69c5157087670cd3654d44/bridgeher-frontend/src/assets/images/Figma%20design.png
+
+```
+
+##  Deployment Plan
+
+Component	Platform
+
+Frontend	Netlify / Vercel
+
+Backend	Render / Railway
+
+Database	PostgreSQL (Render or Supabase)
+
+Environment Variables	Managed securely in hosting dashboard
+
+## Deployment Steps
+
+Push both frontend and backend repos to GitHub.
+
+On Render, deploy backend (Node.js + PostgreSQL).
+
+On Netlify, deploy frontend.
+
+Set environment variables in both dashboards.
+
+Test live API connection between frontend and backend.
+
+##  Video Demo
+
+BridgeHer Demo Video (5–10 minutes)
+
+Covers:
+
+Project setup and environment configuration
+
+Navigation and layout (Navbar + language toggle)
+
+Registration and login functionality
+
+Backend connection and database interaction
+
+Responsive design demonstration
+
+🔗 [https://drive.google.com/file/d/1yu4ZRXURmIa3C2YUEhpuP0iDkg7J9SiY/view?usp=sharing]
+
+ Developer Notes
+
+Keep .env secure (don’t commit it).
+
+Use Postman for API testing.
+
+Restart the server after modifying environment variables.
+
+Maintain consistent folder naming conventions.
+
+```
+
+## Author
+
+Abuk Mayen Duot
+Software Engineer & Founder – BridgeHer Initiative
+abukmayen@gmail.com
+
++250 789 101 234
+LinkedIn Profile
+
+## License
+
+Licensed under the MIT License — free for use, modification, and distribution with proper attribution.

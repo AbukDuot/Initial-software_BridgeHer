@@ -29,7 +29,7 @@ const ThemeToggle: React.FC = () => {
         fontWeight: "bold",
       }}
     >
-      {darkMode ? "🌙 Dark Mode" : "🌞 Light Mode"}
+      {darkMode ? "Dark Mode" : "Light Mode"}
     </button>
   );
 };

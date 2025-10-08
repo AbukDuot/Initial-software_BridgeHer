@@ -4,18 +4,18 @@ import { useUser } from "../context/UserContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: string[]; // Optional: restrict by role (e.g., Learner or Mentor)
+  allowedRoles?: string[]; 
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
   const { user } = useUser();
 
   if (!user) {
-    return <Navigate to="/login" replace />; // 🚫 redirect if not logged in
+    return <Navigate to="/login" replace />; 
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />; // 🚫 redirect if role not allowed
+    return <Navigate to="/" replace />; 
   }
 
   return <>{children}</>;

@@ -13,7 +13,6 @@ const Navbar: React.FC = () => {
   const [username, setUsername] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // ✅ Check login state and set direction
   useEffect(() => {
     document.documentElement.setAttribute("dir", language === "Arabic" ? "rtl" : "ltr");
 
@@ -39,12 +38,11 @@ const Navbar: React.FC = () => {
     navigate("/login");
   };
 
-  // ✅ Toggle menu for mobile
+
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   return (
     <>
-      {/* Overlay for mobile */}
       <div
         className={`overlay ${menuOpen ? "active" : ""}`}
         onClick={toggleMenu}

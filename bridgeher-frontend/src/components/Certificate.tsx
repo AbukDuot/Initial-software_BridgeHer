@@ -41,7 +41,7 @@ const Certificate: React.FC<CertificateProps> = ({ name, courseTitle, score, onC
             : `This certificate is proudly presented to ${name} for successfully completing the course "${courseTitle}" with a score of ${score}%.`}
         </p>
 
-        <div className="cert-seal">🏅</div>
+        <div className="cert-seal"></div>
 
         <p className="cert-signature">{isArabic ? "منصة BridgeHer" : "BridgeHer Platform"}</p>
       </div>

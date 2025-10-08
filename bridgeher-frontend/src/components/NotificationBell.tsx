@@ -7,7 +7,7 @@ function NotificationBell({ notifications }) {
   return (
     <div className="notification-bell">
       <button className="bell-icon" onClick={() => setOpen(!open)}>
-        🔔
+        
       </button>
       {open && (
         <div className="notification-dropdown">
