@@ -1,7 +1,7 @@
 # BridgeHer Backend
 
 ## Description
-The **BridgeHer Backend** powers the **BridgeHer Platform** — an inclusive digital learning and mentorship system that empowers women through **financial literacy, entrepreneurship, and digital skills education**.  
+The **BridgeHer Platform** — an inclusive digital learning and mentorship system that empowers women through **financial literacy, entrepreneurship, and digital skills education**.  
 It provides a secure RESTful API built with **Node.js**, **Express**, and **PostgreSQL**, supporting authentication, user profiles, course management, and progress tracking.  
 
 This backend integrates with the [BridgeHer Frontend](https://github.com/abukmayen/bridgeher-frontend) built with **React + TypeScript**, ensuring a seamless learning experience.
@@ -82,13 +82,12 @@ bridgeher-backend/
 
 ### View BridgeHer UI Designs on Figma Screenshots
 ```
+
 Login Page  Register page Home page  Courses page
 
-Link to the Figma: https://github.com/AbukDuot/Initial-software_BridgeHer/blob/bridgeher-frontend/src/assets/images/Figma design.png
+https://github.com/AbukDuot/Initial-software_BridgeHer/blob/f1b3d16c1b11c0fdde46d7c5c34cdfb53f2666d0/bridgeher-frontend/src/assets/images/Figma%20design.png
 
 
-```
-(Add your actual screenshots inside /screenshots folder and update the image links.)
 ```
 ### Deployment Plan
 ### Deployment Stack
