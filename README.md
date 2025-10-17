@@ -1,7 +1,7 @@
 ## BridgeHer – Learning & Mentorship Platform
    Overview
 
-BridgeHer is a bilingual (English–Arabic) online learning and mentorship platform designed to empower women through digital education, financial literacy, and entrepreneurship training.
+BridgeHer is a multilingual (English–Arabic) online learning and mentorship platform designed to empower women through digital education, financial literacy, and entrepreneurship training.
 
 The platform provides a seamless user experience through a React + TypeScript frontend and a secure Node.js + Express + PostgreSQL backend, with multilingual and responsive design support.
 
@@ -13,7 +13,7 @@ Empower women with accessible digital education.
 
 Connect mentors and learners in a supportive environment.
 
-Provide localized, bilingual access (English & Arabic).
+Provide localized, multilingual access (English & Arabic).
 
 Offer scalable, secure, and user-friendly online learning tools.
 
