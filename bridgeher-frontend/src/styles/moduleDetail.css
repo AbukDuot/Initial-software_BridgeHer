@@ -74,7 +74,7 @@
   transform: translateY(-2px);
 }
 
-/* Progress section */
+
 .progress-section {
   text-align: center;
 }
@@ -102,13 +102,13 @@
   background-color: #ccc;
 }
 
-/* RTL */
+
 .module-detail-container.rtl {
   direction: rtl;
   text-align: right;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .module-detail-container {
     padding: 1.5rem;

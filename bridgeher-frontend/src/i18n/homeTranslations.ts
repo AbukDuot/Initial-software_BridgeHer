@@ -23,7 +23,7 @@ const homeTranslations = {
     community: "المجتمع",
     register: "سجلي الآن",
 
-    // Footer
+    
     footerTitle: "روابط سريعة",
     mentorship: "الإرشاد",
     contact: "اتصلي بنا",

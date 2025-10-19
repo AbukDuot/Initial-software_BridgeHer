@@ -1,6 +1,3 @@
-// ------------------------------
-// User & Mentor Models
-// ------------------------------
 export interface User {
   id: string;
   name: string;
@@ -26,16 +23,14 @@ export interface Mentor {
   language: string[];
 }
 
-// ------------------------------
-// Course & Progress Tracking
-// ------------------------------
+
 export interface Course {
   id: string;
   title: string;
   description: string;
   category: string;
   status: "ongoing" | "completed" | "scheduled";
-  progress: number; // percentage
+  progress: number; 
   nextLesson: string;
   lessons: number;
   completedLessons: number;
@@ -50,9 +45,7 @@ export interface Progress {
   lastUpdated: string;
 }
 
-// ------------------------------
-// Reminders & Notifications
-// ------------------------------
+
 export interface Reminder {
   id: string;
   userId: string;
@@ -61,9 +54,7 @@ export interface Reminder {
   done: boolean;
 }
 
-// ------------------------------
-// Leaderboard
-// ------------------------------
+
 export interface LeaderboardEntry {
   userId: string;
   name: string;
@@ -72,9 +63,7 @@ export interface LeaderboardEntry {
   rank: number;
 }
 
-// ------------------------------
-// Badges & Achievements
-// ------------------------------
+
 export interface Badge {
   id: string;
   label: string;
@@ -83,9 +72,7 @@ export interface Badge {
   iconUrl?: string;
 }
 
-// ------------------------------
-// Mentorship Sessions
-// ------------------------------
+
 export interface MentorshipSession {
   id: string;
   mentorId: string;
@@ -96,9 +83,7 @@ export interface MentorshipSession {
   notes?: string;
 }
 
-// ------------------------------
-// Chat Message
-// ------------------------------
+
 export interface ChatMessage {
   id: string;
   sender: "user" | "mentor";

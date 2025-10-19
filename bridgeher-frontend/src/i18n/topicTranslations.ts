@@ -1,6 +1,6 @@
 const topicTranslations = {
   English: {
-    // Page Titles
+  
     pageTitle: "Topic Discussion",
     communityHome: "Back to Community",
     newTopic: "Create New Topic",
@@ -9,7 +9,7 @@ const topicTranslations = {
     writeReplyPlaceholder: "Write your message...",
     postReply: "Post Reply",
 
-    // Topic Details
+  
     postedBy: "Posted by",
     on: "on",
     replies: "Replies",
@@ -18,7 +18,7 @@ const topicTranslations = {
     category: "Category",
     tags: "Tags",
 
-    // Sidebar / Categories
+  
     tagsTitle: "Tags",
     categoriesTitle: "Categories",
     userSupport: "User Support",
@@ -28,13 +28,13 @@ const topicTranslations = {
     development: "Development",
     generalDiscussion: "General Discussion",
 
-    // Table Headings
+   
     topics: "Topics",
     latest: "Latest",
     top: "Top",
     activity: "Activity",
 
-    // Interaction
+    
     like: "Like",
     liked: "Liked",
     edit: "Edit",
@@ -45,7 +45,6 @@ const topicTranslations = {
     save: "Save",
     cancel: "Cancel",
 
-    // Misc
     searchPlaceholder: "Search topics...",
     noRepliesYet: "No replies yet — be the first to contribute!",
     loading: "Loading discussion...",

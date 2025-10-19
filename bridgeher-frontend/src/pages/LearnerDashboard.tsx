@@ -140,7 +140,7 @@ const playUiSound = (enabled: boolean, tone: "tap" | "success" = "tap") => {
     osc.start();
     osc.stop(ctx.currentTime + 0.12);
   } catch (err) {
-    // Log the error so the empty catch block is avoided and debugging is easier
+  
     console.warn("playUiSound failed:", err);
   }
 };

@@ -46,7 +46,7 @@
   transform: rotate(90deg);
 }
 
-/* === Content === */
+
 .panel-content {
   flex: 1;
   overflow-y: auto;
@@ -64,7 +64,7 @@
   border-radius: 10px;
 }
 
-/* === Notification Items === */
+
 .notification-item {
   background: #f8f8fa;
   border-radius: 8px;
