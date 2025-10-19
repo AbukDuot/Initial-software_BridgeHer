@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-type Language = "English" | "Arabic";
+
+export type Language = "English" | "Arabic";
 
 interface LanguageContextProps {
   language: Language;
@@ -13,19 +14,17 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [language, setLanguage] = useState<Language>("English");
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("app-language") as Language | null;
-    if (savedLang) {
-      setLanguage(savedLang);
+    const savedLang = localStorage.getItem("app-language");
+    if (savedLang === "Arabic" || savedLang === "English") {
+      setLanguage(savedLang as Language);
     }
   }, []);
 
   useEffect(() => {
     localStorage.setItem("app-language", language);
-
     document.documentElement.setAttribute("dir", language === "Arabic" ? "rtl" : "ltr");
     document.documentElement.lang = language === "Arabic" ? "ar" : "en";
   }, [language]);
-
 
   const toggleLanguage = () => {
     setLanguage((prev) => (prev === "English" ? "Arabic" : "English"));
@@ -37,7 +36,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     </LanguageContext.Provider>
   );
 };
-
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);

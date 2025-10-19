@@ -32,4 +32,4 @@ const CertificatePreview: React.FC<CertificatePreviewProps> = ({
   );
 };
 
-module.exports = CertificatePreview;
+export default CertificatePreview;

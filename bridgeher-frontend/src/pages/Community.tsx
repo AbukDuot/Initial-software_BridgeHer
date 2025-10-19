@@ -9,13 +9,22 @@ const Community: React.FC = () => {
   const t = communityTranslations[language];
 
   const [showModal, setShowModal] = useState(false);
-  const [newTopic, setNewTopic] = useState({
+  type Topic = {
+    title: string;
+    category: string;
+    description: string;
+    replies: number;
+    views: number;
+    activity: string;
+  };
+
+  const [newTopic, setNewTopic] = useState<Omit<Topic, "replies" | "views" | "activity">>({
     title: "",
     category: "",
     description: "",
   });
 
-  const [topics, setTopics] = useState<any[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
 
   useEffect(() => {
     document.documentElement.setAttribute("dir", language === "Arabic" ? "rtl" : "ltr");
@@ -35,7 +44,7 @@ const Community: React.FC = () => {
   return (
     <Container fluid className="community-page">
       <Row>
-        {/* 🌟 Sidebar */}
+        {/*Sidebar */}
         <Col md={3}>
           <div className="sticky-sidebar">
             <Card className="mb-3 shadow-sm border-0">

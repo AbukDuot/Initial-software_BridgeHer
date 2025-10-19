@@ -14,7 +14,7 @@
 .auth-card {
   position: relative;
   z-index: 2;
-  background: rgba(255, 255, 255, 0.95); 
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   padding: 2rem 1.8rem;
@@ -36,7 +36,6 @@
   margin-bottom: 1.8rem;
   font-size: 0.95rem;
 }
-
 
 .auth-form {
   display: flex;
@@ -62,7 +61,6 @@
   transform: scale(1.02);
 }
 
-
 .auth-page .btn {
   cursor: pointer;
   border: none;
@@ -80,7 +78,7 @@
 }
 
 .auth-page .btn.primary-btn:hover {
-  background-color: #4a0072;
+  background-color: #6a1b9a;
   transform: translateY(-2px);
 }
 
@@ -90,7 +88,7 @@
 }
 
 .auth-page .btn.google:hover {
-  background: #b33c2e;
+  background:  #db4437;
 }
 
 .auth-page .btn.facebook {
@@ -99,9 +97,8 @@
 }
 
 .auth-page .btn.facebook:hover {
-  background: #145dbf;
+  background: #1877f2;
 }
-
 
 .social-login {
   display: flex;
@@ -136,7 +133,6 @@
   top: 50%;
 }
 
-
 .auth-footer {
   font-size: 0.9rem;
   color: #444;
@@ -151,7 +147,6 @@
 .auth-footer a:hover {
   text-decoration: underline;
 }
-
 
 @media (max-width: 480px) {
   .auth-card {
@@ -168,7 +163,6 @@
   }
 }
 
-
 .auth-page.rtl {
   direction: rtl;
 }
@@ -182,7 +176,6 @@
   text-align: right;
 }
 
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -194,7 +187,7 @@
   }
 }
 
-/* Forgot password & Back to Login link styling */
+
 .forgot-link,
 .back-to-login {
   cursor: pointer;
@@ -206,11 +199,11 @@
 
 .forgot-link:hover,
 .back-to-login:hover {
-  color: #4a0072;
+  color: #6a1b9a;
   transform: scale(1.02);
 }
 
-/* Loading spinner and text */
+
 .loading-section {
   text-align: center;
   padding: 2rem 0;
@@ -240,4 +233,25 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+
+.social-login .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.social-login .social-icon {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
 }

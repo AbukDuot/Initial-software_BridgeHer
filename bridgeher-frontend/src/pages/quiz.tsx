@@ -1,20 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import "../styles/quiz.css";
-
-/** -----------------------------
- *  Types
- *  ----------------------------- */
-type Lang = "English" | "Arabic";
 
 interface Question {
   id: string;
   textEn: string;
   textAr: string;
-  optionsEn: string[]; // length 4
-  optionsAr: string[]; // length 4
-  correctIndex: number; // 0..3
+  optionsEn: string[]; 
+  optionsAr: string[]; 
+  correctIndex: number; 
 }
 
 interface QuizBank {
@@ -34,19 +29,17 @@ interface PersistShape {
   courses: PersistCourse[];
   xp: number;
   streak: number;
-  lastActive: string; // ISO
+  lastActive: string; 
   unlockedSkills: string[];
   achievements: string[];
-  // optional (we add it if absent)
+ 
   quizResults?: Record<
     string,
     { lastScore: number; attempts: number; lastAt: string }
   >;
 }
 
-/** -----------------------------
- *  Storage helpers
- *  ----------------------------- */
+
 const STORAGE_KEY = "bh-learner-dashboard-v1";
 
 function loadState(): PersistShape | null {
@@ -63,9 +56,7 @@ function saveState(s: PersistShape) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
 }
 
-/** -----------------------------
- *  Translations (inline)
- *  ----------------------------- */
+
 const T = {
   pageTitle: { English: "Course Quiz", Arabic: "اختبار الدورة" },
   timeLeft: { English: "Time left", Arabic: "الوقت المتبقي" },
@@ -103,13 +94,7 @@ const T = {
   explanation: { English: "Explanation", Arabic: "التفسير" },
 };
 
-/** -----------------------------
- *  Question Banks (15 each)
- *  Topics:
- *   - 1: Women’s Financial Empowerment
- *   - 2: Digital Leadership Skills
- *   - 3: Intro to Entrepreneurship
- *  ----------------------------- */
+
 const BANK: QuizBank = {
   "1": [
     {
@@ -759,7 +744,7 @@ const BANK: QuizBank = {
   ],
 };
 
-/** Shuffle helper (stable across render) */
+
 function shuffle<T>(arr: T[], seed = Date.now()): T[] {
   const a = [...arr];
   let s = seed;
@@ -771,37 +756,34 @@ function shuffle<T>(arr: T[], seed = Date.now()): T[] {
   return a;
 }
 
-/** -----------------------------
- *  Component
- *  ----------------------------- */
+
 const Quiz: React.FC = () => {
   const { language } = useLanguage();
   const isAr = language === "Arabic";
   const { courseId } = useParams<{ courseId: string }>();
-  const navigate = useNavigate();
 
   const courseQuestions = useMemo(() => {
     const bank = BANK[courseId || ""];
     if (!bank) return [];
-    // Shuffle once per mount using a seed stored in ref
+    
     return bank;
   }, [courseId]);
 
-  // Snapshot shuffled order once
+ 
   const seedRef = useRef<number>(Date.now());
   const orderedQuestions = useMemo(
     () => shuffle(courseQuestions, seedRef.current),
     [courseQuestions]
   );
 
-  // Answers: -1 = not answered yet
+  
   const [answers, setAnswers] = useState<number[]>(
     () => new Array(orderedQuestions.length).fill(-1)
   );
 
   const [idx, setIdx] = useState(0);
 
-  // 30 min timer
+  
   const TOTAL_SECONDS = 30 * 60;
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
 
@@ -810,7 +792,7 @@ const Quiz: React.FC = () => {
   const [scorePct, setScorePct] = useState(0);
   const [savingNote, setSavingNote] = useState("");
 
-  // Title (course name) from dashboard state (if present)
+  
   const courseTitle = useMemo(() => {
     const st = loadState();
     if (!st || !courseId) return isAr ? "الدورة" : "Course";
@@ -819,7 +801,7 @@ const Quiz: React.FC = () => {
     return isAr ? c.titleAr : c.titleEn;
   }, [courseId, isAr]);
 
-  // Timer effect
+  
   useEffect(() => {
     if (submitted) return;
     const timer = setInterval(() => {
@@ -855,7 +837,7 @@ const Quiz: React.FC = () => {
 
   function doSubmit(auto = false) {
     if (submitted) return;
-    // compute score
+    
     const total = orderedQuestions.length || 1;
     let correct = 0;
     answers.forEach((ans, i) => {
@@ -865,7 +847,6 @@ const Quiz: React.FC = () => {
     setScorePct(pct);
     setSubmitted(true);
 
-    // Save into dashboard storage: xp, quizResults, achievements
     const st = loadState();
     if (st) {
       const xpGain = pct >= 85 ? 40 : pct >= 70 ? 25 : pct >= 50 ? 15 : 5;
@@ -900,7 +881,7 @@ const Quiz: React.FC = () => {
     }
 
     if (auto) {
-      // Auto-open results
+      
       setConfirmOpen(false);
     }
   }
@@ -996,7 +977,6 @@ const Quiz: React.FC = () => {
             })}
           </ul>
 
-          {/* After submit, show explanation line (simple) */}
           {submitted && (
             <div className="explain">
               <strong>{isAr ? T.explanation.Arabic : T.explanation.English}:</strong>{" "}
@@ -1068,7 +1048,7 @@ const Quiz: React.FC = () => {
               )}
             </>
           ) : (
-            /* Results section (inline) */
+           
             <div className="results">
               <h3>{isAr ? T.resultsTitle.Arabic : T.resultsTitle.English}</h3>
               <div className="score-box">

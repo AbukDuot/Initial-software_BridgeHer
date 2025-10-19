@@ -98,11 +98,23 @@ const Login: React.FC = () => {
               <span>{isArabic ? "أو" : "or"}</span>
             </div>
 
+            {/* ✅ Social login buttons with icons */}
             <div className="social-login">
               <button className="btn google">
+                <img
+                  src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
+                  alt="Google"
+                  className="social-icon"
+                />
                 {isArabic ? "تسجيل الدخول باستخدام Google" : "Login with Google"}
               </button>
+
               <button className="btn facebook">
+                <img
+                  src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg"
+                  alt="Facebook"
+                  className="social-icon"
+                />
                 {isArabic ? "تسجيل الدخول باستخدام Facebook" : "Login with Facebook"}
               </button>
             </div>

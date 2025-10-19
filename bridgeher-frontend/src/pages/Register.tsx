@@ -56,6 +56,7 @@ const Register: React.FC = () => {
         alert(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`);
       }
     } catch (error) {
+      console.error(error);
       setLoading(false);
       alert(isArabic ? "فشل الاتصال بالخادم!" : "Failed to connect to server!");
     }
@@ -121,9 +122,25 @@ const Register: React.FC = () => {
           <span>{isArabic ? "أو" : "or"}</span>
         </div>
 
+        {/*  Social Login Buttons with Icons */}
         <div className="social-login">
-          <button className="btn google">{isArabic ? "التسجيل باستخدام Google" : "Sign up with Google"}</button>
-          <button className="btn facebook">{isArabic ? "التسجيل باستخدام Facebook" : "Sign up with Facebook"}</button>
+          <button className="btn google">
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
+              alt="Google"
+              className="social-icon"
+            />
+            {isArabic ? "التسجيل باستخدام Google" : "Sign up with Google"}
+          </button>
+
+          <button className="btn facebook">
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg"
+              alt="Facebook"
+              className="social-icon"
+            />
+            {isArabic ? "التسجيل باستخدام Facebook" : "Sign up with Facebook"}
+          </button>
         </div>
 
         <p className="auth-footer">

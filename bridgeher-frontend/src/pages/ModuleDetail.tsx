@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import "../styles/moduleDetail.css";
 
@@ -106,20 +106,21 @@ const ModuleDetail: React.FC = () => {
   const module = moduleIndex !== undefined && moduleIndex >= 0 ? courseModules[moduleIndex] : null;
   const isArabic = language === "Arabic";
 
-  // Load saved progress
   useEffect(() => {
     const saved = localStorage.getItem(`progress-course-${id}`);
     if (saved) setProgress(JSON.parse(saved));
   }, [id]);
-
-  // Save module progress when visited
+  
   useEffect(() => {
-    if (module) {
-      const newProgress = { ...progress, [module.id]: true };
-      setProgress(newProgress);
+    if (!module) return;
+
+    setProgress((prev) => {
+      if (prev[module.id]) return prev;
+      const newProgress = { ...prev, [module.id]: true };
       localStorage.setItem(`progress-course-${id}`, JSON.stringify(newProgress));
-    }
-  }, [module]);
+      return newProgress;
+    });
+  }, [module, id]);
 
   if (!module) {
     return (

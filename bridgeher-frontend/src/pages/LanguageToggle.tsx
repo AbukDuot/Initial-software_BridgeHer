@@ -35,7 +35,7 @@ interface PersistShape {
   courses: Course[];
   xp: number;
   streak: number;
-  lastActive: string; // ISO
+  lastActive: string;
   unlockedSkills: string[];
   achievements: string[];
   avatarDataUrl?: string | null;
@@ -137,8 +137,9 @@ function loadState(): PersistShape {
   if (raw) {
     try {
       return JSON.parse(raw) as PersistShape;
-    } catch {
-      // fallthrough to seed
+    } catch (e) {
+      
+      console.warn("Failed to parse persisted learner dashboard state:", e);
     }
   }
   return {
@@ -164,7 +165,7 @@ function todayISO(): string {
 }
 
 const LearnerDashboard: React.FC = () => {
-  const { language } = useLanguage();
+  const { language } = useLanguage() as { language: Lang };
   const isAr = language === "Arabic";
   const navigate = useNavigate();
 
@@ -174,7 +175,6 @@ const LearnerDashboard: React.FC = () => {
   const [tempName, setTempName] = useState(state.displayName || "Learner");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // streak check on load
   useEffect(() => {
     const last = new Date(state.lastActive);
     const today = new Date(todayISO());
@@ -199,19 +199,14 @@ const LearnerDashboard: React.FC = () => {
     () => state.courses.reduce((a, c) => a + c.completedModules, 0),
     [state.courses]
   );
-  const overallPct = useMemo(() => {
-    if (totalModules === 0) return 0;
-    return Math.round((completedModules / totalModules) * 100);
-  }, [completedModules, totalModules]);
 
   const totalHours = 6 + Math.floor(completedModules * 0.5);
   const avgScore = 92 - Math.max(0, 5 - completedModules);
 
   const chartData = [
-    { name: isAr ? "الوقت" : "Time", value: totalHours, color: "#2563eb" }, // blue
-    { name: isAr ? "النتيجة" : "Score", value: avgScore, color: "#16a34a" }, // green
-    { name: isAr ? "الوحدات" : "Modules", value: completedModules, color: "#f59e0b" }, // orange
-    { name: isAr ? "الخبرة" : "XP", value: state.xp, color: "#7c3aed" }, // purple
+    { name: isAr ? "الوقت" : "Time", value: totalHours, color: "#6a1b9a" },
+    { name: isAr ? "الوحدات" : "Modules", value: completedModules, color: "#ffd700" }, 
+    { name: isAr ? "الخبرة" : "XP", value: state.xp, color: "#6a1b9a;" }, 
   ];
 
   function completeLesson(courseId: string) {
@@ -235,7 +230,6 @@ const LearnerDashboard: React.FC = () => {
   }
 
   function startQuiz(courseId: string) {
-    // Navigate to your quiz page for this course (replace if you use module-level quiz)
     navigate(`/quiz/${courseId}`);
   }
 
@@ -255,7 +249,6 @@ const LearnerDashboard: React.FC = () => {
   }
 
   function openAllCourses() {
-    // Simple helper: jump to /courses
     navigate("/courses");
   }
 
@@ -295,21 +288,21 @@ const LearnerDashboard: React.FC = () => {
       doc.line(margin, y, 555, y);
     };
 
-    // Header
+    
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.text(isAr ? "تقرير تقدّم المتعلّم" : "Learner Progress Report", margin, 60);
 
-    // Avatar
     if (state.avatarDataUrl) {
       try {
         doc.addImage(state.avatarDataUrl, "JPEG", 480, 40, 64, 64);
-      } catch {
-        // ignore if image fails
+      } catch (e) {
+        
+        console.warn("Failed to add avatar image to PDF:", e);
       }
     }
 
-    // Name
+    
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
     doc.text(
@@ -318,7 +311,7 @@ const LearnerDashboard: React.FC = () => {
       90
     );
 
-    // Stats
+    
     line(110);
     doc.setFont("helvetica", "bold");
     doc.text(isAr ? "الملخص" : "Summary", margin, 130);
@@ -338,7 +331,7 @@ const LearnerDashboard: React.FC = () => {
       y += 20;
     });
 
-    // Courses List
+   
     line(y + 10);
     doc.setFont("helvetica", "bold");
     doc.text(isAr ? "الدورات" : "Courses", margin, y + 30);
@@ -355,7 +348,7 @@ const LearnerDashboard: React.FC = () => {
       y += 18;
     });
 
-    // Footer
+    
     doc.setFontSize(10);
     doc.text(
       isAr

@@ -10,7 +10,6 @@ const Courses: React.FC = () => {
 
   const t = coursesTranslations[language];
 
-  // 🔎 Filter courses by category + search
   const filteredCourses = t.courses.filter(
     (course) =>
       (category === "All" || course.category === t[`filter${category}` as keyof typeof t]) &&
@@ -32,7 +31,7 @@ const Courses: React.FC = () => {
       </div>
       <p>{t.intro}</p>
 
-      {/* 🔹 Filters */}
+      {/* Filters */}
       <div className="filters">
         <input
           type="text"
@@ -49,7 +48,7 @@ const Courses: React.FC = () => {
         </select>
       </div>
 
-      {/* 🔹 Course Grid */}
+      {/* Course Grid */}
       <div className={`courses-grid ${language === "Arabic" ? "rtl" : ""}`}>
         {filteredCourses.map((course) => (
           <div key={course.id} className="course-card">
@@ -57,7 +56,7 @@ const Courses: React.FC = () => {
             <p className="category">{course.category}</p>
             <p>{course.description}</p>
             <p><strong> {course.mentor}</strong></p>
-            <p><strong> {course.level}</strong> | ⏳ {course.duration}</p>
+            <p><strong> {course.level}</strong> |  {course.duration}</p>
             <Link to={`/course/${course.id}`} className="details-btn">
               {t.viewCourse}
             </Link>

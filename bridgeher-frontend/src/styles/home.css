@@ -87,31 +87,31 @@
   color: #fff;
 }
 .btn.primary:hover {
-  background-color: #4a0072;
+  background-color: #6a1b9a;
   transform: translateY(-3px);
 }
 
 
 .btn.secondary {
   background-color: #f3e5f5;
-  color: #4a0072;
+  color: #6a1b9a;
   border: 2px solid #6a1b9a;
 }
 .btn.secondary:hover {
-  background-color: #e1bee7;
+  background-color: #f3e5f5;
   transform: translateY(-3px);
 }
 
-/* Highlight - Yellow */
+
 .btn.highlight {
-  background-color: #ffeb3b;
+  background-color: #FFD700;
   color: #000;
   font-weight: 700;
-  box-shadow: 0 0 18px rgba(255, 235, 59, 0.8);
+  box-shadow: 0 0 18px rgba(255, 215, 0, 1);
 }
 .btn.highlight:hover {
-  background-color: #fdd835;
-  box-shadow: 0 0 25px rgba(255, 235, 59, 1);
+  background-color: #FFD700;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 1);
   transform: translateY(-3px);
 }
 

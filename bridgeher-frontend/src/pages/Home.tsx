@@ -23,7 +23,6 @@ const Home: React.FC = () => {
               <Link to="/community" className="btn secondary">
                 {t.community}
               </Link>
-              {/* Register button */}
               <Link to="/register" className="btn highlight">
                 {t.register}
               </Link>

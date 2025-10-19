@@ -18,4 +18,4 @@ function DashboardCard({ title, value, icon }: DashboardCardProps) {
   );
 }
 
-module.exports = DashboardCard;
+export default DashboardCard;

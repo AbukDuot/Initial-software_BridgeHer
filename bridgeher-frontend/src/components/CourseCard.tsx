@@ -13,7 +13,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ id, title, description, rating 
     <h3>{title}</h3>
     <p>{description}</p>
     <p> {rating}</p>
-    <Link to={`/courses/${id}`} className="btn-primary">View Course</Link>
+    <Link to={`/course/${id}`} className="btn-primary">View Course</Link>
   </div>
 );
 
