@@ -56,7 +56,7 @@ type LearnerTranslations = {
   quotes: string[];
 };
 
-const learnerdashboardTranslations: Record<LangKey, LearnerTranslations> = {
+const learnerDashboardTranslations: Record<LangKey, LearnerTranslations> = {
   en: {
     sidebar: {
       dashboard: "Dashboard",
@@ -155,4 +155,4 @@ const learnerdashboardTranslations: Record<LangKey, LearnerTranslations> = {
   },
 };
 
-export default learnerdashboardTranslations;
+export default learnerDashboardTranslations;
