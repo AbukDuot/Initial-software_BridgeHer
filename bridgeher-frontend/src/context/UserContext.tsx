@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useState, useContext } from "react";
+import type { ReactNode } from "react";
 
 interface User {
   name: string;
@@ -23,16 +24,32 @@ interface UserContextType {
   logout: () => void;
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | null>(null);
+
+
+export function useUserContext() {
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error("useUserContext must be used within a UserProvider");
+  return ctx;
+}
+
+
+export function useUser() {
+  return useUserContext();
+}
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
+    try {
+      if (typeof window === "undefined") return null;
+      const stored = localStorage.getItem("user");
+      return stored ? (JSON.parse(stored) as User) : null;
+    } catch {
+      return null;
+    }
   });
 
   const login = (email: string, password: string) => {
-    // Mock simple authentication for now
     if (email && password) {
       const loggedInUser: User = {
         name: email.split("@")[0],
@@ -59,7 +76,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         ],
       };
 
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      try {
+        localStorage.setItem("user", JSON.stringify(loggedInUser));
+      } catch {
+        // ignore localStorage write errors
+      }
       setUser(loggedInUser);
       return true;
     }
@@ -68,7 +89,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
+    try {
+      localStorage.removeItem("user");
+    } catch {
+      // ignore
+    }
   };
 
   return (
@@ -76,10 +101,4 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </UserContext.Provider>
   );
-};
-
-export const useUser = () => {
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error("useUser must be used inside UserProvider");
-  return ctx;
 };

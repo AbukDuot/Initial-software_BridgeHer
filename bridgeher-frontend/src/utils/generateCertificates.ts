@@ -1,6 +1,5 @@
 import jsPDF from "jspdf";
-import "jspdf-autotable";
-import { Language } from "../context/LanguageContext";
+import type { Language } from "../context/LanguageContext";
 
 export function generateCertificate(
   name: string,

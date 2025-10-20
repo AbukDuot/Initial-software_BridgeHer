@@ -60,8 +60,7 @@ const teamMembers = [
   },
 ];
 
-
-function About() {
+const About: React.FC = () => {
   return (
     <section className="about">
       <div className="container">
@@ -124,6 +123,6 @@ function About() {
       </div>
     </section>
   );
-}
+};
 
 export default About;

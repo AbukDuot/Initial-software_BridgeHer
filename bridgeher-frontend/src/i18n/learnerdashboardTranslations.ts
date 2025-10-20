@@ -91,7 +91,7 @@ const learnerdashboardTranslations: Record<LangKey, LearnerTranslations> = {
       placeholder: "Enter a new reminder...",
       done: "Done",
       remove: "Remove",
-      empty: "No reminders yet — add one below!",
+      empty: "No reminders yet - add one below!",
     },
     calendar: {
       title: "Your Google Calendar",
@@ -139,7 +139,7 @@ const learnerdashboardTranslations: Record<LangKey, LearnerTranslations> = {
       placeholder: "أدخل تذكيراً جديداً...",
       done: "تم",
       remove: "حذف",
-      empty: "لا توجد تذكيرات بعد — أضيفي واحدة أدناه!",
+      empty: "لا توجد تذكيرات بعد - أضيفي واحدة أدناه!",
     },
     calendar: {
       title: "التقويم الخاص بكِ",
@@ -150,7 +150,7 @@ const learnerdashboardTranslations: Record<LangKey, LearnerTranslations> = {
       "خطوة صغيرة كل يوم تصنع فرقًا كبيرًا.",
       "التعلُّم رحلة وليست سباقًا.",
       "الثبات يتفوق على الحِدّة.",
-      "مستقبلك يُبنى بما تفعله اليوم.",
+      "مستقبلك يُبنى بما تفعليه اليوم.",
     ],
   },
 };
