@@ -14,7 +14,7 @@ import {
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 import { useLanguage } from "../context/LanguageContext";
-import "../styles/learnerDashboard.css";
+import "../styles/learnerdashboard.css";
 
 ChartJS.register(
   CategoryScale,
