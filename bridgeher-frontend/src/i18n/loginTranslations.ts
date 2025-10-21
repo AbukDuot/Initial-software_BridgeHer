@@ -1,39 +1,40 @@
 const loginTranslations = {
   English: {
     title: "Login to BridgeHer",
+    welcomeBack: "Welcome back to BridgeHer",
     emailPlaceholder: "Enter your email",
     passwordPlaceholder: "Enter your password",
     loginButton: "Login",
     forgotPassword: "Forgot Password?",
     noAccount: "Don’t have an account?",
     register: "Register",
-
-   
-    resetTitle: "Reset Your Password",
-    resetSubtitle: "Enter your email address to receive a reset link.",
+    resetTitle: "Reset Password",
+    resetSubtitle: "Enter your email to receive a password reset link.",
     resetPlaceholder: "Enter your email",
     sendResetLink: "Send Reset Link",
     backToLogin: "Back to Login",
-    resetSent:
-      "We’ve sent a password reset link to your email. Check your inbox.",
+    resetSent: "A reset link has been sent to your email.",
+    loginWithGoogle: "Login with Google",
+    loginWithFacebook: "Login with Facebook",
   },
 
   Arabic: {
     title: "تسجيل الدخول إلى BridgeHer",
+    welcomeBack: "مرحبًا بعودتك إلى BridgeHer",
     emailPlaceholder: "أدخلي بريدك الإلكتروني",
     passwordPlaceholder: "أدخلي كلمة المرور",
     loginButton: "تسجيل الدخول",
     forgotPassword: "هل نسيتِ كلمة المرور؟",
     noAccount: "ليس لديكِ حساب؟",
-    register: "تسجيل جديد",
-
- 
+    register: "إنشاء حساب",
     resetTitle: "إعادة تعيين كلمة المرور",
     resetSubtitle: "أدخلي بريدك الإلكتروني وسنرسل رابط إعادة التعيين.",
     resetPlaceholder: "أدخلي البريد الإلكتروني",
     sendResetLink: "إرسال الرابط",
     backToLogin: "العودة لتسجيل الدخول",
     resetSent: "تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني.",
+    loginWithGoogle: "تسجيل الدخول باستخدام Google",
+    loginWithFacebook: "تسجيل الدخول باستخدام Facebook",
   },
 };
 

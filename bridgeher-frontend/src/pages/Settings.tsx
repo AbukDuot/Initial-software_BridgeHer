@@ -17,7 +17,6 @@ const playUiSound = (enabled: boolean, tone: "tap" | "success" = "tap") => {
     osc.start();
     osc.stop(ctx.currentTime + 0.12);
   } catch (err) {
-    
     console.warn("playUiSound error:", err);
   }
 };
@@ -30,6 +29,8 @@ const tMap = {
       email: "Email Address",
       bio: "Short Bio",
       changePhoto: "Change Photo",
+      save: "Save Changes",
+      savedMsg: "Profile saved successfully!",
     },
     appearance: {
       title: "Appearance",
@@ -64,6 +65,8 @@ const tMap = {
       email: "البريد الإلكتروني",
       bio: "نبذة قصيرة",
       changePhoto: "تغيير الصورة",
+      save: "حفظ التغييرات",
+      savedMsg: "تم حفظ الملف الشخصي بنجاح!",
     },
     appearance: {
       title: "المظهر",
@@ -107,6 +110,22 @@ const Settings: React.FC = () => {
   const [accent, setAccent] = useState("#6A1B9A");
   const [accountPrivacy, setAccountPrivacy] = useState("public");
 
+  // Load saved settings on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem("userSettings");
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      setProfilePic(parsed.profilePic || null);
+      setFullName(parsed.fullName || "");
+      setEmail(parsed.email || "");
+      setBio(parsed.bio || "");
+      setTheme(parsed.theme || "light");
+      setFontSize(parsed.fontSize || "medium");
+      setAccent(parsed.accent || "#6A1B9A");
+      setAccountPrivacy(parsed.accountPrivacy || "public");
+    }
+  }, []);
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.dir = isAr ? "rtl" : "ltr";
@@ -120,6 +139,22 @@ const Settings: React.FC = () => {
     const reader = new FileReader();
     reader.onloadend = () => setProfilePic(reader.result as string);
     reader.readAsDataURL(file);
+  };
+
+  const handleSave = () => {
+    const data = {
+      profilePic,
+      fullName,
+      email,
+      bio,
+      theme,
+      fontSize,
+      accent,
+      accountPrivacy,
+    };
+    localStorage.setItem("userSettings", JSON.stringify(data));
+    playUiSound(true, "success");
+    alert(t.profile.savedMsg);
   };
 
   return (
@@ -155,6 +190,10 @@ const Settings: React.FC = () => {
             onChange={(e) => setBio(e.target.value)}
           />
         </div>
+
+        <button className="upload-btn" onClick={handleSave}>
+          {t.profile.save}
+        </button>
       </section>
 
       {/* Appearance */}
@@ -225,8 +264,7 @@ const Settings: React.FC = () => {
           <button
             className="settings-btn delete"
             onClick={() =>
-              window.confirm(t.account.confirmDelete) &&
-              alert("Deleted.")
+              window.confirm(t.account.confirmDelete) && alert("Deleted.")
             }
           >
             {t.account.delete}
