@@ -4,6 +4,7 @@ const navbarTranslations = {
     courses: "Courses",
     learnerDashboard: "Learner Dashboard",
     mentorDashboard: "Mentor Dashboard",
+    adminDashboard: "Admin Dashboard",
     community: "Community",
     settings: "Settings"
   },
@@ -12,6 +13,7 @@ const navbarTranslations = {
     courses: "الدورات",
     learnerDashboard: "لوحة المتعلم",
     mentorDashboard: "لوحة المرشد",
+    adminDashboard: "لوحة المسؤول",
     community: "المجتمع",
     settings: "الإعدادات"
   }

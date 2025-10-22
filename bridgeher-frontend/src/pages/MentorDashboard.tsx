@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar, Pie } from "react-chartjs-2";
+import { toArabicNumerals } from "../utils/numberUtils";
 import "../styles/mentorDashboard.css";
 
 ChartJS.register(
@@ -180,10 +181,17 @@ const playToastSound = (
   }
 };
 
+import { useLanguage } from "../context/LanguageContext";
+
 const MentorDashboard: React.FC = () => {
+  const { language: contextLang } = useLanguage();
   const [lang, setLang] = useState<Lang>(
     () => (localStorage.getItem("lang") as Lang) || "en"
   );
+
+  useEffect(() => {
+    setLang(contextLang === "Arabic" ? "ar" : "en");
+  }, [contextLang]);
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem("theme") as Theme) || "light"
   );
@@ -208,29 +216,35 @@ const MentorDashboard: React.FC = () => {
     localStorage.setItem("soundEnabled", JSON.stringify(soundEnabled));
   }, [soundEnabled]);
 
-  const [requests, setRequests] = useState<Request[]>([
-    { id: "r1", learner: "Mary A.", course: "Financial Literacy" },
-    { id: "r2", learner: "Joyce K.", course: "Entrepreneurship" },
-  ]);
-  const [learners] = useState<Learner[]>([
-    { id: "l1", name: "Grace", course: "Digital Skills", progress: 80, status: "completed" },
-    { id: "l2", name: "Aluel", course: "Entrepreneurship", progress: 50, status: "scheduled" },
-    { id: "l3", name: "Nya", course: "Financial Literacy", progress: 30, status: "ongoing" },
-  ]);
-  const [sessions, setSessions] = useState<SessionItem[]>([
-    {
-      id: "s1",
-      learner: "Grace",
-      topic: "Digital Skills",
-      dateISO: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-    },
-    {
-      id: "s2",
-      learner: "Aluel",
-      topic: "Budgeting 101",
-      dateISO: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
-    },
-  ]);
+  const [requests, setRequests] = useState<Request[]>([]);
+  const [learners, setLearners] = useState<Learner[]>([]);
+  const [sessions, setSessions] = useState<SessionItem[]>([]);
+
+  useEffect(() => {
+    setRequests([
+      { id: "r1", learner: lang === "ar" ? "مريم" : "Mary A.", course: lang === "ar" ? "الثقافة المالية" : "Financial Literacy" },
+      { id: "r2", learner: lang === "ar" ? "جويس" : "Joyce K.", course: lang === "ar" ? "ريادة الأعمال" : "Entrepreneurship" },
+    ]);
+    setLearners([
+      { id: "l1", name: lang === "ar" ? "غريس" : "Grace", course: lang === "ar" ? "المهارات الرقمية" : "Digital Skills", progress: 80, status: "completed" },
+      { id: "l2", name: lang === "ar" ? "ألويل" : "Aluel", course: lang === "ar" ? "ريادة الأعمال" : "Entrepreneurship", progress: 50, status: "scheduled" },
+      { id: "l3", name: lang === "ar" ? "نيا" : "Nya", course: lang === "ar" ? "الثقافة المالية" : "Financial Literacy", progress: 30, status: "ongoing" },
+    ]);
+    setSessions([
+      {
+        id: "s1",
+        learner: lang === "ar" ? "غريس" : "Grace",
+        topic: lang === "ar" ? "المهارات الرقمية" : "Digital Skills",
+        dateISO: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
+      },
+      {
+        id: "s2",
+        learner: lang === "ar" ? "ألويل" : "Aluel",
+        topic: lang === "ar" ? "الميزانية ١٠١" : "Budgeting 101",
+        dateISO: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
+      },
+    ]);
+  }, [lang]);
   const [feedback] = useState<FeedbackItem[]>([
     { id: "f1", learner: "Grace", rating: 5, comment: "Excellent session." },
     { id: "f2", learner: "Mary A.", rating: 4, comment: "Very clear guidance." },
@@ -389,10 +403,10 @@ const MentorDashboard: React.FC = () => {
       <section className="analytics-section">
         <h2>{t.analytics}</h2>
         <div className="analytics-cards">
-          <div className="analytic-card"><h3>{t.totalLearners}</h3><p>{countLearners}</p></div>
-          <div className="analytic-card"><h3>{t.totalSessions}</h3><p>{countSessions}</p></div>
-          <div className="analytic-card"><h3>{t.avgProgress}</h3><p>{countProgress}%</p></div>
-          <div className="analytic-card"><h3>{t.avgRating}</h3><p>{countRating}</p></div>
+          <div className="analytic-card"><h3>{t.totalLearners}</h3><p>{lang === "ar" ? toArabicNumerals(countLearners) : countLearners}</p></div>
+          <div className="analytic-card"><h3>{t.totalSessions}</h3><p>{lang === "ar" ? toArabicNumerals(countSessions) : countSessions}</p></div>
+          <div className="analytic-card"><h3>{t.avgProgress}</h3><p>{lang === "ar" ? toArabicNumerals(countProgress) : countProgress}%</p></div>
+          <div className="analytic-card"><h3>{t.avgRating}</h3><p>{lang === "ar" ? toArabicNumerals(countRating) : countRating}</p></div>
         </div>
       </section>
 

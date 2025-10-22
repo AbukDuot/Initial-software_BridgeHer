@@ -7,6 +7,7 @@ import About from "./pages/About";
 import Community from "./pages/Community";
 import LearnerDashboard from "./pages/LearnerDashboard";
 import MentorDashboard from "./pages/MentorDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import Mentorship from "./pages/Mentorship";
 import Settings from "./pages/Settings";
 import MyCertificates from "./pages/MyCertificates";
@@ -70,6 +71,7 @@ function App() {
                   element={<LearnerDashboard />}
                 />
                 <Route path="/mentor-dashboard" element={<MentorDashboard />} />
+                <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/mentorship" element={<Mentorship />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/my-certificates" element={<MyCertificates />} />

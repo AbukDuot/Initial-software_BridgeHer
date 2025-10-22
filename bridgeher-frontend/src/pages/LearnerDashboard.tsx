@@ -14,6 +14,7 @@ import {
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 import { useLanguage } from "../context/LanguageContext";
+import { toArabicNumerals } from "../utils/numberUtils";
 import "../styles/learnerdashboard.css";
 
 ChartJS.register(
@@ -323,15 +324,15 @@ const LearnerDashboard: React.FC = () => {
 
         <section className="stats-section">
           <div className="stat-card">
-            <h3>{user.streak}</h3>
+            <h3>{isAr ? toArabicNumerals(user.streak) : user.streak}</h3>
             <p>{t.stats.streak}</p>
           </div>
           <div className="stat-card">
-            <h3>{xp}</h3>
+            <h3>{isAr ? toArabicNumerals(xp) : xp}</h3>
             <p>{t.stats.xp}</p>
           </div>
           <div className="stat-card">
-            <h3>{`Lv ${level}`}</h3>
+            <h3>{isAr ? `${toArabicNumerals(level)} Lv` : `Lv ${level}`}</h3>
             <p>{t.stats.level}</p>
           </div>
         </section>

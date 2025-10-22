@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 import coursesTranslations from "../i18n/coursesTranslations";
 import "../styles/courses.css";
 
 const Courses: React.FC = () => {
-  const [language, setLanguage] = useState<"English" | "Arabic">("English");
+  const { language } = useLanguage();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
 
@@ -20,14 +21,6 @@ const Courses: React.FC = () => {
     <section className="courses-page">
       <div className="courses-header">
         <h2>{t.pageTitle}</h2>
-        <button
-          className="lang-btn"
-          onClick={() =>
-            setLanguage(language === "English" ? "Arabic" : "English")
-          }
-        >
-          {language}
-        </button>
       </div>
       <p>{t.intro}</p>
 

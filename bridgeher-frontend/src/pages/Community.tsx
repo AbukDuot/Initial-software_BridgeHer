@@ -64,7 +64,7 @@ const Community: React.FC = () => {
               <Card.Body>
                 <Card.Title className="fw-bold mb-3">{t.topTags}</Card.Title>
                 <div className="d-flex flex-wrap gap-2">
-                  {["#Mentorship", "#Leadership", "#DigitalSkills", "#Feedback"].map((tag, i) => (
+                  {t.tags.map((tag: string, i: number) => (
                     <span key={i} className="badge bg-secondary">{tag}</span>
                   ))}
                 </div>
