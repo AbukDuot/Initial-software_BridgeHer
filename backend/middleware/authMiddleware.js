@@ -24,3 +24,15 @@ export const protect = async (req, res, next) => {
 
   if (!token) return res.status(401).json({ message: "No token, authorization denied" });
 };
+
+
+export const requireAuth = protect;
+
+export const requireRole = (roles = []) => {
+  return (req, res, next) => {
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+    if (!Array.isArray(roles) || roles.length === 0) return next();
+    if (!roles.includes(req.user.role)) return res.status(403).json({ message: "Forbidden" });
+    return next();
+  };
+};

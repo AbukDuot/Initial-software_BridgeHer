@@ -1,0 +1,136 @@
+{
+  "en": [
+    {
+      "id": 1,
+      "name": "Priscilla Ayuen",
+      "role": "Startup & Digital Skills",
+      "expertise": ["Entrepreneurship", "Digital Skills"],
+      "available": true,
+      "avatar": "../assets/images/priscilla.jpg",
+      "rating": 4.8,
+      "location": "Juba, South Sudan",
+      "badges": ["Top Mentor", "Startup Expert"],
+      "testimonials": [
+        { "name": "Alek", "text": "Priscilla helped me launch my business!" },
+        { "name": "Monica", "text": "Great practical advice and motivation!" }
+      ],
+      "calendar": ["2025-10-15 10:00", "2025-10-16 14:00"],
+      "videoIntro": "https://youtu.be/gFYBqZnFQ6w?si=SCmteBBvj-Eg542M"
+    },
+    {
+      "id": 2,
+      "name": "Aguil Ajang",
+      "role": "Financial Literacy & Business",
+      "expertise": ["Finance", "Business Planning"],
+      "available": true,
+      "avatar": "../assets/images/aguil.jpg",
+      "rating": 4.7,
+      "location": "Bor, South Sudan",
+      "badges": ["Finance Guru"],
+      "testimonials": [
+        { "name": "Abuk", "text": "Aguil taught me how to manage my savings better!" }
+      ],
+      "calendar": ["2025-10-17 09:00", "2025-10-18 11:00"],
+      "videoIntro": "https://youtu.be/xAGyhkWoDX8?si=PVOO9c5M9ikrf87G"
+    },
+    {
+      "id": 3,
+      "name": "Kuir Juach",
+      "role": "Tech Mentor & Developer",
+      "expertise": ["Career in Tech"],
+      "available": true,
+      "avatar": "../assets/images/kuir.jpg",
+      "rating": 4.9,
+      "location": "Juba, South Sudan",
+      "badges": ["Tech Star"],
+      "testimonials": [
+        { "name": "Nya", "text": "Kuir made computing fun and approachable!" }
+      ],
+      "calendar": ["2025-10-19 13:00", "2025-10-20 15:30"],
+      "videoIntro": "https://youtu.be/V3SeLgPPoec?si=XUu5Kq4lmEuG9nas"
+    },
+    {
+      "id": 4,
+      "name": "Abraham Madol",
+      "role": "Career Coach & Public Speaker",
+      "expertise": ["CV Writing", "Interview Prep"],
+      "available": true,
+      "avatar": "../assets/images/abraham.jpg",
+      "rating": 4.6,
+      "location": "Juba, South Sudan",
+      "badges": ["Career Coach"],
+      "testimonials": [
+        { "name": "Ajok", "text": "Abraham’s career tips gave me confidence!" }
+      ],
+      "calendar": ["2025-10-21 10:30", "2025-10-22 16:00"],
+      "videoIntro": "https://youtu.be/xKZ8hMQZcXQ?si=GMvIcn8uOLslyTaU"
+    }
+  ],
+  "ar": [
+    {
+      "id": 1,
+      "name": "Priscilla Ayuen",
+      "role": "المشاريع الناشئة والمهارات الرقمية",
+      "expertise": ["ريادة الأعمال", "المهارات الرقمية"],
+      "available": true,
+      "avatar": "../assets/images/priscilla.jpg",
+      "rating": 4.8,
+      "location": "جوبا، جنوب السودان",
+      "badges": ["أبرز المرشدين", "خبيرة الشركات الناشئة"],
+      "testimonials": [
+        { "name": "Alek", "text": "ساعدتني بريسيسيلا على إطلاق مشروعي!" },
+        { "name": "Monica", "text": "نصائح عملية رائعة وتحفيز!" }
+      ],
+      "calendar": ["2025-10-15 10:00", "2025-10-16 14:00"],
+      "videoIntro": "https://youtu.be/gFYBqZnFQ6w?si=SCmteBBvj-Eg542M"
+    },
+    {
+      "id": 2,
+      "name": "Aguil Ajang",
+      "role": "التثقيف المالي والأعمال",
+      "expertise": ["التمويل", "التخطيط التجاري"],
+      "available": true,
+      "avatar": "../assets/images/aguil.jpg",
+      "rating": 4.7,
+      "location": "بور، جنوب السودان",
+      "badges": ["خبير التمويل"],
+      "testimonials": [
+        { "name": "Abuk", "text": "علمني أجويل كيف أدير مدخراتي بشكل أفضل!" }
+      ],
+      "calendar": ["2025-10-17 09:00", "2025-10-18 11:00"],
+      "videoIntro": "https://youtu.be/xAGyhkWoDX8?si=PVOO9c5M9ikrf87G"
+    },
+    {
+      "id": 3,
+      "name": "Kuir Juach",
+      "role": "مرشد تقني ومطوّر",
+      "expertise": ["المسار المهني في التقنية"],
+      "available": true,
+      "avatar": "../assets/images/kuir.jpg",
+      "rating": 4.9,
+      "location": "جوبا، جنوب السودان",
+      "badges": ["نجم التقنية"],
+      "testimonials": [
+        { "name": "Nya", "text": "جعل كوير تعلم الحاسوب ممتعًا وسهل الوصول!" }
+      ],
+      "calendar": ["2025-10-19 13:00", "2025-10-20 15:30"],
+      "videoIntro": "https://youtu.be/V3SeLgPPoec?si=XUu5Kq4lmEuG9nas"
+    },
+    {
+      "id": 4,
+      "name": "Abraham Madol",
+      "role": "مدرّب مهني ومتحدث عام",
+      "expertise": ["كتابة السيرة الذاتية", "التحضير للمقابلات"],
+      "available": true,
+      "avatar": "../assets/images/abraham.jpg",
+      "rating": 4.6,
+      "location": "جوبا، جنوب السودان",
+      "badges": ["مدرّب مهني"],
+      "testimonials": [
+        { "name": "Ajok", "text": "نصائح إبراهيم المهنية أعطتني ثقة!" }
+      ],
+      "calendar": ["2025-10-21 10:30", "2025-10-22 16:00"],
+      "videoIntro": "https://youtu.be/xKZ8hMQZcXQ?si=GMvIcn8uOLslyTaU"
+    }
+  ]
+}

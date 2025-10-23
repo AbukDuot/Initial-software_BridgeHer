@@ -2,6 +2,9 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pool from "../config/db.js";
+import passport from "../config/passport.js";
+import { sendWelcomeEmail } from "../services/emailService.js";
+import { sendWelcomeSMS } from "../services/smsService.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -38,6 +41,12 @@ router.post("/register", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
+
+    // Send welcome notifications
+    sendWelcomeEmail(user.email, user.name).catch(console.error);
+    if (req.body.phone) {
+      sendWelcomeSMS(req.body.phone, user.name).catch(console.error);
+    }
 
     res.status(201).json({
       message: "Registration successful",
@@ -96,6 +105,22 @@ router.post("/login", async (req, res) => {
     console.error("Login error:", err.message);
     res.status(500).json({ message: "Server error" });
   }
+});
+
+// Google OAuth
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get("/google/callback", passport.authenticate("google", { session: false }), (req, res) => {
+  const token = jwt.sign({ id: req.user.id, email: req.user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
+  res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`);
+});
+
+// Facebook OAuth
+router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+
+router.get("/facebook/callback", passport.authenticate("facebook", { session: false }), (req, res) => {
+  const token = jwt.sign({ id: req.user.id, email: req.user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
+  res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`);
 });
 
 export default router;
