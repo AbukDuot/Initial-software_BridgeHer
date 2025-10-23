@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "../hooks/useLanguage";
 import adminDashboardTranslations from "../i18n/adminDashboardTranslations";
 import { toArabicNumerals } from "../utils/numberUtils";
 import "../styles/adminDashboard.css";
@@ -301,133 +300,68 @@ const AdminDashboard: React.FC = () => {
         </table>
       </section>
 
-      {showUserModal && ReactDOM.createPortal(
-        <div 
-          className="modal-overlay" 
-          onClick={() => setShowUserModal(false)}
-          style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0, 
-            zIndex: 9999,
-            background: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}
-        >
-          <div 
-            className="modal" 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ 
-              position: 'relative', 
-              zIndex: 10000,
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '10px',
-              maxWidth: '500px',
-              width: '90%'
-            }}
-          >
-            <h3>{editingUser ? (isArabic ? "تعديل مستخدم" : "Edit User") : (isArabic ? "إضافة مستخدم" : "Add User")}</h3>
-            <div className="form-group">
-              <label>{t.name}</label>
-              <input type="text" value={userForm.name} onChange={(e) => setUserForm({...userForm, name: e.target.value})} />
-            </div>
-            <div className="form-group">
-              <label>{t.email}</label>
-              <input type="email" value={userForm.email} onChange={(e) => setUserForm({...userForm, email: e.target.value})} />
-            </div>
-            <div className="form-group">
-              <label>{t.role}</label>
-              <select value={userForm.role} onChange={(e) => setUserForm({...userForm, role: e.target.value})}>
-                <option value="Learner">{isArabic ? "متعلم" : "Learner"}</option>
-                <option value="Mentor">{isArabic ? "مرشد" : "Mentor"}</option>
-                <option value="Admin">{isArabic ? "مسؤول" : "Admin"}</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>{t.status}</label>
-              <select value={userForm.status} onChange={(e) => setUserForm({...userForm, status: e.target.value})}>
-                <option value="Active">{isArabic ? "نشط" : "Active"}</option>
-                <option value="Inactive">{isArabic ? "غير نشط" : "Inactive"}</option>
-              </select>
-            </div>
-            <div className="modal-actions">
-              <button className="btn primary" onClick={handleSaveUser}>
-                {isArabic ? "حفظ" : "Save"}
-              </button>
-              <button className="btn" onClick={() => setShowUserModal(false)}>
-                {isArabic ? "إلغاء" : "Cancel"}
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
-      {showCourseModal && ReactDOM.createPortal(
-        <div 
-          className="modal-overlay" 
-          onClick={() => setShowCourseModal(false)}
-          style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            bottom: 0, 
-            zIndex: 9999,
-            background: 'rgba(0, 0, 0, 0.7)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}
-        >
-          <div 
-            className="modal" 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ 
-              position: 'relative', 
-              zIndex: 10000,
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '10px',
-              maxWidth: '500px',
-              width: '90%'
-            }}
-          >
-            <h3>{editingCourse ? (isArabic ? "تعديل دورة" : "Edit Course") : (isArabic ? "إضافة دورة" : "Add Course")}</h3>
-            <div className="form-group">
-              <label>{t.titleCol}</label>
-              <input type="text" value={courseForm.title} onChange={(e) => setCourseForm({...courseForm, title: e.target.value})} />
-            </div>
-            <div className="form-group">
-              <label>{t.enrollments}</label>
-              <input type="number" value={courseForm.enrollments} onChange={(e) => setCourseForm({...courseForm, enrollments: parseInt(e.target.value) || 0})} />
-            </div>
-            <div className="form-group">
-              <label>{t.status}</label>
-              <select value={courseForm.status} onChange={(e) => setCourseForm({...courseForm, status: e.target.value})}>
-                <option value="Active">{isArabic ? "نشط" : "Active"}</option>
-                <option value="Inactive">{isArabic ? "غير نشط" : "Inactive"}</option>
-              </select>
-            </div>
-            <div className="modal-actions">
-              <button className="btn primary" onClick={handleSaveCourse}>
-                {isArabic ? "حفظ" : "Save"}
-              </button>
-              <button className="btn" onClick={() => setShowCourseModal(false)}>
-                {isArabic ? "إلغاء" : "Cancel"}
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
     </div>
+    {showUserModal && (
+      <div className="modal-overlay" onClick={() => setShowUserModal(false)}>
+        <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <h3>{editingUser ? (isArabic ? "تعديل مستخدم" : "Edit User") : (isArabic ? "إضافة مستخدم" : "Add User")}</h3>
+          <div className="form-group">
+            <label>{t.name}</label>
+            <input type="text" value={userForm.name} onChange={(e) => setUserForm({...userForm, name: e.target.value})} />
+          </div>
+          <div className="form-group">
+            <label>{t.email}</label>
+            <input type="email" value={userForm.email} onChange={(e) => setUserForm({...userForm, email: e.target.value})} />
+          </div>
+          <div className="form-group">
+            <label>{t.role}</label>
+            <select value={userForm.role} onChange={(e) => setUserForm({...userForm, role: e.target.value})}>
+              <option value="Learner">{isArabic ? "متعلم" : "Learner"}</option>
+              <option value="Mentor">{isArabic ? "مرشد" : "Mentor"}</option>
+              <option value="Admin">{isArabic ? "مسؤول" : "Admin"}</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>{t.status}</label>
+            <select value={userForm.status} onChange={(e) => setUserForm({...userForm, status: e.target.value})}>
+              <option value="Active">{isArabic ? "نشط" : "Active"}</option>
+              <option value="Inactive">{isArabic ? "غير نشط" : "Inactive"}</option>
+            </select>
+          </div>
+          <div className="modal-actions">
+            <button className="btn primary" onClick={handleSaveUser}>{isArabic ? "حفظ" : "Save"}</button>
+            <button className="btn" onClick={() => setShowUserModal(false)}>{isArabic ? "إلغاء" : "Cancel"}</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {showCourseModal && (
+      <div className="modal-overlay" onClick={() => setShowCourseModal(false)}>
+        <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <h3>{editingCourse ? (isArabic ? "تعديل دورة" : "Edit Course") : (isArabic ? "إضافة دورة" : "Add Course")}</h3>
+          <div className="form-group">
+            <label>{t.titleCol}</label>
+            <input type="text" value={courseForm.title} onChange={(e) => setCourseForm({...courseForm, title: e.target.value})} />
+          </div>
+          <div className="form-group">
+            <label>{t.enrollments}</label>
+            <input type="number" value={courseForm.enrollments} onChange={(e) => setCourseForm({...courseForm, enrollments: parseInt(e.target.value) || 0})} />
+          </div>
+          <div className="form-group">
+            <label>{t.status}</label>
+            <select value={courseForm.status} onChange={(e) => setCourseForm({...courseForm, status: e.target.value})}>
+              <option value="Active">{isArabic ? "نشط" : "Active"}</option>
+              <option value="Inactive">{isArabic ? "غير نشط" : "Inactive"}</option>
+            </select>
+          </div>
+          <div className="modal-actions">
+            <button className="btn primary" onClick={handleSaveCourse}>{isArabic ? "حفظ" : "Save"}</button>
+            <button className="btn" onClick={() => setShowCourseModal(false)}>{isArabic ? "إلغاء" : "Cancel"}</button>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 };

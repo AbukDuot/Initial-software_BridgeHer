@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import "../styles/certificate.css";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "../hooks/useLanguage";
 
 interface CertificateProps {
   name: string;

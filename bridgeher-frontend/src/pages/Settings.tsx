@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "../hooks/useLanguage";
 import "../styles/settings.css";
 
 const playUiSound = (enabled: boolean, tone: "tap" | "success" = "tap") => {

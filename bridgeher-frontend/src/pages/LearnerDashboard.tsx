@@ -13,7 +13,7 @@ import {
   Legend,
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "../hooks/useLanguage";
 import { toArabicNumerals } from "../utils/numberUtils";
 import "../styles/learnerdashboard.css";
 

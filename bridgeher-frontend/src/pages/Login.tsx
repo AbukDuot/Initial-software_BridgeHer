@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { useLanguage } from "../context/LanguageContext";
+import { Link, useNavigate } from "react-router-dom";
+import { useLanguage } from "../hooks/useLanguage";
 import "../styles/auth.css";
 
 const Login: React.FC = () => {
   const { language } = useLanguage();
   const isArabic = language === "Arabic";
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showReset, setShowReset] = useState(false);
@@ -27,10 +28,27 @@ const Login: React.FC = () => {
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+
+      const data = await response.json();
       setLoading(false);
-      alert(isArabic ? "تم تسجيل الدخول بنجاح 🎉" : "Login successful 🎉");
-    }, 2000);
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        alert(isArabic ? "تم تسجيل الدخول بنجاح 🎉" : "Login successful 🎉");
+        navigate("/");
+      } else {
+        alert(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`);
+      }
+    } catch (error) {
+      setLoading(false);
+      alert(isArabic ? "فشل الاتصال بالخادم!" : "Failed to connect to server!");
+    }
   };
 
   const handleReset = async (e: React.FormEvent) => {

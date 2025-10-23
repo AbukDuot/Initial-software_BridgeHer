@@ -181,7 +181,7 @@ const playToastSound = (
   }
 };
 
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "../hooks/useLanguage";
 
 const MentorDashboard: React.FC = () => {
   const { language: contextLang } = useLanguage();

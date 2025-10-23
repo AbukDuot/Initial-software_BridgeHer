@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowUp, FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "../hooks/useLanguage";
 import footerTranslations from "../i18n/footerTranslations";
 import "../styles/footer.css";
 

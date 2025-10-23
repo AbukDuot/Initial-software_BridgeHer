@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState } from "react";
 import type { ReactNode } from "react";
 
 interface User {
@@ -25,18 +25,6 @@ interface UserContextType {
 }
 
 export const UserContext = createContext<UserContextType | null>(null);
-
-
-export function useUserContext() {
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error("useUserContext must be used within a UserProvider");
-  return ctx;
-}
-
-
-export function useUser() {
-  return useUserContext();
-}
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {

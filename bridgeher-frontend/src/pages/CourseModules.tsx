@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "../hooks/useLanguage";
 import { Link } from "react-router-dom";
 import ModuleCard from "../components/ModuleCard";
 import VideoPlayer from "../components/VideoPlayer";

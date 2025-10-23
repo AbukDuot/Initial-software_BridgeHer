@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button, Container, Row, Col, Card, ListGroup, Modal, Form, Table } from "react-bootstrap";
 import "../styles/community.css";
 import communityTranslations from "../i18n/communityTranslations";
-import { useLanguage } from "../context/LanguageContext";
+import { useLanguage } from "../hooks/useLanguage";
 
 const Community: React.FC = () => {
   const { language } = useLanguage();
