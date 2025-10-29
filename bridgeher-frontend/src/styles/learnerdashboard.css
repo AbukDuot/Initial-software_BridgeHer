@@ -1,5 +1,5 @@
 :root {
-  --primary: #6a1b9a;
+  --primary: #4a148c;
   --accent: #ffd700;
   --bg-light: #ffffff;
   --bg-dark: #121212;
@@ -236,7 +236,7 @@ html[data-theme="dark"] {
 }
 
 .btn-small.danger {
-  background: #6a1b9a;
+  background: #4a148c;
 }
 
 .add-reminder {

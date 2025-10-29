@@ -44,7 +44,7 @@
   min-height: 60px;
 }
 .comment-box button {
-  background: #6a1b9a;
+  background: #4a148c;
   color: white;
   padding: 10px;
   border: none;
@@ -52,7 +52,7 @@
   cursor: pointer;
 }
 .comment-box button:hover {
-  background: #6a1b9a;
+  background: #4a148c;
 }
 
 

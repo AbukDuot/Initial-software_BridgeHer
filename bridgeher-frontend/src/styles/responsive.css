@@ -1,6 +1,3 @@
-/* Global Responsive Utilities */
-
-/* Container */
 .container {
   width: 100%;
   max-width: 1200px;
@@ -8,7 +5,7 @@
   padding: 0 var(--space-md);
 }
 
-/* Responsive Grid */
+
 .grid {
   display: grid;
   gap: var(--space-md);
@@ -30,7 +27,7 @@
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 }
 
-/* Responsive Text */
+
 @media (max-width: 768px) {
   h1 { font-size: 1.75rem; }
   h2 { font-size: 1.5rem; }
@@ -43,7 +40,7 @@
   h3 { font-size: 1.1rem; }
 }
 
-/* Hide/Show on Mobile */
+
 @media (max-width: 768px) {
   .hide-mobile { display: none !important; }
 }

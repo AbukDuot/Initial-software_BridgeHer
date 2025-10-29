@@ -10,7 +10,7 @@
 }
 
 .community h2 {
-  color: #6a1b9a;
+  color: #4A148C;
   margin-bottom: 10px;
 }
 
@@ -26,7 +26,7 @@
 
 .announcement-card {
   background: var(--bg-primary);
-  border-left: 5px solid #6a1b9a;
+  border-left: 5px solid #4A148C;
   padding: 12px 16px;
   margin-bottom: 12px;
   border-radius: 8px;
@@ -34,7 +34,7 @@
 
 .announcement-card h4 {
   margin: 0 0 5px;
-  color:#6a1b9a;
+  color:#4A148C;
 }
 
 .announcement-card .date {
@@ -64,7 +64,7 @@
 }
 
 .create-post button {
-  background: #6a1b9a;
+  background: #4A148C;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -73,7 +73,7 @@
 }
 
 .create-post button:hover {
-  background: #6a1b9a;
+  background: #4A148C;
 }
 
 
@@ -152,7 +152,7 @@
 }
 
 .add-reply button {
-  background: #6a1b9a;
+  background: #4A148C;
   color: white;
   border: none;
   padding: 6px 14px;
@@ -161,7 +161,7 @@
 }
 
 .add-reply button:hover {
-  background: #6a1b9a;
+  background: #4A148C;
 }
 
 

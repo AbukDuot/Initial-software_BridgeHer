@@ -17,7 +17,7 @@
 .back-btn {
   background: none;
   border: none;
-  color: #6a1b9a;
+  color: #4a148c;
   font-weight: 600;
   margin-bottom: 1rem;
   cursor: pointer;
@@ -25,7 +25,7 @@
 }
 
 h2 {
-  color: #6a1b9a;
+  color:#4a148c;
   margin-bottom: 0.5rem;
 }
 
@@ -36,7 +36,7 @@ h2 {
 
 .enroll-btn {
   background: #ffd700;
-  color: #6a1b9a;
+  color: #4a148c;
   border: none;
   padding: 15px 40px;
   border-radius: 8px;
@@ -49,14 +49,14 @@ h2 {
 }
 
 .enroll-btn:hover {
-  background: #6a1b9a;
+  background: #4a148c;
   color: #ffd700;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(106,27,154,0.4);
 }
 
 .enrolled-badge {
-  background: #4caf50;
+  background: #4a148c;
   color: white;
   padding: 12px 30px;
   border-radius: 8px;
@@ -101,18 +101,18 @@ h2 {
 }
 
 .btn.primary {
-  background: #6a1b9a;
+  background: #4a148c;
   color: white;
 }
 
 .btn.outline {
   background: transparent;
-  border: 2px solid #6a1b9a;
-  color: #6a1b9a;
+  border: 2px solid #4a148c;
+  color: #4a148c;
 }
 
 .btn.primary:hover {
-  background: #6a1b9a;
+  background: #4a148c;
 }
 
 .btn.outline:hover {

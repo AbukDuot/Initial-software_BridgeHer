@@ -1,17 +1,16 @@
-/* BridgeHer Global Color System */
 :root {
-  /* Primary Colors */
-  --primary-purple: #6A1B9A;
+  
+  --primary-purple: #4A148C;
   --primary-gold: #FFD700;
-  --primary-black: #000000;
+  --primary-black: #333333;
   
-  /* Shades */
+  
   --purple-dark: #4A148C;
-  --purple-light: #9C4DCC;
+  --purple-light: #4A148C;
   --gold-dark: #FFC700;
-  --gold-light: #FFE566;
+  --gold-light:  #FFC700;
   
-  /* Neutrals */
+  
   --white: #FFFFFF;
   --gray-light: #F5F5F5;
   --gray-medium: #CCCCCC;
@@ -19,32 +18,32 @@
   --text-primary: #333333;
   --text-secondary: #555555;
   
-  /* Backgrounds */
+  
   --bg-primary: #FFFFFF;
   --bg-secondary: #F9F9F9;
-  --bg-dark: #000000;
+  --bg-dark: #333333;
   
-  /* Borders */
+ 
   --border-light: #E0E0E0;
   --border-medium: #CCCCCC;
   
-  /* Shadows */
+ 
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
   
-  /* Transitions */
+  
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
   
-  /* Border Radius */
+  
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
   
-  /* Spacing */
+  
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 1.5rem;
@@ -52,7 +51,7 @@
   --space-xl: 3rem;
 }
 
-/* Dark Mode */
+
 [data-theme="dark"] {
   --text-primary: #E0E0E0;
   --text-secondary: #B0B0B0;
@@ -66,7 +65,7 @@
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
 }
 
-/* Responsive Breakpoints */
+
 @media (max-width: 1200px) {
   :root {
     --space-xl: 2.5rem;

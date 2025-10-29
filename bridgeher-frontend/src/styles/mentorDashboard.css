@@ -1,7 +1,7 @@
 @import './colors.css';
 
 :root {
-  --primary: #6a1b9a;
+  --primary: #4a148c;
   --accent: #ffd700;
   --white: #ffffff;
   --space-xs: 4px;
@@ -193,7 +193,7 @@ body.fade-transition .chart-box canvas {
 }
 
 .btn-accept:hover {
-  background: #ffed4e;
+  background: #ffd700;
   transform: translateY(-2px);
 }
 
@@ -209,7 +209,7 @@ body.fade-transition .chart-box canvas {
 }
 
 .btn-decline:hover {
-  background: #c62828;
+  background: #e53935;
   transform: translateY(-2px);
 }
 

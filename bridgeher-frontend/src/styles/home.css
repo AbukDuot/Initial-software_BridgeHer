@@ -92,12 +92,12 @@
 }
 
 .btn.primary {
-  background-color: var(--primary-purple);
+  background-color: #4A148C !important;
   color: var(--white);
 }
 
 .btn.primary:hover {
-  background-color: var(--purple-dark);
+  background-color: #4A148C !important;
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
 }

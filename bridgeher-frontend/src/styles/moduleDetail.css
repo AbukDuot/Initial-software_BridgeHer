@@ -15,7 +15,7 @@
 
 .module-header h2 {
   font-size: 2rem;
-  color: #6a1b9a;
+  color: #4a148c;
   margin-bottom: 0.8rem;
 }
 
@@ -58,19 +58,19 @@
 }
 
 .download-btn {
-  background-color: #00796b;
+  background-color: #4a148c;
 }
 
 .download-btn:hover {
-  background-color: #004d40;
+  background-color: #4a148c;
 }
 
 .next-btn {
-  background-color: #6a1b9a;
+  background-color: #4a148c;
 }
 
 .next-btn:hover {
-  background-color: #6a1b9a;
+  background-color: #4a148c;
   transform: translateY(-2px);
 }
 
@@ -95,7 +95,7 @@
 }
 
 .progress-dot.completed {
-  background-color: #6a1b9a;
+  background-color: #4a148c;
 }
 
 .progress-dot.pending {

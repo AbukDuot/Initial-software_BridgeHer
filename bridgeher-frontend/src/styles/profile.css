@@ -33,12 +33,12 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%);
+  background: linear-gradient(135deg, #4a148c 0%, #4a148c 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.3);
+  box-shadow: 0 4px 12px rgba(152, 9, 241, 0.3);
 }
 
 .avatar img {
@@ -55,7 +55,7 @@
 
 .btn-upload {
   background: #f3e5f5;
-  color: #6a1b9a;
+  color:  #4a148c;
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
@@ -82,7 +82,7 @@
 
 .role-badge {
   display: inline-block;
-  background: #6a1b9a;
+  background:  #4a148c;
   color: white;
   padding: 6px 16px;
   border-radius: 20px;
@@ -114,7 +114,7 @@
 }
 
 .btn-edit {
-  background: #6a1b9a;
+  background:  #4a148c;
   color: white;
 }
 
@@ -124,12 +124,12 @@
 }
 
 .btn-save {
-  background: #4caf50;
+  background:  #4a148c;
   color: white;
 }
 
 .btn-save:hover {
-  background: #45a049;
+  background:  #4a148c;
 }
 
 .btn-save:disabled {
@@ -138,12 +138,12 @@
 }
 
 .btn-cancel {
-  background: #f44336;
+  background: #e53935;
   color: white;
 }
 
 .btn-cancel:hover {
-  background: #da190b;
+  background: #e53935;
 }
 
 .profile-content {
@@ -160,7 +160,7 @@
 }
 
 .profile-section h2 {
-  color: #6a1b9a;
+  color:  #4a148c;
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 24px;
@@ -194,7 +194,7 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #6a1b9a;
+  border-color:  #4a148c;
 }
 
 .form-group input:disabled,
@@ -222,7 +222,7 @@
 }
 
 .stat-card h3 {
-  color: #6a1b9a;
+  color:  #4a148c;
   font-size: 36px;
   font-weight: 700;
   margin-bottom: 8px;
@@ -234,13 +234,13 @@
   font-weight: 500;
 }
 
-/* RTL Support */
+
 .rtl {
   direction: rtl;
   text-align: right;
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
   .profile-page {
     padding: 20px 10px;

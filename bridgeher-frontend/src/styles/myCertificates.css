@@ -6,7 +6,7 @@
 }
 
 .certificates-page h2 {
-  color: #6a1b9a;
+  color: #4a148c;
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 32px;
@@ -14,7 +14,7 @@
 }
 
 .btn-back {
-  background: #6a1b9a;
+  background: #4a148c;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -70,7 +70,7 @@
 .cert-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 8px 24px rgba(106, 27, 154, 0.15);
-  border-color: #6a1b9a;
+  border-color: #4a148c;
 }
 
 .cert-icon {
@@ -93,11 +93,11 @@
 }
 
 .cert-info strong {
-  color: #6a1b9a;
+  color: #4a148c;
 }
 
 .cert-score {
-  color: #4caf50;
+  color: #4a148c;
   font-size: 18px;
   font-weight: 600;
   margin: 16px 0;
@@ -105,7 +105,7 @@
 
 .view-btn {
   display: inline-block;
-  background: #6a1b9a;
+  background: #4a148c;
   color: white;
   padding: 12px 24px;
   border-radius: 8px;
@@ -123,7 +123,7 @@
   transform: scale(1.05);
 }
 
-/* RTL Support */
+
 .certificates-page.rtl {
   direction: rtl;
   text-align: right;
@@ -133,7 +133,7 @@
   transform: translateX(4px);
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
   .certificates-page {
     padding: 20px 10px;

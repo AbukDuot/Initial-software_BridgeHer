@@ -65,7 +65,6 @@ const Navbar: React.FC = () => {
           <li><Link to="/mentor-dashboard" onClick={toggleMenu}>{t.mentorDashboard}</Link></li>
           <li><Link to="/admin-dashboard" onClick={toggleMenu}>{t.adminDashboard}</Link></li>
           <li><Link to="/community" onClick={toggleMenu}>{t.community}</Link></li>
-          <li><Link to="/help" onClick={toggleMenu}>{language === "Arabic" ? "المساعدة" : "Help"}</Link></li>
         </ul>
 
         {/* Right Actions: Auth + Language */}

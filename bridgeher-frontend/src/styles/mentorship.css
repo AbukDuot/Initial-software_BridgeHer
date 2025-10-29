@@ -17,7 +17,7 @@
 .mentorship-header {
   text-align: center;
   padding: 2rem 1rem;
-  background: linear-gradient(120deg, #6a1b9a, #6a1b9a);
+  background: linear-gradient(120deg, #4a148c, #4a148c);
   color: #fff;
   border-radius: 0 0 30px 30px;
 }
@@ -59,14 +59,14 @@
 
 .controls button {
   background: #fff;
-  color: #6a1b9a;
+  color: #4a148c;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .controls button:hover {
-  background: #6a1b9a;
+  background: #4a148c;
   color: #fff;
 }
 
@@ -75,7 +75,7 @@
   color: #f5f5f5;
 }
 .dark .controls button:hover {
-  background: #6a1b9a
+  background: #4a148c;
 }
 
 
@@ -112,13 +112,13 @@
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 0.8rem;
-  border: 3px solid #6a1b9a;
+  border: 3px solid #4a148c;
 }
 
 .mentor-card h3 {
   font-size: 1.2rem;
   margin: 0.3rem 0;
-  color: #6a1b9a;
+  color: #4a148c;
 }
 
 .mentor-role {
@@ -142,7 +142,7 @@
 
 .badge {
   background: #f3e5f5;
-  color: #6a1b9a;
+  color: #4a148c;
   padding: 0.25rem 0.6rem;
   border-radius: 12px;
   font-size: 0.8rem;
@@ -151,7 +151,7 @@
 
 .mentor-actions button {
   margin-top: 1rem;
-  background: #6a1b9a;
+  background: #4a148c;
   color: white;
   border: none;
   padding: 0.6rem 1.2rem;
@@ -160,7 +160,7 @@
   transition: background 0.3s;
 }
 .mentor-actions button:hover {
-  background: #6a1b9a;
+  background: #4a148c;
 }
 
 
@@ -173,7 +173,7 @@
 
 .videos-section h2 {
   text-align: center;
-  color: #6a1b9a;
+  color: #4a148c;
   margin-bottom: 1.5rem;
 }
 
@@ -203,7 +203,7 @@
 }
 
 .video-card h4 {
-  color: #6a1b9a;
+  color: #4a148c;
   font-size: 1rem;
   margin: 0.8rem 0 0.2rem 0;
 }
@@ -220,7 +220,7 @@
 }
 
 .requests-section h3 {
-  color: #6a1b9a;
+  color: #4a148c;
   margin-bottom: 1rem;
 }
 
@@ -275,12 +275,12 @@
   object-fit: cover;
   display: block;
   margin: 0 auto 1rem auto;
-  border: 3px solid #6a1b9a;
+  border: 3px solid #4a148c;
 }
 
 .modal-content h3 {
   text-align: center;
-  color: #6a1b9a;
+  color: #4a148c;
   margin-bottom: 0.3rem;
 }
 
@@ -343,11 +343,11 @@
 }
 
 .modal-actions button:first-child {
-  background: #6a1b9a;
+  background: #4a148c;
   color: #fff;
 }
 .modal-actions button:first-child:hover {
-  background: #6a1b9a;
+  background: #4a148c;
 }
 
 .modal-actions button:last-child {
@@ -357,9 +357,6 @@
 .modal-actions button:last-child:hover {
   background: #ddd;
 }
-
-
-
 
 
 @media (max-width: 768px) {
