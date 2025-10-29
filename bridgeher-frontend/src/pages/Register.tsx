@@ -1,21 +1,29 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
+import { useToast } from "../hooks/useToast";
+import Toast from "../components/Toast";
+import LoadingSpinner from "../components/LoadingSpinner";
+import TermsModal from "../components/TermsModal";
 import "../styles/auth.css";
 
 const Register: React.FC = () => {
   const { language } = useLanguage();
   const isArabic = language === "Arabic";
+  const { toasts, showToast, removeToast } = useToast();
 
   const [form, setForm] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     role: "Learner",
   });
 
   const [loading, setLoading] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -25,7 +33,12 @@ const Register: React.FC = () => {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
-      alert(isArabic ? "كلمات المرور غير متطابقة!" : "Passwords do not match!");
+      showToast(isArabic ? "كلمات المرور غير متطابقة!" : "Passwords do not match!", "error");
+      return;
+    }
+
+    if (!termsAccepted) {
+      showToast(isArabic ? "يجب الموافقة على الشروط والأحكام" : "You must accept the Terms & Conditions", "error");
       return;
     }
 
@@ -40,6 +53,7 @@ const Register: React.FC = () => {
         body: JSON.stringify({
           name: form.name,
           email: form.email,
+          phone: form.phone,
           password: form.password,
           role: form.role,
         }),
@@ -49,30 +63,38 @@ const Register: React.FC = () => {
       setLoading(false);
 
       if (response.ok) {
-        alert(isArabic ? "تم التسجيل بنجاح 🎉" : "Registration successful 🎉");
+        showToast(isArabic ? "تم التسجيل بنجاح!" : "Registration successful!", "success");
         localStorage.setItem("token", data.token);
-        window.location.href = "/login";
+        setTimeout(() => window.location.href = "/login", 1500);
       } else {
-        alert(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`);
+        showToast(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`, "error");
       }
     } catch (error) {
       console.error(error);
       setLoading(false);
-      alert(isArabic ? "فشل الاتصال بالخادم!" : "Failed to connect to server!");
+      showToast(isArabic ? "فشل الاتصال بالخادم!" : "Failed to connect to server!", "error");
     }
   };
 
   return (
     <div className={`auth-page ${isArabic ? "rtl" : ""}`}>
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
       <div className="auth-card">
         <h2>{isArabic ? "إنشاء حساب جديد" : "Create an Account"}</h2>
         <p>{isArabic ? "انضم إلى BridgeHer لتطوير مهاراتك الرقمية" : "Join BridgeHer to grow your digital skills"}</p>
 
         {loading ? (
-          <div className="loading-section">
-            <div className="spinner"></div>
-            <p>{isArabic ? "جارٍ المعالجة..." : "Processing..."}</p>
-          </div>
+          <LoadingSpinner 
+            size="medium" 
+            message={isArabic ? "جارٍ المعالجة..." : "Processing..."}
+          />
         ) : (
           <form onSubmit={handleSubmit} className="auth-form">
             <input
@@ -90,6 +112,13 @@ const Register: React.FC = () => {
               value={form.email}
               onChange={handleChange}
               required
+            />
+            <input
+              type="tel"
+              name="phone"
+              placeholder={isArabic ? "رقم الهاتف (اختياري)" : "Phone Number (optional)"}
+              value={form.phone}
+              onChange={handleChange}
             />
             <input
               type="password"
@@ -110,7 +139,23 @@ const Register: React.FC = () => {
             <select name="role" value={form.role} onChange={handleChange}>
               <option value="Learner">{isArabic ? "متعلم" : "Learner"}</option>
               <option value="Mentor">{isArabic ? "مرشد" : "Mentor"}</option>
+              <option value="Admin">{isArabic ? "مسؤول" : "Admin"}</option>
             </select>
+
+            <div className="terms-checkbox">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+              />
+              <label htmlFor="terms">
+                {isArabic ? "أوافق على " : "I agree to the "}
+                <span className="terms-link" onClick={() => setShowTermsModal(true)}>
+                  {isArabic ? "الشروط والأحكام" : "Terms & Conditions"}
+                </span>
+              </label>
+            </div>
 
             <button type="submit" className="btn primary-btn">
               {isArabic ? "تسجيل" : "Register"}
@@ -118,30 +163,15 @@ const Register: React.FC = () => {
           </form>
         )}
 
-        <div className="divider">
-          <span>{isArabic ? "أو" : "or"}</span>
-        </div>
-
-        {/*  Social Login Buttons with Icons */}
-        <div className="social-login">
-          <button className="btn google">
-            <img
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
-              alt="Google"
-              className="social-icon"
-            />
-            {isArabic ? "التسجيل باستخدام Google" : "Sign up with Google"}
-          </button>
-
-          <button className="btn facebook">
-            <img
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg"
-              alt="Facebook"
-              className="social-icon"
-            />
-            {isArabic ? "التسجيل باستخدام Facebook" : "Sign up with Facebook"}
-          </button>
-        </div>
+        <TermsModal
+          isOpen={showTermsModal}
+          onClose={() => setShowTermsModal(false)}
+          onAccept={() => {
+            setTermsAccepted(true);
+            setShowTermsModal(false);
+          }}
+          language={language}
+        />
 
         <p className="auth-footer">
           {isArabic ? "هل لديك حساب بالفعل؟" : "Already have an account?"}{" "}

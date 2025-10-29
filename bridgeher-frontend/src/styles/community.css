@@ -1,8 +1,12 @@
+@import './colors.css';
+
 .community {
   max-width: 1000px;
   margin: 20px auto;
   padding: 20px;
   font-family: Arial, sans-serif;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .community h2 {
@@ -11,7 +15,7 @@
 }
 
 .community p {
-  color: #444;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -21,7 +25,7 @@
 }
 
 .announcement-card {
-  background: #f3e5f5;
+  background: var(--bg-primary);
   border-left: 5px solid #6a1b9a;
   padding: 12px 16px;
   margin-bottom: 12px;
@@ -41,10 +45,10 @@
 
 .create-post {
   margin: 25px 0;
-  background: #fafafa;
+  background: var(--bg-primary);
   padding: 15px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-light);
 }
 
 .create-post textarea {
@@ -52,9 +56,11 @@
   min-height: 80px;
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-light);
   resize: vertical;
   margin-bottom: 10px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .create-post button {
@@ -76,10 +82,10 @@
 }
 
 .post-card {
-  background: white;
+  background: var(--bg-primary);
   padding: 15px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-light);
   margin-bottom: 20px;
 }
 
@@ -91,7 +97,7 @@
 }
 
 .post-header strong {
-  color: #333;
+  color: var(--text-primary);
 }
 
 .post-header .date {
@@ -101,7 +107,7 @@
 
 .post-card p {
   margin: 8px 0;
-  color: #444;
+  color: var(--text-secondary);
 }
 
 
@@ -112,14 +118,14 @@
 }
 
 .reply-card {
-  background: #f9f9f9;
+  background: var(--bg-secondary);
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 8px;
 }
 
 .reply-card strong {
-  color: #333;
+  color: var(--text-primary);
 }
 
 .reply-card .date {
@@ -139,8 +145,10 @@
   padding: 8px;
   margin: 8px 0;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-light);
   resize: vertical;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .add-reply button {

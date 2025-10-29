@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useLanguage } from "../hooks/useLanguage";
 import "../styles/mentorship.css";
 
 import priscillaImg from "../assets/images/priscilla.jpg";
@@ -28,8 +29,6 @@ const translations = {
     myRequests: "My Requests",
     none: "No requests yet.",
     videos: "Motivational Videos",
-    english: "English",
-    arabic: "Arabic",
     light: "Light",
     dark: "Dark",
   },
@@ -54,107 +53,100 @@ const translations = {
     myRequests: "طلباتي",
     none: "لا توجد طلبات بعد.",
     videos: "مقاطع تحفيزية",
-    english: "الإنجليزية",
-    arabic: "العربية",
     light: "فاتح",
     dark: "داكن",
   },
 };
 
 type Lang = "en" | "ar";
-type Theme = "light" | "dark";
 
-type Mentor = {
-  id: number;
-  name: string;
-  role: string;
-  expertise: string[];
-  available: boolean;
-  avatar: string;
-  rating: number;
-  location: string;
-  badges: string[];
-  testimonials: { name: string; text: string }[];
-  calendar: string[];
-  videoIntro: string;
-};
 
-const mentors: Mentor[] = [
-  {
-    id: 1,
-    name: "Priscilla Ayuen",
-    role: "Startup & Digital Skills",
-    expertise: ["Entrepreneurship", "Digital Skills"],
-    available: true,
-    avatar: priscillaImg,
-    rating: 4.8,
-    location: "Juba, South Sudan",
-    badges: ["Top Mentor", "Startup Expert"],
-    testimonials: [
-      { name: "Alek", text: "Priscilla helped me launch my business!" },
-      { name: "Monica", text: "Great practical advice and motivation!" },
-    ],
-    calendar: ["2025-10-15 10:00", "2025-10-16 14:00"],
-    videoIntro: "https://youtu.be/gFYBqZnFQ6w?si=SCmteBBvj-Eg542M",
-  },
-  {
-    id: 2,
-    name: "Aguil Ajang",
-    role: "Financial Literacy & Business",
-    expertise: ["Finance", "Business Planning"],
-    available: true,
-    avatar: aguilImg,
-    rating: 4.7,
-    location: "Bor, South Sudan",
-    badges: ["Finance Guru"],
-    testimonials: [
-      { name: "Abuk", text: "Aguil taught me how to manage my savings better!" },
-    ],
-    calendar: ["2025-10-17 09:00", "2025-10-18 11:00"],
-    videoIntro: "https://youtu.be/xAGyhkWoDX8?si=PVOO9c5M9ikrf87G",
-  },
-  {
-    id: 3,
-    name: "Kuir Juach",
-    role: "Tech Mentor & Developer",
-    expertise: ["Career in Tech"],
-    available: true,
-    avatar: kuirImg,
-    rating: 4.9,
-    location: "Juba, South Sudan",
-    badges: ["Tech Star"],
-    testimonials: [
-      { name: "Nya", text: "Kuir made computing fun and approachable!" },
-    ],
-    calendar: ["2025-10-19 13:00", "2025-10-20 15:30"],
-    videoIntro: "https://youtu.be/V3SeLgPPoec?si=XUu5Kq4lmEuG9nas",
-  },
-  {
-    id: 4,
-    name: "Abraham Madol",
-    role: "Career Coach & Public Speaker",
-    expertise: ["CV Writing", "Interview Prep"],
-    available: true,
-    avatar: abrahamImg,
-    rating: 4.6,
-    location: "Juba, South Sudan",
-    badges: ["Career Coach"],
-    testimonials: [
-      { name: "Ajok", text: "Abraham’s career tips gave me confidence!" },
-    ],
-    calendar: ["2025-10-21 10:30", "2025-10-22 16:00"],
-    videoIntro: "https://youtu.be/xKZ8hMQZcXQ?si=GMvIcn8uOLslyTaU",
-  },
-];
 
 const Mentorship: React.FC = () => {
-  const [lang, setLang] = useState<Lang>("en");
-  const [theme, setTheme] = useState<Theme>("light");
+  const { language } = useLanguage();
+  const lang: Lang = language === "Arabic" ? "ar" : "en";
   const t = translations[lang];
+  const [mentors, setMentors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    const fetchMentors = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/users/mentors");
+        if (res.ok) {
+          const data = await res.json();
+          const avatarMap: Record<string, string> = {
+            "Priscilla Ayuen": priscillaImg,
+            "Aguil Ajang": aguilImg,
+            "Aguil": aguilImg,
+            "Kuir juach": kuirImg,
+            "Kuir Juach": kuirImg,
+            "Abraham Madol": abrahamImg
+          };
+          const mapped = data.map((m: any) => {
+            let videoUrl = m.video_intro || "";
+            if (videoUrl.includes("youtu.be/")) {
+              const videoId = videoUrl.split("youtu.be/")[1]?.split("?")[0];
+              videoUrl = `https://www.youtube.com/embed/${videoId}`;
+            } else if (videoUrl.includes("youtube.com/watch?v=")) {
+              const videoId = videoUrl.split("v=")[1]?.split("&")[0];
+              videoUrl = `https://www.youtube.com/embed/${videoId}`;
+            }
+            const expertiseMap: Record<string, string> = {
+              'ENTREPRENEURSHIP_AR': 'ريادة الأعمال',
+              'DIGITAL_SKILLS_AR': 'المهارات الرقمية',
+              'FINANCE_AR': 'التمويل',
+              'BUSINESS_PLANNING_AR': 'تخطيط الأعمال',
+              'TECH_CAREER_AR': 'مسيرة مهنية في التكنولوجيا',
+              'CV_WRITING_AR': 'كتابة السيرة الذاتية',
+              'INTERVIEW_PREP_AR': 'التحضير للمقابلات'
+            };
+            
+            let expertiseText = m.expertise;
+            let expertiseArray = [];
+            
+            if (lang === "ar" && m.expertise_ar) {
+              expertiseArray = m.expertise_ar.split(",").map((e: string) => {
+                const code = e.trim();
+                return expertiseMap[code] || code;
+              });
+              expertiseText = expertiseArray.join("، ");
+            } else {
+              expertiseArray = m.expertise ? m.expertise.split(",").map((e: string) => e.trim()) : ["General"];
+              expertiseText = m.expertise || "Mentor";
+            }
+            
+            return {
+              id: m.id,
+              name: m.name,
+              role: expertiseText,
+              expertise: expertiseArray,
+              location: m.location || "Juba, South Sudan",
+              badges: m.badges ? m.badges.split(",").map((b: string) => b.trim()) : ["Mentor"],
+              avatar: m.avatar_url || avatarMap[m.name] || priscillaImg,
+              rating: m.rating || 4.8,
+              available: true,
+              calendar: [],
+              videoIntro: videoUrl
+            };
+          });
+          setMentors(mapped);
+        } else {
+          setMentors([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch mentors:", err);
+        setMentors([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMentors();
+  }, [lang]);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
-  const [modalMentor, setModalMentor] = useState<Mentor | null>(null);
+  const [modalMentor, setModalMentor] = useState<typeof mentors[0] | null>(null);
   const [sessionDate, setSessionDate] = useState("");
   const [sessionTime, setSessionTime] = useState("");
   const [message, setMessage] = useState("");
@@ -164,7 +156,7 @@ const Mentorship: React.FC = () => {
 
   const allExpertise = useMemo(
     () => Array.from(new Set(mentors.flatMap((m) => m.expertise))),
-    []
+    [mentors]
   );
 
   const filtered = mentors.filter((m) => {
@@ -175,19 +167,42 @@ const Mentorship: React.FC = () => {
     return byName && byTag;
   });
 
-  const confirmRequest = () => {
+  const confirmRequest = async () => {
     if (!modalMentor) return;
-    const session =
-      sessionDate && sessionTime ? `${sessionDate} ${sessionTime}` : "-";
-    setRequests((prev) => [
-      ...prev,
-      { mentor: modalMentor.name, date: new Date().toLocaleString(), session },
-    ]);
+    
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5000/api/mentorship", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          mentor_id: modalMentor.id,
+          topic: modalMentor.role,
+          message: message || "Mentorship request"
+        })
+      });
+      
+      if (res.ok) {
+        const session = sessionDate && sessionTime ? `${sessionDate} ${sessionTime}` : "-";
+        setRequests((prev) => [
+          ...prev,
+          { mentor: modalMentor.name, date: new Date().toLocaleString(), session },
+        ]);
+      }
+    } catch (err) {
+      console.error("Failed to send request", err);
+    }
+    
     setModalMentor(null);
   };
 
+  if (loading) return <div className="loading">Loading mentors...</div>;
+
   return (
-    <div className={`mentorship-page ${lang === "ar" ? "rtl" : ""} ${theme}`}>
+    <div className={`mentorship-page ${lang === "ar" ? "rtl" : ""}`}>
       <header className="mentorship-header">
         <h1>{t.title}</h1>
         <p>{t.desc}</p>
@@ -209,12 +224,7 @@ const Mentorship: React.FC = () => {
               </option>
             ))}
           </select>
-          <button onClick={() => setLang(lang === "en" ? "ar" : "en")}>
-            {lang === "en" ? t.arabic : t.english}
-          </button>
-          <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
-            {theme === "light" ? t.dark : t.light}
-          </button>
+
         </div>
       </header>
 
@@ -227,8 +237,8 @@ const Mentorship: React.FC = () => {
               <p className="mentor-role">{m.role}</p>
               <p className="mentor-location">{t.location}: {m.location}</p>
               <div className="mentor-badges">
-                {m.badges.map((b) => (
-                  <span key={b} className="badge">{b}</span>
+                {m.badges.map((b, idx) => (
+                  <span key={idx} className="badge">{b}</span>
                 ))}
               </div>
               <div className="mentor-actions">
@@ -242,12 +252,13 @@ const Mentorship: React.FC = () => {
       <section className="videos-section">
         <h2>{t.videos}</h2>
         <div className="videos-grid">
-          {mentors.map((m) => (
+          {mentors.filter(m => m.videoIntro).map((m) => (
             <div key={m.id} className="video-card">
               <iframe
                 src={m.videoIntro}
                 title={m.name}
-                frameBorder={0}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
               <h4>{m.name}</h4>

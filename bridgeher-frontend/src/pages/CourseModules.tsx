@@ -14,11 +14,6 @@ interface Module {
   notes: string[];
 }
 
-interface ModulesData {
-  English: Module[];
-  Arabic: Module[];
-}
-
 const CourseModules: React.FC = () => {
   const { language } = useLanguage();
   const isArabic = language === "Arabic";
@@ -27,9 +22,15 @@ const CourseModules: React.FC = () => {
 
   useEffect(() => {
     const fetchModules = async () => {
-      const res = await fetch("/data/modulesData.json");
-      const data: ModulesData = await res.json();
-      setModules(data[language]);
+      const res = await fetch("http://localhost:5000/api/courses/1/modules");
+      const data = await res.json();
+      setModules(data.map((m: { id: number; title: string; description: string; video_url: string; content: string }) => ({
+        id: m.id,
+        title: m.title,
+        description: m.description,
+        videoUrl: m.video_url,
+        notes: m.content ? m.content.split('\n').filter((line: string) => line.trim()) : ['No notes available']
+      })));
     };
     fetchModules();
   }, [language]);

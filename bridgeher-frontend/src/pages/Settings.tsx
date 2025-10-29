@@ -110,27 +110,38 @@ const Settings: React.FC = () => {
   const [accent, setAccent] = useState("#6A1B9A");
   const [accountPrivacy, setAccountPrivacy] = useState("public");
 
-  // Load saved settings on mount
+  // Load settings from backend
   useEffect(() => {
-    const savedData = localStorage.getItem("userSettings");
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      setProfilePic(parsed.profilePic || null);
-      setFullName(parsed.fullName || "");
-      setEmail(parsed.email || "");
-      setBio(parsed.bio || "");
-      setTheme(parsed.theme || "light");
-      setFontSize(parsed.fontSize || "medium");
-      setAccent(parsed.accent || "#6A1B9A");
-      setAccountPrivacy(parsed.accountPrivacy || "public");
-    }
+    const fetchSettings = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:5000/api/settings", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFullName(data.user.name || "");
+          setEmail(data.user.email || "");
+          setBio(data.user.bio || "");
+          setProfilePic(data.user.profile_pic || null);
+          const savedTheme = data.settings.theme || "light";
+          setTheme(savedTheme);
+          document.documentElement.dataset.theme = savedTheme;
+          setFontSize(data.settings.font_size || "medium");
+          setAccent(data.settings.accent_color || "#6A1B9A");
+          setAccountPrivacy(data.settings.account_privacy || "public");
+        }
+      } catch (err) {
+        console.error("Failed to load settings", err);
+      }
+    };
+    fetchSettings();
   }, []);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
     document.documentElement.dir = isAr ? "rtl" : "ltr";
     document.documentElement.style.setProperty("--accent", accent);
-  }, [theme, accent, isAr]);
+  }, [accent, isAr]);
 
   const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -141,20 +152,36 @@ const Settings: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
-    const data = {
-      profilePic,
-      fullName,
-      email,
-      bio,
-      theme,
-      fontSize,
-      accent,
-      accountPrivacy,
-    };
-    localStorage.setItem("userSettings", JSON.stringify(data));
-    playUiSound(true, "success");
-    alert(t.profile.savedMsg);
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5000/api/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: fullName,
+          bio,
+          theme,
+          fontSize,
+          accent,
+          accountPrivacy,
+          profilePic
+        })
+      });
+      
+      if (res.ok) {
+        document.documentElement.dataset.theme = theme;
+        playUiSound(true, "success");
+        alert(t.profile.savedMsg);
+      } else {
+        alert(isAr ? "فشل الحفظ" : "Failed to save");
+      }
+    } catch (err) {
+      alert(isAr ? "خطأ في الاتصال" : "Connection error");
+    }
   };
 
   return (
@@ -203,7 +230,11 @@ const Settings: React.FC = () => {
           <label>{t.appearance.theme}:</label>
           <select
             value={theme}
-            onChange={(e) => setTheme(e.target.value as "light" | "dark")}
+            onChange={(e) => {
+              const newTheme = e.target.value as "light" | "dark";
+              setTheme(newTheme);
+              document.documentElement.dataset.theme = newTheme;
+            }}
           >
             <option value="light">{t.appearance.light}</option>
             <option value="dark">{t.appearance.dark}</option>
@@ -263,15 +294,42 @@ const Settings: React.FC = () => {
         <div className="button-row">
           <button
             className="settings-btn delete"
-            onClick={() =>
-              window.confirm(t.account.confirmDelete) && alert("Deleted.")
-            }
+            onClick={async () => {
+              if (window.confirm(t.account.confirmDelete)) {
+                try {
+                  const token = localStorage.getItem("token");
+                  const res = await fetch("http://localhost:5000/api/settings/account", {
+                    method: "DELETE",
+                    headers: { Authorization: `Bearer ${token}` }
+                  });
+                  if (res.ok) {
+                    localStorage.removeItem("token");
+                    window.location.href = "/";
+                  }
+                } catch (err) {
+                  alert("Failed to delete account");
+                }
+              }
+            }}
           >
             {t.account.delete}
           </button>
           <button
             className="settings-btn logout"
-            onClick={() => alert(t.account.confirmLogout)}
+            onClick={async () => {
+              try {
+                const token = localStorage.getItem("token");
+                await fetch("http://localhost:5000/api/settings/logout", {
+                  method: "POST",
+                  headers: { Authorization: `Bearer ${token}` }
+                });
+                localStorage.removeItem("token");
+                alert(t.account.confirmLogout);
+                window.location.href = "/login";
+              } catch (err) {
+                console.error("Logout error", err);
+              }
+            }}
           >
             {t.account.logout}
           </button>

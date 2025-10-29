@@ -25,13 +25,44 @@
 }
 
 h2 {
-  color: #4a0072;
+  color: #6a1b9a;
   margin-bottom: 0.5rem;
 }
 
 .desc {
   color: #555;
   margin-bottom: 1.5rem;
+}
+
+.enroll-btn {
+  background: #ffd700;
+  color: #6a1b9a;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  margin: 20px 0;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(255,215,0,0.3);
+}
+
+.enroll-btn:hover {
+  background: #6a1b9a;
+  color: #ffd700;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(106,27,154,0.4);
+}
+
+.enrolled-badge {
+  background: #4caf50;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: inline-block;
+  margin: 20px 0;
 }
 
 .module-grid {
@@ -81,11 +112,18 @@ h2 {
 }
 
 .btn.primary:hover {
-  background: #4a0072;
+  background: #6a1b9a;
 }
 
 .btn.outline:hover {
   background: #f3e5f5;
+}
+
+.btn.disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .rtl {

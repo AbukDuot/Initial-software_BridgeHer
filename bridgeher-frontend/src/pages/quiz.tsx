@@ -762,11 +762,17 @@ const Quiz: React.FC = () => {
   const isAr = language === "Arabic";
   const { courseId } = useParams<{ courseId: string }>();
 
-  const courseQuestions = useMemo(() => {
-    const bank = BANK[courseId || ""];
-    if (!bank) return [];
-    
-    return bank;
+  const [courseQuestions, setCourseQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!courseId) {
+      setLoading(false);
+      return;
+    }
+    const questions = BANK[courseId] || [];
+    setCourseQuestions(questions);
+    setLoading(false);
   }, [courseId]);
 
  
@@ -884,6 +890,16 @@ const Quiz: React.FC = () => {
       
       setConfirmOpen(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className={`quiz-page ${isAr ? "rtl" : ""}`} dir={isAr ? "rtl" : "ltr"}>
+        <div className="quiz-container">
+          <h2>{isAr ? "جارٍ التحميل..." : "Loading..."}</h2>
+        </div>
+      </div>
+    );
   }
 
   if (!courseId || orderedQuestions.length === 0) {

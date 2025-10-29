@@ -1,0 +1,184 @@
+.terms-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.terms-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.terms-modal.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.terms-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.terms-header h2 {
+  margin: 0;
+  color: #6a1b9a;
+  font-size: 24px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s;
+}
+
+.close-btn:hover {
+  color: #6a1b9a;
+}
+
+.terms-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.terms-content section {
+  margin-bottom: 24px;
+}
+
+.terms-content h3 {
+  color: #6a1b9a;
+  font-size: 18px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.terms-content p {
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.terms-content ul {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.terms-modal.rtl .terms-content ul {
+  padding-left: 0;
+  padding-right: 24px;
+}
+
+.terms-content li {
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+
+.terms-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.terms-footer .btn {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.terms-footer .btn.secondary {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.terms-footer .btn.secondary:hover {
+  background: #e0e0e0;
+}
+
+.terms-footer .btn.primary {
+  background: #6a1b9a;
+  color: white;
+}
+
+.terms-footer .btn.primary:hover {
+  background: #4a148c;
+}
+
+/* Scrollbar styling */
+.terms-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terms-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.terms-content::-webkit-scrollbar-thumb {
+  background: #6a1b9a;
+  border-radius: 4px;
+}
+
+.terms-content::-webkit-scrollbar-thumb:hover {
+  background: #4a148c;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .terms-modal {
+    max-height: 90vh;
+    margin: 10px;
+  }
+
+  .terms-header h2 {
+    font-size: 20px;
+  }
+
+  .terms-content {
+    padding: 16px;
+  }
+
+  .terms-content h3 {
+    font-size: 16px;
+  }
+
+  .terms-footer {
+    flex-direction: column;
+  }
+
+  .terms-footer .btn {
+    width: 100%;
+  }
+}

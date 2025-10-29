@@ -28,17 +28,61 @@ const Community: React.FC = () => {
 
   useEffect(() => {
     document.documentElement.setAttribute("dir", language === "Arabic" ? "rtl" : "ltr");
+    fetchTopics();
   }, [language]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const fetchTopics = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/community/topics");
+      if (res.ok) {
+        const data = await res.json();
+        setTopics(data.map((t: any) => ({
+          title: t.title,
+          category: t.category,
+          description: t.description,
+          replies: t.replies || 0,
+          views: t.views || 0,
+          activity: new Date(t.created_at).toLocaleDateString()
+        })));
+      }
+    } catch (err) {
+      console.error("Failed to fetch topics", err);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTopic.title) return;
-    setTopics([
-      ...topics,
-      { ...newTopic, replies: 0, views: 0, activity: "Just now" },
-    ]);
-    setNewTopic({ title: "", category: "", description: "" });
-    setShowModal(false);
+    
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login first");
+        return;
+      }
+      
+      const res = await fetch("http://localhost:5000/api/community/topics", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(newTopic)
+      });
+      
+      if (res.ok) {
+        await fetchTopics();
+        setNewTopic({ title: "", category: "", description: "" });
+        setShowModal(false);
+        alert("Topic created successfully!");
+      } else {
+        const error = await res.json();
+        alert(`Failed to create topic: ${error.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error("Failed to create topic", err);
+      alert("Connection error. Please check if backend is running.");
+    }
   };
 
   return (

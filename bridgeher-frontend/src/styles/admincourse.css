@@ -1,0 +1,225 @@
+.admin-course-upload {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: var(--space-lg);
+  background: var(--bg-primary);
+}
+
+.admin-course-upload h1 {
+  color: var(--primary-purple);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+  font-size: 2rem;
+}
+
+.course-form, .module-form {
+  background: var(--bg-secondary);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.course-form h2, .module-form h2 {
+  color: var(--primary-purple);
+  margin-bottom: var(--space-md);
+  font-size: 1.3rem;
+}
+
+.course-form input, .course-form textarea, .course-form select,
+.module-form input, .module-form textarea {
+  width: 100%;
+  padding: var(--space-sm);
+  margin-bottom: var(--space-md);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: var(--transition-fast);
+}
+
+.course-form input:focus, .course-form textarea:focus, .course-form select:focus,
+.module-form input:focus, .module-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.1);
+}
+
+.course-form textarea, .module-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.file-input {
+  margin-bottom: var(--space-md);
+}
+
+.file-input label {
+  display: block;
+  margin-bottom: var(--space-xs);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.file-input input[type="file"] {
+  padding: var(--space-xs);
+  border: 2px dashed var(--border-medium);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.file-input span {
+  display: block;
+  margin-top: var(--space-xs);
+  color: var(--primary-purple);
+  font-size: 0.9rem;
+}
+
+.add-btn, .upload-btn {
+  background: var(--primary-purple);
+  color: var(--white);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: var(--transition-normal);
+}
+
+.add-btn:hover, .upload-btn:hover {
+  background: var(--primary-gold);
+  color: var(--primary-purple);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.upload-btn {
+  width: 100%;
+  margin-top: var(--space-md);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.upload-btn:disabled {
+  background: var(--gray-medium);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.modules-list {
+  margin-bottom: var(--space-lg);
+}
+
+.modules-list h2 {
+  color: var(--primary-purple);
+  margin-bottom: var(--space-md);
+}
+
+.module-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.module-item span {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.module-item button {
+  background: var(--primary-purple);
+  color: var(--white);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.module-item button:hover {
+  background: var(--purple-dark);
+}
+
+.assignment-toggle {
+  margin: var(--space-md) 0;
+  padding: var(--space-sm);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+}
+
+.assignment-toggle label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.assignment-toggle input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}
+
+.assignment-form {
+  background: var(--bg-primary);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin: var(--space-md) 0;
+  border: 2px solid var(--primary-purple);
+}
+
+.assignment-form h3 {
+  color: var(--primary-purple);
+  margin-bottom: var(--space-md);
+  font-size: 1.1rem;
+}
+
+.has-assignment {
+  color: var(--primary-gold);
+  font-size: 0.9rem;
+  margin-left: var(--space-sm);
+}
+
+@media (max-width: 768px) {
+  .admin-course-upload {
+    padding: var(--space-md);
+    margin: var(--space-md);
+  }
+
+  .admin-course-upload h1 {
+    font-size: 1.5rem;
+  }
+
+  .course-form, .module-form {
+    padding: var(--space-md);
+  }
+
+  .module-item {
+    flex-direction: column;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+
+  .module-item button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-course-upload {
+    padding: var(--space-sm);
+    margin: var(--space-sm);
+  }
+
+  .course-form, .module-form {
+    padding: var(--space-sm);
+  }
+
+  .add-btn, .upload-btn {
+    padding: var(--space-sm);
+    font-size: 0.95rem;
+  }
+}

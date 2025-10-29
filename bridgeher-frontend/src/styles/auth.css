@@ -1,3 +1,5 @@
+@import './colors.css';
+
 .auth-page {
   position: relative;
   min-height: 100vh;
@@ -6,7 +8,7 @@
   justify-content: center;
   padding: 1.5rem;
   font-family: "Poppins", sans-serif;
-  color: #333;
+  color: var(--text-primary);
   background: url("../assets/images/Bg.jpeg") no-repeat center center/cover;
   background-attachment: fixed;
 }
@@ -16,12 +18,16 @@
   z-index: 2;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   padding: 2rem 1.8rem;
   width: 100%;
   max-width: 400px;
   text-align: center;
   animation: fadeIn 1s ease;
+}
+
+[data-theme="dark"] .auth-card {
+  background: rgba(30, 30, 30, 0.95);
 }
 
 .auth-card h2 {
@@ -32,7 +38,7 @@
 }
 
 .auth-card p {
-  color: #555;
+  color: var(--text-secondary);
   margin-bottom: 1.8rem;
   font-size: 0.95rem;
 }
@@ -47,11 +53,12 @@
 .auth-form input,
 .auth-form select {
   padding: 10px 12px;
-  border: 2px solid #e1bee7;
+  border: 2px solid var(--border-light);
   border-radius: 8px;
   font-size: 0.9rem;
   outline: none;
-  background: #fff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   transition: border-color 0.3s ease, transform 0.2s ease;
 }
 
@@ -135,7 +142,7 @@
 
 .auth-footer {
   font-size: 0.9rem;
-  color: #444;
+  color: var(--text-primary);
 }
 
 .auth-footer a {
@@ -254,4 +261,40 @@
   width: 22px;
   height: 22px;
   vertical-align: middle;
+}
+
+
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.terms-checkbox label {
+  color: #555;
+  font-size: 14px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.terms-link {
+  color: #6a1b9a;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.terms-link:hover {
+  color: #4a148c;
+}
+
+.auth-page.rtl .terms-checkbox {
+  text-align: right;
 }

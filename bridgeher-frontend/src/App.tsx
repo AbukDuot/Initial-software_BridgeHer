@@ -8,20 +8,29 @@ import Community from "./pages/Community";
 import LearnerDashboard from "./pages/LearnerDashboard";
 import MentorDashboard from "./pages/MentorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminCourseUpload from "./pages/AdminCourseUpload";
+import CoursePlayer from "./pages/CoursePlayer";
+import ResetPassword from "./pages/ResetPassword";
 import Mentorship from "./pages/Mentorship";
 import Settings from "./pages/Settings";
 import MyCertificates from "./pages/MyCertificates";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AuthSuccess from "./pages/AuthSuccess";
+import Profile from "./pages/Profile";
 import CourseDetail from "./pages/CourseDetail";
 import ModuleDetail from "./pages/ModuleDetail";
 import Quiz from "./pages/quiz";
+import HelpFAQ from "./pages/HelpFAQ";
+import AnalyticsDashboard from "./components/AnalyticsDashboard";
 
 import { UserProvider } from "./context/UserContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { AppProvider, useAppContext } from "./context/AppContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import CookieBanner from "./components/CookieBanner";
+import ErrorBoundary from "./components/ErrorBoundary";
 const OfflineBanner: React.FC = () => {
   const { isOnline } = useAppContext();
   if (isOnline) return null;
@@ -43,12 +52,14 @@ const OfflineBanner: React.FC = () => {
 
 function App() {
   return (
-    <AppProvider>
-      <LanguageProvider>
-        <UserProvider>
-          <Router>
+    <ErrorBoundary>
+      <AppProvider>
+        <LanguageProvider>
+          <UserProvider>
+            <Router>
             <Navbar />
             <OfflineBanner />
+            <CookieBanner language="English" />
 
             <main className="flex-grow-1">
               <Routes>
@@ -72,19 +83,27 @@ function App() {
                 />
                 <Route path="/mentor-dashboard" element={<MentorDashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/admin-course-upload" element={<AdminCourseUpload />} />
+                <Route path="/course-player/:courseId" element={<CoursePlayer />} />
                 <Route path="/mentorship" element={<Mentorship />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/my-certificates" element={<MyCertificates />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/auth/success" element={<AuthSuccess />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/help" element={<HelpFAQ />} />
+                <Route path="/analytics" element={<AnalyticsDashboard />} />
               </Routes>
             </main>
 
             <Footer />
-          </Router>
-        </UserProvider>
-      </LanguageProvider>
-    </AppProvider>
+            </Router>
+          </UserProvider>
+        </LanguageProvider>
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
 

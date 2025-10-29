@@ -192,14 +192,12 @@ const MentorDashboard: React.FC = () => {
   useEffect(() => {
     setLang(contextLang === "Arabic" ? "ar" : "en");
   }, [contextLang]);
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem("theme") as Theme) || "light"
-  );
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
     const saved = localStorage.getItem("soundEnabled");
     return saved ? JSON.parse(saved) : true;
   });
 
+  const theme = (document.documentElement.dataset.theme as Theme) || "light";
   const t = tMap[lang];
 
   useEffect(() => {
@@ -208,43 +206,69 @@ const MentorDashboard: React.FC = () => {
   }, [lang]);
 
   useEffect(() => {
-    document.body.className = theme;
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
     localStorage.setItem("soundEnabled", JSON.stringify(soundEnabled));
   }, [soundEnabled]);
 
+  const [dashboardData, setDashboardData] = useState<any>({ stats: { totalLearners: 0, activeSessions: 0 }, connections: [] });
+  const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState<Request[]>([]);
   const [learners, setLearners] = useState<Learner[]>([]);
   const [sessions, setSessions] = useState<SessionItem[]>([]);
 
   useEffect(() => {
-    setRequests([
-      { id: "r1", learner: lang === "ar" ? "مريم" : "Mary A.", course: lang === "ar" ? "الثقافة المالية" : "Financial Literacy" },
-      { id: "r2", learner: lang === "ar" ? "جويس" : "Joyce K.", course: lang === "ar" ? "ريادة الأعمال" : "Entrepreneurship" },
-    ]);
-    setLearners([
-      { id: "l1", name: lang === "ar" ? "غريس" : "Grace", course: lang === "ar" ? "المهارات الرقمية" : "Digital Skills", progress: 80, status: "completed" },
-      { id: "l2", name: lang === "ar" ? "ألويل" : "Aluel", course: lang === "ar" ? "ريادة الأعمال" : "Entrepreneurship", progress: 50, status: "scheduled" },
-      { id: "l3", name: lang === "ar" ? "نيا" : "Nya", course: lang === "ar" ? "الثقافة المالية" : "Financial Literacy", progress: 30, status: "ongoing" },
-    ]);
-    setSessions([
-      {
-        id: "s1",
-        learner: lang === "ar" ? "غريس" : "Grace",
-        topic: lang === "ar" ? "المهارات الرقمية" : "Digital Skills",
-        dateISO: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-      },
-      {
-        id: "s2",
-        learner: lang === "ar" ? "ألويل" : "Aluel",
-        topic: lang === "ar" ? "الميزانية ١٠١" : "Budgeting 101",
-        dateISO: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
-      },
-    ]);
-  }, [lang]);
+    const fetchDashboard = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "/login";
+          return;
+        }
+        const res = await fetch("http://localhost:5000/api/dashboards/mentor", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+          return;
+        }
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setDashboardData(data);
+        
+        if (data.connections && Array.isArray(data.connections)) {
+          const pending = data.connections.filter((c: any) => c.status === 'pending');
+          setRequests(pending.map((c: any) => ({
+            id: c.id.toString(),
+            learner: c.learner_name,
+            course: c.topic,
+            status: c.status
+          })));
+          
+          const accepted = data.connections.filter((c: any) => c.status === 'accepted');
+          setLearners(accepted.map((c: any) => ({
+            id: c.id.toString(),
+            name: c.learner_name,
+            course: c.topic,
+            progress: 50,
+            status: 'ongoing' as const
+          })));
+          
+          setSessions(accepted.slice(0, 3).map((c: any) => ({
+            id: c.id.toString(),
+            learner: c.learner_name,
+            topic: c.topic,
+            dateISO: c.scheduled_at || new Date(Date.now() + 24 * 3600 * 1000).toISOString()
+          })));
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard", err);
+        setDashboardData({ stats: { totalLearners: 0, activeSessions: 0 }, connections: [] });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
   const [feedback] = useState<FeedbackItem[]>([
     { id: "f1", learner: "Grace", rating: 5, comment: "Excellent session." },
     { id: "f2", learner: "Mary A.", rating: 4, comment: "Very clear guidance." },
@@ -359,15 +383,17 @@ const MentorDashboard: React.FC = () => {
     setShowModal(false);
   };
 
-  const totalLearners = learners.length;
-  const totalSessions = sessions.length;
-  const avgProgress = learners.reduce((sum, l) => sum + l.progress, 0) / learners.length;
-  const avgRating = feedback.reduce((sum, f) => sum + f.rating, 0) / feedback.length;
+  const totalLearners = dashboardData?.stats?.totalLearners || 0;
+  const totalSessions = dashboardData?.stats?.activeSessions || 0;
+  const avgProgress = learners.length > 0 ? learners.reduce((sum, l) => sum + l.progress, 0) / learners.length : 0;
+  const avgRating = feedback.length > 0 ? feedback.reduce((sum, f) => sum + f.rating, 0) / feedback.length : 0;
 
   const countLearners = useCountUp(totalLearners);
   const countSessions = useCountUp(totalSessions);
   const countProgress = useCountUp(Math.round(avgProgress));
   const countRating = useCountUp(Math.round(avgRating * 10) / 10);
+
+  if (loading) return <div className="loading">Loading...</div>;
 
   return (
     <div className={`mentor-dashboard ${theme}`}>
@@ -379,9 +405,6 @@ const MentorDashboard: React.FC = () => {
         <div className="header-controls">
           <button className="toggle-btn" onClick={() => setLang(lang === "en" ? "ar" : "en")}>
             {t.langToggle}
-          </button>
-          <button className="toggle-btn" onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
-            {t.themeToggle}
           </button>
           <button className="toggle-btn" onClick={() => setSoundEnabled(!soundEnabled)}>
             {soundEnabled ? "🔊 " + t.soundOn : "🔇 " + t.soundOff}

@@ -149,27 +149,62 @@ const LearnerDashboard: React.FC = () => {
   const isAr = language === "Arabic";
   const t = isAr ? tMap.ar : tMap.en;
 
-  const [theme, setTheme] = useState<"light" | "dark">(
-    (localStorage.getItem("bh-theme") as "light" | "dark") || "light"
-  );
   const [sound, setSound] = useState<boolean>(() => {
     const s = localStorage.getItem("bh-sound");
     return s ? JSON.parse(s) : true;
   });
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem("bh-theme", theme);
-  }, [theme]);
+  const theme = (document.documentElement.dataset.theme as "light" | "dark") || "light";
 
   useEffect(() => {
     localStorage.setItem("bh-sound", JSON.stringify(sound));
   }, [sound]);
 
-  const XP_FOR_LEVEL = 1000;
-  const [xp] = useState(430);
-  const level = Math.floor(xp / XP_FOR_LEVEL) + 1;
-  const user = { name: isAr ? "أبوك" : "Abuk", streak: 8 };
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [reminders, setReminders] = useState<{ id: number; text: string; done: boolean; isNew?: boolean }[]>(
+    () => {
+      const stored = localStorage.getItem("bh-reminders");
+      return stored ? JSON.parse(stored) : [];
+    }
+  );
+  const [input, setInput] = useState("");
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "/login";
+          return;
+        }
+        const res = await fetch("http://localhost:5000/api/dashboards/learner", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+          return;
+        }
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setDashboardData(data);
+      } catch (err) {
+        console.error("Failed to fetch dashboard", err);
+        setDashboardData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("bh-reminders", JSON.stringify(reminders));
+  }, [reminders]);
+
+  const { user = { name: "User" }, stats = {}, completion = { completed: 0, remaining: 100 } } = dashboardData || {};
+  const { streak = 0, xp = 0, level = 1 } = stats;
 
   const chartTextColor = theme === "dark" ? "#FFFFFF" : "#333333";
   const chartGridColor = theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
@@ -195,13 +230,13 @@ const LearnerDashboard: React.FC = () => {
       labels: [t.analytics.completed, t.analytics.remaining],
       datasets: [
         {
-          data: [70, 30],
+          data: [completion.completed, completion.remaining],
           backgroundColor: ["#6A1B9A", "#FFD700"],
           cutout: "75%",
         },
       ],
     }),
-    [t.analytics.completed, t.analytics.remaining]
+    [t.analytics.completed, t.analytics.remaining, completion]
   );
 
   const chartOptions = useMemo(
@@ -219,17 +254,8 @@ const LearnerDashboard: React.FC = () => {
     [chartTextColor, chartGridColor]
   );
 
-  const [reminders, setReminders] = useState<{ id: number; text: string; done: boolean; isNew?: boolean }[]>(
-    () => {
-      const stored = localStorage.getItem("bh-reminders");
-      return stored ? JSON.parse(stored) : [];
-    }
-  );
-  const [input, setInput] = useState("");
-
-  useEffect(() => {
-    localStorage.setItem("bh-reminders", JSON.stringify(reminders));
-  }, [reminders]);
+  if (loading) return <div className="loading">Loading...</div>;
+  if (!dashboardData) return <div className="error">Failed to load dashboard</div>;
 
   const addReminder = () => {
     if (!input.trim()) return;
@@ -290,24 +316,6 @@ const LearnerDashboard: React.FC = () => {
           </div>
           <div className="theme-toggle">
             <button
-              className={theme === "light" ? "active" : ""}
-              onClick={() => {
-                playUiSound(sound);
-                setTheme("light");
-              }}
-            >
-              {t.header.light}
-            </button>
-            <button
-              className={theme === "dark" ? "active" : ""}
-              onClick={() => {
-                playUiSound(sound);
-                setTheme("dark");
-              }}
-            >
-              {t.header.dark}
-            </button>
-            <button
               onClick={() => {
                 playUiSound(sound);
                 setSound((s) => !s);
@@ -324,7 +332,7 @@ const LearnerDashboard: React.FC = () => {
 
         <section className="stats-section">
           <div className="stat-card">
-            <h3>{isAr ? toArabicNumerals(user.streak) : user.streak}</h3>
+            <h3>{isAr ? toArabicNumerals(streak) : streak}</h3>
             <p>{t.stats.streak}</p>
           </div>
           <div className="stat-card">

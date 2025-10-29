@@ -1,27 +1,15 @@
+@import './colors.css';
+
 :root {
   --primary: #6a1b9a;
   --accent: #ffd700;
   --white: #ffffff;
-  --text: #333333;
-  --text-secondary: #555555;
-
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 40px;
   --radius-md: 10px;
-}
-
-
-body.light {
-  background: var(--white);
-  color: var(--text);
-}
-
-body.dark {
-  background: #121212;
-  color: var(--white);
 }
 
 .fade-transition {
@@ -85,11 +73,11 @@ body.dark {
 }
 
 .chart-box {
-  background: var(--white);
+  background: var(--bg-primary);
   border-radius: var(--radius-md);
   padding: var(--space-md) var(--space-lg);
   text-align: center;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
   transition: all 0.3s ease;
 }
 
@@ -132,11 +120,11 @@ body.fade-transition .chart-box canvas {
 }
 
 .analytic-card {
-  background: var(--white);
+  background: var(--bg-primary);
   border-radius: var(--radius-md);
   padding: var(--space-md);
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -173,13 +161,13 @@ body.fade-transition .chart-box canvas {
 }
 
 .request-card {
-  background: var(--white);
+  background: var(--bg-primary);
   border-radius: var(--radius-md);
   padding: var(--space-md);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .req-course {
@@ -193,8 +181,38 @@ body.fade-transition .chart-box canvas {
   gap: var(--space-sm);
 }
 
-.btn-accept,
-.btn-decline,
+.btn-accept {
+  background: var(--accent);
+  color: var(--primary);
+  border: none;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-accept:hover {
+  background: #ffed4e;
+  transform: translateY(-2px);
+}
+
+.btn-decline {
+  background: #e53935;
+  color: var(--white);
+  border: none;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-decline:hover {
+  background: #c62828;
+  transform: translateY(-2px);
+}
+
 .btn-reschedule {
   background: var(--primary);
   color: var(--white);
@@ -205,8 +223,6 @@ body.fade-transition .chart-box canvas {
   transition: opacity 0.3s ease;
 }
 
-.btn-accept:hover,
-.btn-decline:hover,
 .btn-reschedule:hover {
   opacity: 0.8;
 }
@@ -227,13 +243,13 @@ body.fade-transition .chart-box canvas {
 }
 
 .session-card {
-  background: var(--white);
+  background: var(--bg-primary);
   border-radius: var(--radius-md);
   padding: var(--space-md);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .session-main {
@@ -251,12 +267,12 @@ body.fade-transition .chart-box canvas {
 }
 
 .modal {
-  background: var(--white);
+  background: var(--bg-primary);
   border-radius: var(--radius-md);
   padding: var(--space-lg);
   width: 90%;
   max-width: 420px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
 .modal-grid {

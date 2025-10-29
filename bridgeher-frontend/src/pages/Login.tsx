@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
+import { useToast } from "../hooks/useToast";
+import Toast from "../components/Toast";
+import LoadingSpinner from "../components/LoadingSpinner";
 import "../styles/auth.css";
 
 const Login: React.FC = () => {
   const { language } = useLanguage();
   const isArabic = language === "Arabic";
   const navigate = useNavigate();
+  const { toasts, showToast, removeToast } = useToast();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showReset, setShowReset] = useState(false);
@@ -40,14 +44,18 @@ const Login: React.FC = () => {
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
-        alert(isArabic ? "تم تسجيل الدخول بنجاح 🎉" : "Login successful 🎉");
-        navigate("/");
+        localStorage.setItem("user", JSON.stringify(data.user));
+        showToast(isArabic ? "تم تسجيل الدخول بنجاح 🎉" : "Login successful!", "success");
+        
+        const role = data.user.role.toLowerCase();
+        const redirectPath = role === "mentor" ? "/mentor-dashboard" : "/learner-dashboard";
+        setTimeout(() => navigate(redirectPath), 1000);
       } else {
-        alert(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`);
+        showToast(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`, "error");
       }
     } catch (error) {
       setLoading(false);
-      alert(isArabic ? "فشل الاتصال بالخادم!" : "Failed to connect to server!");
+      showToast(isArabic ? "فشل الاتصال بالخادم!" : "Failed to connect to server!", "error");
     }
   };
 
@@ -61,10 +69,11 @@ const Login: React.FC = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      alert(
+      showToast(
         isArabic
           ? `تم إرسال رابط إعادة تعيين كلمة المرور إلى ${resetEmail}`
-          : `A reset link has been sent to ${resetEmail}`
+          : `A reset link has been sent to ${resetEmail}`,
+        "success"
       );
       setShowReset(false);
       setResetEmail("");
@@ -73,14 +82,20 @@ const Login: React.FC = () => {
 
   return (
     <div className={`auth-page ${isArabic ? "rtl" : ""}`}>
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
       <div className="auth-card">
         {loading ? (
-          <div className="loading-section">
-            <div className="spinner"></div>
-            <p className="loading-text">
-              {isArabic ? "جارٍ المعالجة..." : "Processing..."}
-            </p>
-          </div>
+          <LoadingSpinner 
+            size="medium" 
+            message={isArabic ? "جارٍ المعالجة..." : "Processing..."}
+          />
         ) : !showReset ? (
           <>
             <h2>{isArabic ? "تسجيل الدخول" : "Login"}</h2>
@@ -111,31 +126,6 @@ const Login: React.FC = () => {
             <p className="forgot-link" onClick={() => setShowReset(true)}>
               {isArabic ? "هل نسيت كلمة المرور؟" : "Forgot Password?"}
             </p>
-
-            <div className="divider">
-              <span>{isArabic ? "أو" : "or"}</span>
-            </div>
-
-            {/* Social login buttons with icons */}
-            <div className="social-login">
-              <button className="btn google">
-                <img
-                  src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
-                  alt="Google"
-                  className="social-icon"
-                />
-                {isArabic ? "تسجيل الدخول باستخدام Google" : "Login with Google"}
-              </button>
-
-              <button className="btn facebook">
-                <img
-                  src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/facebook/facebook-original.svg"
-                  alt="Facebook"
-                  className="social-icon"
-                />
-                {isArabic ? "تسجيل الدخول باستخدام Facebook" : "Login with Facebook"}
-              </button>
-            </div>
 
             <p className="auth-footer">
               {isArabic ? "ليس لديك حساب؟" : "Don’t have an account?"}{" "}

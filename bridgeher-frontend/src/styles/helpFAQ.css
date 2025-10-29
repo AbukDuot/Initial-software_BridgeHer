@@ -1,0 +1,264 @@
+@import './colors.css';
+
+.help-faq-page {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.help-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.help-header h1 {
+  color: #6a1b9a;
+  font-size: 42px;
+  margin-bottom: 15px;
+}
+
+.help-header p {
+  color: var(--text-secondary);
+  font-size: 18px;
+}
+
+.faq-section {
+  margin-bottom: 60px;
+}
+
+.faq-section h2 {
+  color: #6a1b9a;
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.faq-item:hover {
+  box-shadow: 0 4px 12px rgba(106,27,154,0.2);
+}
+
+.faq-question {
+  width: 100%;
+  padding: 20px;
+  background: var(--bg-primary);
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: left;
+  transition: background 0.3s;
+}
+
+.faq-question:hover {
+  background: var(--bg-secondary);
+}
+
+.faq-icon {
+  font-size: 24px;
+  color: #6a1b9a;
+  font-weight: bold;
+}
+
+.faq-answer {
+  padding: 0 20px 20px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.video-tutorials-section {
+  margin-bottom: 60px;
+}
+
+.video-tutorials-section h2 {
+  color: #6a1b9a;
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+.video-card {
+  background: var(--bg-primary);
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.video-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(106,27,154,0.2);
+}
+
+.video-thumbnail {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+.video-card h3 {
+  color: var(--text-primary);
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.video-duration {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.watch-btn {
+  background: #6a1b9a;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.watch-btn:hover {
+  background: #ffd700;
+  color: #6a1b9a;
+}
+
+.contact-support-section {
+  background: var(--bg-primary);
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-support-section h2 {
+  color: #6a1b9a;
+  font-size: 28px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.contact-support-section > p {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: #6a1b9a;
+}
+
+.submit-btn {
+  background: #6a1b9a;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.submit-btn:hover {
+  background: #ffd700;
+  color: #6a1b9a;
+}
+
+.contact-info {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+}
+
+.contact-icon {
+  font-size: 20px;
+}
+
+@media (max-width: 768px) {
+  .help-header h1 {
+    font-size: 32px;
+  }
+  
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .contact-support-section {
+    padding: 25px;
+  }
+  
+  .contact-info {
+    flex-direction: column;
+    gap: 15px;
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import adminDashboardTranslations from "../i18n/adminDashboardTranslations";
 import { toArabicNumerals } from "../utils/numberUtils";
@@ -25,23 +26,16 @@ const playUiSound = (enabled: boolean) => {
 };
 
 const AdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const { language } = useLanguage();
   const isArabic = language === "Arabic";
   const lang = isArabic ? "ar" : "en";
   const t = adminDashboardTranslations[lang];
 
-  const [theme, setTheme] = useState<"light" | "dark">(
-    (localStorage.getItem("bh-theme") as "light" | "dark") || "light"
-  );
   const [sound, setSound] = useState<boolean>(() => {
     const s = localStorage.getItem("bh-sound");
     return s ? JSON.parse(s) : true;
   });
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem("bh-theme", theme);
-  }, [theme]);
 
   useEffect(() => {
     localStorage.setItem("bh-sound", JSON.stringify(sound));
@@ -59,7 +53,7 @@ const AdminDashboard: React.FC = () => {
     name: string;
     email: string;
     role: string;
-    status: string;
+    status?: string;
   }
 
   interface Course {
@@ -71,87 +65,137 @@ const AdminDashboard: React.FC = () => {
 
   const [users, setUsers] = useState<User[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
-  const [showUserModal, setShowUserModal] = useState(false);
-  const [showCourseModal, setShowCourseModal] = useState(false);
+  const [showUserModal, setShowUserModal] = useState<boolean>(false);
+  const [showCourseModal, setShowCourseModal] = useState<boolean>(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [userForm, setUserForm] = useState({ name: "", email: "", role: "Learner", status: "Active" });
   const [courseForm, setCourseForm] = useState({ title: "", enrollments: 0, status: "Active" });
 
   useEffect(() => {
-    setStats({
-      totalUsers: 150,
-      totalCourses: 12,
-      totalMentors: 8,
-      activeLearners: 120,
-    });
+    fetchData();
+  }, []);
 
-    setUsers([
-      { id: 1, name: isArabic ? "أبوك ماين" : "Abuk Mayen", email: isArabic ? "أبوك@مثال.كوم" : "abuk@test.com", role: isArabic ? "متعلم" : "Learner", status: isArabic ? "نشط" : "Active" },
-      { id: 2, name: isArabic ? "بريسيلا أيوين" : "Priscilla Ayuen", email: isArabic ? "بريسيلا@مثال.كوم" : "priscilla@test.com", role: isArabic ? "مرشد" : "Mentor", status: isArabic ? "نشط" : "Active" },
-    ]);
-
-    setCourses([
-      { id: 1, title: isArabic ? "الثقافة المالية" : "Financial Literacy", enrollments: 45, status: isArabic ? "نشط" : "Active" },
-      { id: 2, title: isArabic ? "ريادة الأعمال ١٠١" : "Entrepreneurship 101", enrollments: 38, status: isArabic ? "نشط" : "Active" },
-    ]);
-  }, [isArabic]);
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        alert("No authentication token found. Please login again.");
+        navigate("/login");
+        return;
+      }
+      
+      const [usersRes, coursesRes] = await Promise.all([
+        fetch("http://localhost:5000/api/admin/users", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("http://localhost:5000/api/courses", { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      
+      if (usersRes.status === 401) {
+        alert("Session expired. Please login again.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+        return;
+      }
+      
+      if (usersRes.ok) {
+        const usersData = await usersRes.json();
+        setUsers(usersData);
+        const mentorCount = usersData.filter((u: User) => u.role?.toLowerCase() === 'mentor').length;
+        const learnerCount = usersData.filter((u: User) => u.role?.toLowerCase() === 'learner').length;
+        setStats(prev => ({ 
+          ...prev, 
+          totalUsers: usersData.length,
+          totalMentors: mentorCount,
+          activeLearners: learnerCount
+        }));
+      }
+      
+      if (coursesRes.ok) {
+        const coursesData = await coursesRes.json();
+        setCourses(coursesData.map((c: any) => ({ ...c, enrollments: 0, status: "Active" })));
+        setStats(prev => ({ ...prev, totalCourses: coursesData.length }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch data", err);
+    }
+  };
 
   const handleAddUser = () => {
+    console.log("Add User clicked");
     playUiSound(sound);
-    console.log('Add User button clicked');
-    console.log('Current showUserModal state:', showUserModal);
     setEditingUser(null);
     setUserForm({ name: "", email: "", role: "Learner", status: "Active" });
     setShowUserModal(true);
-    console.log('Modal state set to true');
-    setTimeout(() => {
-      console.log('After setState - showUserModal:', showUserModal);
-    }, 100);
+    console.log("showUserModal set to true");
   };
 
   const handleEditUser = (user: User) => {
     playUiSound(sound);
     setEditingUser(user);
-    setUserForm({ name: user.name, email: user.email, role: user.role, status: user.status });
+    setUserForm({ name: user.name, email: user.email, role: user.role, status: user.status || "Active" });
     setShowUserModal(true);
   };
 
-  const handleSaveUser = () => {
+  const handleSaveUser = async () => {
     playUiSound(sound);
-    console.log('Save User clicked', userForm);
     if (!userForm.name || !userForm.email) {
       alert(isArabic ? "الرجاء ملء جميع الحقول" : "Please fill all fields");
       return;
     }
-    if (editingUser) {
-      const updated = users.map(u => u.id === editingUser.id ? { ...editingUser, ...userForm } : u);
-      console.log('Updating user', updated);
-      setUsers(updated);
-    } else {
-      const newUser = { id: Date.now(), ...userForm };
-      console.log('Adding new user', newUser);
-      console.log('Current users:', users);
-      const updatedUsers = [...users, newUser];
-      console.log('Updated users array:', updatedUsers);
-      setUsers(updatedUsers);
+    
+    try {
+      const token = localStorage.getItem("token");
+      if (editingUser) {
+        const res = await fetch(`http://localhost:5000/api/admin/users/${editingUser.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify(userForm)
+        });
+        if (res.ok) {
+          await fetchData();
+          setShowUserModal(false);
+        }
+      } else {
+        const res = await fetch("http://localhost:5000/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...userForm, password: "Default123" })
+        });
+        if (res.ok) {
+          await fetchData();
+          setShowUserModal(false);
+        }
+      }
+    } catch (err) {
+      alert("Failed to save user");
     }
-    setShowUserModal(false);
-    console.log('Modal closed');
   };
 
-  const handleDeleteUser = (id: number) => {
+  const handleDeleteUser = async (id: number) => {
     playUiSound(sound);
     if (confirm(isArabic ? "هل أنت متأكد من حذف هذا المستخدم؟" : "Are you sure you want to delete this user?")) {
-      setUsers(users.filter(u => u.id !== id));
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) await fetchData();
+      } catch (err) {
+        alert("Failed to delete user");
+      }
     }
   };
 
   const handleAddCourse = () => {
+    console.log("Add Course clicked");
     playUiSound(sound);
     setEditingCourse(null);
     setCourseForm({ title: "", enrollments: 0, status: "Active" });
     setShowCourseModal(true);
+    console.log("showCourseModal set to true");
   };
 
   const handleEditCourse = (course: Course) => {
@@ -161,24 +205,54 @@ const AdminDashboard: React.FC = () => {
     setShowCourseModal(true);
   };
 
-  const handleSaveCourse = () => {
+  const handleSaveCourse = async () => {
     playUiSound(sound);
     if (!courseForm.title) {
       alert(isArabic ? "الرجاء إدخال عنوان الدورة" : "Please enter course title");
       return;
     }
-    if (editingCourse) {
-      setCourses(courses.map(c => c.id === editingCourse.id ? { ...editingCourse, ...courseForm } : c));
-    } else {
-      setCourses([...courses, { id: Date.now(), ...courseForm }]);
+    
+    try {
+      const token = localStorage.getItem("token");
+      if (editingCourse) {
+        const res = await fetch(`http://localhost:5000/api/courses/${editingCourse.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ title: courseForm.title, description: "", category: "General", level: "Beginner", duration: "4 weeks", mentor: "Admin" })
+        });
+        if (res.ok) {
+          await fetchData();
+          setShowCourseModal(false);
+        }
+      } else {
+        const res = await fetch("http://localhost:5000/api/courses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ title: courseForm.title, description: "", category: "General", level: "Beginner", duration: "4 weeks", mentor: "Admin" })
+        });
+        if (res.ok) {
+          await fetchData();
+          setShowCourseModal(false);
+        }
+      }
+    } catch (err) {
+      alert("Failed to save course");
     }
-    setShowCourseModal(false);
   };
 
-  const handleDeleteCourse = (id: number) => {
+  const handleDeleteCourse = async (id: number) => {
     playUiSound(sound);
     if (confirm(isArabic ? "هل أنت متأكد من حذف هذه الدورة؟" : "Are you sure you want to delete this course?")) {
-      setCourses(courses.filter(c => c.id !== id));
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`http://localhost:5000/api/courses/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) await fetchData();
+      } catch (err) {
+        alert("Failed to delete course");
+      }
     }
   };
 
@@ -190,24 +264,6 @@ const AdminDashboard: React.FC = () => {
       <header className="admin-header">
         <h1>{t.title}</h1>
         <div className="theme-toggle">
-          <button
-            className={theme === "light" ? "active" : ""}
-            onClick={() => {
-              playUiSound(sound);
-              setTheme("light");
-            }}
-          >
-            {t.light}
-          </button>
-          <button
-            className={theme === "dark" ? "active" : ""}
-            onClick={() => {
-              playUiSound(sound);
-              setTheme("dark");
-            }}
-          >
-            {t.dark}
-          </button>
           <button
             onClick={() => {
               playUiSound(sound);
@@ -260,7 +316,7 @@ const AdminDashboard: React.FC = () => {
                 <td>{user.name}</td>
                 <td>{user.email}</td>
                 <td>{user.role}</td>
-                <td>{user.status}</td>
+                <td>{user.status || "Active"}</td>
                 <td>
                   <button className="btn-small" onClick={() => handleEditUser(user)}>{t.edit}</button>
                   <button className="btn-small danger" onClick={() => handleDeleteUser(user.id)}>{t.delete}</button>
@@ -273,7 +329,12 @@ const AdminDashboard: React.FC = () => {
       <section className="management-section">
         <div className="section-header">
           <h2>{t.courseManagement}</h2>
-          <button className="btn primary" onClick={handleAddCourse}>{t.addCourse}</button>
+          <div style={{display: 'flex', gap: '10px'}}>
+            <button className="btn primary" onClick={() => navigate('/admin-course-upload')}>
+              📹 {isArabic ? 'رفع دورة بالفيديو' : 'Upload Course with Videos'}
+            </button>
+            <button className="btn primary" onClick={handleAddCourse}>{t.addCourse}</button>
+          </div>
         </div>
         <table className="data-table">
           <thead>
@@ -302,7 +363,7 @@ const AdminDashboard: React.FC = () => {
 
     </div>
     {showUserModal && (
-      <div className="modal-overlay" onClick={() => setShowUserModal(false)}>
+      <div className="modal-overlay" onClick={() => setShowUserModal(false)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10000}}>
         <div className="modal" onClick={(e) => e.stopPropagation()}>
           <h3>{editingUser ? (isArabic ? "تعديل مستخدم" : "Edit User") : (isArabic ? "إضافة مستخدم" : "Add User")}</h3>
           <div className="form-group">
@@ -337,7 +398,7 @@ const AdminDashboard: React.FC = () => {
     )}
 
     {showCourseModal && (
-      <div className="modal-overlay" onClick={() => setShowCourseModal(false)}>
+      <div className="modal-overlay" onClick={() => setShowCourseModal(false)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10000}}>
         <div className="modal" onClick={(e) => e.stopPropagation()}>
           <h3>{editingCourse ? (isArabic ? "تعديل دورة" : "Edit Course") : (isArabic ? "إضافة دورة" : "Add Course")}</h3>
           <div className="form-group">

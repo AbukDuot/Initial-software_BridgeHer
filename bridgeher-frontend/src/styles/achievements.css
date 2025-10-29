@@ -93,7 +93,7 @@
 
 
 .achievement-card.unlocked {
-  border-left: 4px solid #4caf50;
+  border-left: 4px solid #6a1b9a;
 }
 
 .achievement-card.locked {
@@ -140,7 +140,7 @@
   }
 }
 
-/* === RTL Support === */
+
 .rtl {
   direction: rtl;
   text-align: right;
