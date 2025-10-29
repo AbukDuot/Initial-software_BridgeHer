@@ -223,7 +223,7 @@ const MentorDashboard: React.FC = () => {
           window.location.href = "/login";
           return;
         }
-        const res = await fetch("http://localhost:5000/api/dashboards/mentor", {
+        const res = await fetch("${API_BASE_URL}/api/dashboards/mentor", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.status === 401) {

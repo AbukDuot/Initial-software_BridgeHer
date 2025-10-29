@@ -22,7 +22,7 @@ const CourseModules: React.FC = () => {
 
   useEffect(() => {
     const fetchModules = async () => {
-      const res = await fetch("http://localhost:5000/api/courses/1/modules");
+      const res = await fetch("${API_BASE_URL}/api/courses/1/modules");
       const data = await res.json();
       setModules(data.map((m: { id: number; title: string; description: string; video_url: string; content: string }) => ({
         id: m.id,

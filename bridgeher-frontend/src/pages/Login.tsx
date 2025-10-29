@@ -4,6 +4,7 @@ import { useLanguage } from "../hooks/useLanguage";
 import { useToast } from "../hooks/useToast";
 import Toast from "../components/Toast";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { API_BASE_URL } from "../config/api";
 import "../styles/auth.css";
 
 const Login: React.FC = () => {
@@ -33,7 +34,7 @@ const Login: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, password: form.password }),

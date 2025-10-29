@@ -33,7 +33,7 @@ const Community: React.FC = () => {
 
   const fetchTopics = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/community/topics");
+      const res = await fetch("${API_BASE_URL}/api/community/topics");
       if (res.ok) {
         const data = await res.json();
         setTopics(data.map((t: any) => ({
@@ -61,7 +61,7 @@ const Community: React.FC = () => {
         return;
       }
       
-      const res = await fetch("http://localhost:5000/api/community/topics", {
+      const res = await fetch("${API_BASE_URL}/api/community/topics", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

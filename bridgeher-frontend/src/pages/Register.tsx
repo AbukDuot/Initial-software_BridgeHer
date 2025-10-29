@@ -5,6 +5,7 @@ import { useToast } from "../hooks/useToast";
 import Toast from "../components/Toast";
 import LoadingSpinner from "../components/LoadingSpinner";
 import TermsModal from "../components/TermsModal";
+import { API_BASE_URL } from "../config/api";
 import "../styles/auth.css";
 
 const Register: React.FC = () => {
@@ -45,7 +46,7 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

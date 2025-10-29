@@ -72,7 +72,7 @@ const Mentorship: React.FC = () => {
   React.useEffect(() => {
     const fetchMentors = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/users/mentors");
+        const res = await fetch("${API_BASE_URL}/api/users/mentors");
         if (res.ok) {
           const data = await res.json();
           const avatarMap: Record<string, string> = {
@@ -172,7 +172,7 @@ const Mentorship: React.FC = () => {
     
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/mentorship", {
+      const res = await fetch("${API_BASE_URL}/api/mentorship", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -115,7 +115,7 @@ const Settings: React.FC = () => {
     const fetchSettings = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:5000/api/settings", {
+        const res = await fetch("${API_BASE_URL}/api/settings", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -155,7 +155,7 @@ const Settings: React.FC = () => {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/settings", {
+      const res = await fetch("${API_BASE_URL}/api/settings", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -298,7 +298,7 @@ const Settings: React.FC = () => {
               if (window.confirm(t.account.confirmDelete)) {
                 try {
                   const token = localStorage.getItem("token");
-                  const res = await fetch("http://localhost:5000/api/settings/account", {
+                  const res = await fetch("${API_BASE_URL}/api/settings/account", {
                     method: "DELETE",
                     headers: { Authorization: `Bearer ${token}` }
                   });
@@ -319,7 +319,7 @@ const Settings: React.FC = () => {
             onClick={async () => {
               try {
                 const token = localStorage.getItem("token");
-                await fetch("http://localhost:5000/api/settings/logout", {
+                await fetch("${API_BASE_URL}/api/settings/logout", {
                   method: "POST",
                   headers: { Authorization: `Bearer ${token}` }
                 });

@@ -87,8 +87,8 @@ const AdminDashboard: React.FC = () => {
       }
       
       const [usersRes, coursesRes] = await Promise.all([
-        fetch("http://localhost:5000/api/admin/users", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("http://localhost:5000/api/courses", { headers: { Authorization: `Bearer ${token}` } })
+        fetch("${API_BASE_URL}/api/admin/users", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch("${API_BASE_URL}/api/courses", { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
       if (usersRes.status === 401) {
@@ -148,7 +148,7 @@ const AdminDashboard: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (editingUser) {
-        const res = await fetch(`http://localhost:5000/api/admin/users/${editingUser.id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/admin/users/${editingUser.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify(userForm)
@@ -158,7 +158,7 @@ const AdminDashboard: React.FC = () => {
           setShowUserModal(false);
         }
       } else {
-        const res = await fetch("http://localhost:5000/api/auth/register", {
+        const res = await fetch("${API_BASE_URL}/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...userForm, password: "Default123" })
@@ -178,7 +178,7 @@ const AdminDashboard: React.FC = () => {
     if (confirm(isArabic ? "هل أنت متأكد من حذف هذا المستخدم؟" : "Are you sure you want to delete this user?")) {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/admin/users/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -215,7 +215,7 @@ const AdminDashboard: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (editingCourse) {
-        const res = await fetch(`http://localhost:5000/api/courses/${editingCourse.id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/courses/${editingCourse.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ title: courseForm.title, description: "", category: "General", level: "Beginner", duration: "4 weeks", mentor: "Admin" })
@@ -225,7 +225,7 @@ const AdminDashboard: React.FC = () => {
           setShowCourseModal(false);
         }
       } else {
-        const res = await fetch("http://localhost:5000/api/courses", {
+        const res = await fetch("${API_BASE_URL}/api/courses", {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ title: courseForm.title, description: "", category: "General", level: "Beginner", duration: "4 weeks", mentor: "Admin" })
@@ -245,7 +245,7 @@ const AdminDashboard: React.FC = () => {
     if (confirm(isArabic ? "هل أنت متأكد من حذف هذه الدورة؟" : "Are you sure you want to delete this course?")) {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`http://localhost:5000/api/courses/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/courses/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         });

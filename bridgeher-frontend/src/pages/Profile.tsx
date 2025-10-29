@@ -42,7 +42,7 @@ const Profile: React.FC = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/users/me", {
+      const response = await fetch("${API_BASE_URL}/api/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -63,7 +63,7 @@ const Profile: React.FC = () => {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/users/me", {
+      const response = await fetch("${API_BASE_URL}/api/users/me", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

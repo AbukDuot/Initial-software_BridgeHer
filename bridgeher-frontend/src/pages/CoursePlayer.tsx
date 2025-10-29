@@ -54,7 +54,7 @@ const CoursePlayer: React.FC = () => {
   const loadCourse = async () => {
     try {
       const token = localStorage.getItem("token");
-      const modulesRes = await fetch(`http://localhost:5000/api/courses/${courseId}/modules`, {
+      const modulesRes = await fetch(`${API_BASE_URL}/api/courses/${courseId}/modules`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -74,7 +74,7 @@ const CoursePlayer: React.FC = () => {
   const loadAssignments = async (moduleId: number) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/assignments/module/${moduleId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/assignments/module/${moduleId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -95,7 +95,7 @@ const CoursePlayer: React.FC = () => {
     
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/modules/${currentModule.id}/progress`, {
+      await fetch(`${API_BASE_URL}/api/modules/${currentModule.id}/progress`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -124,7 +124,7 @@ const CoursePlayer: React.FC = () => {
     
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/offline/course/${courseId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/offline/course/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -132,7 +132,7 @@ const CoursePlayer: React.FC = () => {
       const { saveCourseOffline } = await import("../utils/offline");
       saveCourseOffline(Number(courseId), data);
       
-      await fetch(`http://localhost:5000/api/offline/download/${courseId}`, {
+      await fetch(`${API_BASE_URL}/api/offline/download/${courseId}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -151,7 +151,7 @@ const CoursePlayer: React.FC = () => {
       formData.append("content", submissionText);
       if (submissionFile) formData.append("file", submissionFile);
       
-      const res = await fetch(`http://localhost:5000/api/assignments/${assignmentId}/submit`, {
+      const res = await fetch(`${API_BASE_URL}/api/assignments/${assignmentId}/submit`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -210,7 +210,7 @@ const CoursePlayer: React.FC = () => {
                     ref={videoRef}
                     controls
                     onTimeUpdate={handleVideoProgress}
-                    src={`http://localhost:5000${currentModule.video_url}`}
+                    src={`${API_BASE_URL}${currentModule.video_url}`}
                   />
                 )
               ) : (
@@ -241,7 +241,7 @@ const CoursePlayer: React.FC = () => {
                 <div className="pdf-section">
                   <h2>📄 Course Materials</h2>
                   <a 
-                    href={`http://localhost:5000/api/modules/${currentModule.id}/pdf`}
+                    href={`${API_BASE_URL}/api/modules/${currentModule.id}/pdf`}
                     download
                     className="pdf-download-btn"
                   >

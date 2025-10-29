@@ -152,7 +152,7 @@ const CourseDetail: React.FC = () => {
   const loadCourse = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/courses/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/courses/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -167,7 +167,7 @@ const CourseDetail: React.FC = () => {
           modules: []
         });
         
-        const modulesRes = await fetch(`http://localhost:5000/api/courses/${id}/modules`, {
+        const modulesRes = await fetch(`${API_BASE_URL}/api/courses/${id}/modules`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (modulesRes.ok) {
@@ -201,7 +201,7 @@ const CourseDetail: React.FC = () => {
   const handleEnroll = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5000/api/courses/${id}/enroll`, {
+      const res = await fetch(`${API_BASE_URL}/api/courses/${id}/enroll`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
