@@ -357,7 +357,7 @@ Test live API connection between frontend and backend.
 
 ##  Video Demo
 
-BridgeHer Demo Video (5–10 minutes)
+BridgeHer Demo Video
 
 Covers:
 
@@ -369,9 +369,8 @@ Registration and login functionality
 
 Backend connection and database interaction
 
-Responsive design demonstration
-
-🔗 [https://drive.google.com/file/d/1yu4ZRXURmIa3C2YUEhpuP0iDkg7J9SiY/view?usp=sharing]
+My video:
+🔗 [https://drive.google.com/drive/folders/1uLfcK2XwXCyx_L-lWqW9h_40qczWKnLC?usp=sharing]
 
  Developer Notes
 
