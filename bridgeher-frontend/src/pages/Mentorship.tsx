@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useLanguage } from "../hooks/useLanguage";
+import { API_BASE_URL } from "../config/api";
 import "../styles/mentorship.css";
 
 import priscillaImg from "../assets/images/priscilla.jpg";
@@ -72,7 +73,7 @@ const Mentorship: React.FC = () => {
   React.useEffect(() => {
     const fetchMentors = async () => {
       try {
-        const res = await fetch("${API_BASE_URL}/api/users/mentors");
+        const res = await fetch(`${API_BASE_URL}/api/users/mentors`);
         if (res.ok) {
           const data = await res.json();
           const avatarMap: Record<string, string> = {
@@ -172,7 +173,7 @@ const Mentorship: React.FC = () => {
     
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("${API_BASE_URL}/api/mentorship", {
+      const res = await fetch(`${API_BASE_URL}/api/mentorship`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -237,7 +238,7 @@ const Mentorship: React.FC = () => {
               <p className="mentor-role">{m.role}</p>
               <p className="mentor-location">{t.location}: {m.location}</p>
               <div className="mentor-badges">
-                {m.badges.map((b, idx) => (
+                {m.badges.map((b: string, idx: number) => (
                   <span key={idx} className="badge">{b}</span>
                 ))}
               </div>

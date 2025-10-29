@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { getOfflineCourse, isCourseOffline } from "../utils/offline";
+import { API_BASE_URL } from "../config/api";
 import "../styles/courseplayer.css";
 
 interface Module {

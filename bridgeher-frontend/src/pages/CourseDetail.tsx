@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
+import { API_BASE_URL } from "../config/api";
 import "../styles/courseDetail.css";
 
 interface Module {

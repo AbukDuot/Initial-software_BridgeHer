@@ -54,7 +54,7 @@ const Login: React.FC = () => {
       } else {
         showToast(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`, "error");
       }
-    } catch (error) {
+    } catch {
       setLoading(false);
       showToast(isArabic ? "فشل الاتصال بالخادم!" : "Failed to connect to server!", "error");
     }
