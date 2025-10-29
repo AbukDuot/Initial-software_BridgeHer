@@ -1,0 +1,64 @@
+═══════════════════════════════════════════════════════════
+  CLOUDINARY SETUP - 3 MINUTES
+═══════════════════════════════════════════════════════════
+
+STEP 1: Create FREE Account
+→ Go to: https://cloudinary.com/users/register_free
+→ Sign up with your email
+→ Verify email and login
+
+STEP 2: Get Your Credentials
+→ Dashboard: https://console.cloudinary.com/
+→ Copy these 3 values:
+   • Cloud Name: (e.g., dxxxxx)
+   • API Key: (e.g., 123456789012345)
+   • API Secret: (click "Show" button)
+
+STEP 3: Update .env File
+→ Open: backend/.env
+→ Replace these lines:
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+→ With your actual values from Step 2
+
+STEP 4: Restart Backend
+→ Stop backend (Ctrl+C)
+→ Run: npm run dev
+
+DONE! ✅
+
+═══════════════════════════════════════════════════════════
+  HOW IT WORKS
+═══════════════════════════════════════════════════════════
+
+✅ Admin uploads video → Goes to Cloudinary
+✅ Cloudinary returns URL → Saved to database
+✅ Learners watch video → Streams from Cloudinary CDN
+✅ Fast, secure, no server storage needed
+
+═══════════════════════════════════════════════════════════
+  WHAT YOU GET (FREE)
+═══════════════════════════════════════════════════════════
+
+✅ 25GB Storage (~50 hours of video)
+✅ 25GB Bandwidth/month (~500 views)
+✅ Automatic video optimization
+✅ Global CDN delivery
+✅ Secure URLs
+
+═══════════════════════════════════════════════════════════
+  FALLBACK: LOCAL STORAGE
+═══════════════════════════════════════════════════════════
+
+If you DON'T set up Cloudinary:
+→ System automatically uses local storage
+→ Videos saved to: backend/uploads/videos/
+→ Works perfectly for development/testing
+
+Both methods work with your current frontend!
+No code changes needed.
+
+═══════════════════════════════════════════════════════════

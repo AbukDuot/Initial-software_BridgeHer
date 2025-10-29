@@ -1,5 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+*.local
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,18 +22,42 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+
+# Documentation (internal)
+BACKEND_SUMMARY.md
+COURSERA_STYLE_FLOW.md
+DEPLOYMENT_CHECKLIST.md
+DEPLOYMENT_GUIDE.md
+FEATURES_COMPLETE.md
+FINAL_CHECKLIST.md
+FRONTEND_BACKEND_COMPATIBILITY.md
+OAUTH_EMAIL_SMS_SETUP.md
+CLEAR_CACHE_INSTRUCTIONS.md
+
+# Scripts (development only)
+*.bat
+*.sh
+update-all-css.bat
+
+# Test coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+temp_*
