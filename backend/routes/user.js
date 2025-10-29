@@ -33,6 +33,20 @@ router.put("/me/password", requireAuth, changePassword);
 router.post("/me/avatar", requireAuth, upload.single("avatar"), uploadAvatar);
 
 router.get("/", requireAuth, requireRole(["Admin"]), listUsers);
+router.get("/mentors", async (req, res) => {
+  try {
+    const pool = (await import("../config/db.js")).default;
+    const { rows } = await pool.query(
+      `SELECT id, name, email, bio, expertise, expertise_ar, video_intro, contact, location, avatar_url, badges, rating, created_at
+       FROM users
+       WHERE role = 'Mentor'
+       ORDER BY created_at DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 router.get("/:id", requireAuth, requireRole(["Admin"]), getUser);
 router.delete("/:id", requireAuth, requireRole(["Admin"]), deleteUser);
 

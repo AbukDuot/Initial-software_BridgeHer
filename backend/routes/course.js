@@ -5,6 +5,7 @@ import fs from "fs";
 import pool from "../config/db.js";
 import { sendCourseCompletionEmail } from "../services/emailService.js";
 import { sendCourseCompletionSMS } from "../services/smsService.js";
+import { sendEnrollmentEmail } from "../services/notificationService.js";
 import {
   listCourses,
   getCourse,
@@ -32,10 +33,9 @@ const upload = multer({ storage });
 router.get("/", listCourses);
 router.get("/:id", getCourse);
 
-router.post("/", requireAuth, requireRole(["Admin", "Mentor"]), upload.single("image"), createCourse);
+router.post("/", requireAuth, requireRole(["Admin"]), upload.single("image"), createCourse);
 
-
-router.put("/:id", requireAuth, requireRole(["Admin", "Mentor"]), upload.single("image"), updateCourse);
+router.put("/:id", requireAuth, requireRole(["Admin"]), upload.single("image"), updateCourse);
 
 
 router.delete("/:id", requireAuth, requireRole(["Admin"]), deleteCourse);
@@ -53,6 +53,16 @@ router.post("/:id/enroll", requireAuth, async (req, res) => {
        RETURNING *`,
       [userId, id]
     );
+    
+    if (rows[0]) {
+      const { rows: userData } = await pool.query(
+        "SELECT u.name, u.email, c.title FROM users u, courses c WHERE u.id = $1 AND c.id = $2",
+        [userId, id]
+      );
+      if (userData[0]) {
+        sendEnrollmentEmail(userData[0].email, userData[0].name, userData[0].title).catch(console.error);
+      }
+    }
     
     res.json({ message: "Enrolled successfully", enrollment: rows[0] });
   } catch (err) {

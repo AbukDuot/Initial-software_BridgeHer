@@ -1,15 +1,18 @@
 # Dependencies
 node_modules/
 
-# Environment variables
+# Environment variables (NEVER commit these!)
 .env
 .env.local
 .env.production
+.env.development
 
 # Logs
 logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # OS files
 .DS_Store
@@ -18,6 +21,8 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # Uploads
 uploads/*
@@ -29,3 +34,11 @@ coverage/
 # Build
 dist/
 build/
+
+# API test files (contains tokens)
+api-test.http
+*.http
+
+# Database dumps
+*.sql
+*.dump

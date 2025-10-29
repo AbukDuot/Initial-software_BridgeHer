@@ -43,9 +43,20 @@ router.post("/register", async (req, res) => {
     );
 
     // Send welcome notifications
-    sendWelcomeEmail(user.email, user.name).catch(console.error);
+    console.log("\n🔔 Sending welcome notifications...");
+    console.log("   Email:", user.email);
+    console.log("   Phone:", req.body.phone || "Not provided");
+    
+    sendWelcomeEmail(user.email, user.name).catch(err => {
+      console.error("❌ Email notification failed:", err.message);
+    });
+    
     if (req.body.phone) {
-      sendWelcomeSMS(req.body.phone, user.name).catch(console.error);
+      sendWelcomeSMS(req.body.phone, user.name).catch(err => {
+        console.error("❌ SMS notification failed:", err.message);
+      });
+    } else {
+      console.log("⚠️ SMS skipped - No phone number in request");
     }
 
     res.status(201).json({
@@ -121,6 +132,38 @@ router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }))
 router.get("/facebook/callback", passport.authenticate("facebook", { session: false }), (req, res) => {
   const token = jwt.sign({ id: req.user.id, email: req.user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
   res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`);
+});
+
+// Password Reset
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const { rows } = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (!rows[0]) return res.status(404).json({ message: "User not found" });
+
+    const resetToken = jwt.sign({ id: rows[0].id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    
+    const { sendPasswordResetEmail } = await import("../services/emailService.js");
+    await sendPasswordResetEmail(email, resetToken);
+    
+    res.json({ message: "Password reset link sent to your email" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    await pool.query("UPDATE users SET password = $1 WHERE id = $2", [hashedPassword, decoded.id]);
+    
+    res.json({ message: "Password reset successful" });
+  } catch (err) {
+    res.status(400).json({ message: "Invalid or expired token" });
+  }
 });
 
 export default router;

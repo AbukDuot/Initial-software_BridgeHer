@@ -1,1 +1,0 @@
-TRUNCATE TABLE comments, posts, quiz_attempts, quizzes, offline_content, user_reminders, user_courses, certificates, badges, user_points, mentorship_requests, enrollments, modules, courses, users RESTART IDENTITY CASCADE;

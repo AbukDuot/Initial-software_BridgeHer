@@ -16,9 +16,14 @@ import mentorshipRoutes from "./routes/mentorship.js";
 import settingsRoutes from "./routes/settings.js";
 import dashboardsRoutes from "./routes/dashboards.js";
 import courseRoutes from "./routes/course.js";
+import moduleRoutes from "./routes/modules.js";
+import assignmentRoutes from "./routes/assignments.js";
+import adminMentorshipRoutes from "./routes/admin-mentorship.js";
+import adminRoutes from "./routes/admin.js";
 import quizRoutes from "./routes/quiz.js";
 import gamificationRoutes from "./routes/gamification.js";
 import offlineRoutes from "./routes/offline.js";
+import supportRoutes from "./routes/support.js";
 
 const app = express();
 
@@ -46,9 +51,14 @@ app.use("/api/mentorship", mentorshipRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/dashboards", dashboardsRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/modules", moduleRoutes);
+app.use("/api/assignments", assignmentRoutes);
+app.use("/api/admin/mentorship", adminMentorshipRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/quizzes", quizRoutes);
 app.use("/api/gamification", gamificationRoutes);
 app.use("/api/offline", offlineRoutes);
+app.use("/api/support", supportRoutes);
 
 
 app.use((_req, res) => {

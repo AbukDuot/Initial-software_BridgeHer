@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pool from "../config/db.js";
+import { sendWelcomeEmail } from "../services/emailService.js";
+import { sendWelcomeSMS } from "../services/smsService.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -21,6 +23,11 @@ export const registerUser = async (req, res) => {
     );
 
     const token = jwt.sign({ id: newUser.rows[0].id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    sendWelcomeEmail(email, name).catch(console.error);
+    if (newUser.rows[0].contact) {
+      sendWelcomeSMS(newUser.rows[0].contact, name).catch(console.error);
+    }
 
     res.status(201).json({
       message: "Registration successful",
@@ -44,6 +51,21 @@ export const loginUser = async (req, res) => {
     if (!validPassword) return res.status(400).json({ message: "Invalid email or password" });
 
     const token = jwt.sign({ id: user.rows[0].id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    const loginEmail = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Login Notification - BridgeHer",
+      html: `<h2>Hi ${user.rows[0].name}!</h2><p>You logged in to BridgeHer at ${new Date().toLocaleString()}.</p>`,
+    };
+    
+    import("nodemailer").then(nodemailer => {
+      const transporter = nodemailer.default.createTransport({
+        service: "gmail",
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASSWORD },
+      });
+      transporter.sendMail(loginEmail).catch(console.error);
+    });
 
     res.json({
       message: "Login successful",
