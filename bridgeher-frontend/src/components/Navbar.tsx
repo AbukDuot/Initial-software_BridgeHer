@@ -65,7 +65,6 @@ const Navbar: React.FC = () => {
           <li><Link to="/mentor-dashboard" onClick={toggleMenu}>{t.mentorDashboard}</Link></li>
           <li><Link to="/admin-dashboard" onClick={toggleMenu}>{t.adminDashboard}</Link></li>
           <li><Link to="/community" onClick={toggleMenu}>{t.community}</Link></li>
-          <li><Link to="/settings" onClick={toggleMenu}>{t.settings}</Link></li>
           <li><Link to="/help" onClick={toggleMenu}>{language === "Arabic" ? "المساعدة" : "Help"}</Link></li>
         </ul>
 
@@ -97,17 +96,26 @@ const Navbar: React.FC = () => {
             </>
           )}
 
-          {/* Language Toggle */}
-          <button
-            onClick={toggleLanguage}
+          {/* Language Selector */}
+          <select
+            value={language}
+            onChange={(e) => {
+              const newLang = e.target.value as "English" | "Arabic";
+              toggleLanguage();
+            }}
             style={{
               background: "#fff",
               color: "#6a1b9a",
               fontWeight: 600,
+              border: "2px solid #6a1b9a",
+              borderRadius: "5px",
+              padding: "8px 12px",
+              cursor: "pointer",
             }}
           >
-            {language === "English" ? "العربية" : "English"}
-          </button>
+            <option value="English">English</option>
+            <option value="Arabic">العربية</option>
+          </select>
         </div>
       </nav>
     </>
