@@ -6,10 +6,13 @@ const initDatabase = async () => {
     
     const checkTables = await pool.query(`
       SELECT table_name FROM information_schema.tables 
-      WHERE table_schema = 'public' AND table_name = 'users'
+      WHERE table_schema = 'public' AND table_name IN (
+        'users', 'courses', 'modules', 'enrollments', 'certificates',
+        'mentorship_requests', 'user_points', 'community_topics'
+      )
     `);
 
-    if (checkTables.rows.length > 0) {
+    if (checkTables.rows.length >= 8) {
       console.log('Database tables already exist');
       return;
     }
