@@ -53,13 +53,6 @@ interface SessionItem {
   dateISO: string;
 }
 
-interface FeedbackItem {
-  id: string;
-  learner: string;
-  rating: Rating;
-  comment: string;
-}
-
 const tMap = {
   en: {
     title: "Mentor Dashboard",
@@ -317,9 +310,9 @@ const MentorDashboard: React.FC = () => {
     datasets: [
       {
         data: [
-          feedback.filter((f) => f.rating >= 5).length,
-          feedback.filter((f) => f.rating === 3 || f.rating === 4).length,
-          feedback.filter((f) => f.rating <= 2).length,
+          feedback.filter((f: any) => f.rating >= 5).length,
+          feedback.filter((f: any) => f.rating === 3 || f.rating === 4).length,
+          feedback.filter((f: any) => f.rating <= 2).length,
         ],
         backgroundColor: ["#4A148C", "#FFD700", "#E53935"],
         borderWidth: 1,

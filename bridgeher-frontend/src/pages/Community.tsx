@@ -269,7 +269,7 @@ const Community: React.FC = () => {
                 <div key={topic.id} className="topic-card" onClick={() => viewTopic(topic.id)}>
                   <div className="topic-content">
                     <h3>{topic.title}</h3>
-                    <p>{topic.description || topic.content?.substring(0, 150) + "..."}</p>
+                    <p>{topic.description?.substring(0, 150) + "..."}</p>
                     <div className="topic-meta">
                       {topic.category && <span className="category-badge">{topic.category}</span>}
                       <span>{isArabic ? "بواسطة" : "by"} {topic.author_name}</span>
