@@ -4,18 +4,8 @@ const initDatabase = async () => {
   try {
     console.log(' Checking database tables...');
     
-    const checkTables = await pool.query(`
-      SELECT table_name FROM information_schema.tables 
-      WHERE table_schema = 'public' AND table_name IN (
-        'users', 'courses', 'modules', 'enrollments', 'certificates',
-        'mentorship_requests', 'user_points', 'community_topics'
-      )
-    `);
-
-    if (checkTables.rows.length >= 8) {
-      console.log('Database tables already exist');
-      return;
-    }
+    // Always try to create tables (IF NOT EXISTS will skip existing ones)
+    console.log('Ensuring all database tables exist...');
 
     console.log('Creating database tables...');
 
