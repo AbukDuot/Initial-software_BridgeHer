@@ -26,10 +26,10 @@ export const sendWelcomeEmail = async (email, name) => {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Welcome email sent successfully to:", email);
-    console.log("📧 Message ID:", info.messageId);
+    console.log("Welcome email sent successfully to:", email);
+    console.log("Message ID:", info.messageId);
   } catch (error) {
-    console.error("❌ EMAIL ERROR - Failed to send welcome email:");
+    console.error("EMAIL ERROR - Failed to send welcome email:");
     console.error("   To:", email);
     console.error("   Error:", error.message);
     console.error("   Full error:", error);
@@ -40,7 +40,7 @@ export const sendCourseCompletionEmail = async (email, name, courseTitle) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: "🎓 Congratulations! Course Completed",
+    subject: "Congratulations! Course Completed",
     html: `
       <h2>Congratulations ${name}! 🎉</h2>
       <p>You have successfully completed: <strong>${courseTitle}</strong></p>
@@ -82,7 +82,7 @@ export const sendMentorshipNotification = async (email, name, mentorName) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: "Mentorship Request Accepted! 🤝",
+    subject: "Mentorship Request Accepted! ",
     html: `
       <h2>Great News ${name}!</h2>
       <p>${mentorName} has accepted your mentorship request.</p>
@@ -103,7 +103,7 @@ export const sendMentorshipRequestEmail = async (mentorEmail, mentorName, learne
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: mentorEmail,
-    subject: "New Mentorship Request - BridgeHer 🤝",
+    subject: "New Mentorship Request - BridgeHer ",
     html: `
       <h2>Hi ${mentorName}!</h2>
       <p><strong>${learnerName}</strong> has requested mentorship from you.</p>
@@ -116,9 +116,9 @@ export const sendMentorshipRequestEmail = async (mentorEmail, mentorName, learne
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("✅ Mentorship request email sent to mentor:", mentorEmail);
+    console.log("Mentorship request email sent to mentor:", mentorEmail);
   } catch (error) {
-    console.error("❌ Email error:", error);
+    console.error("Email error:", error);
   }
 };
 
@@ -126,7 +126,7 @@ export const sendMentorshipConfirmationEmail = async (learnerEmail, learnerName,
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: learnerEmail,
-    subject: "Mentorship Request Submitted - BridgeHer ✅",
+    subject: "Mentorship Request Submitted - BridgeHer ",
     html: `
       <h2>Hi ${learnerName}!</h2>
       <p>Your mentorship request to <strong>${mentorName}</strong> has been submitted successfully.</p>
@@ -138,8 +138,8 @@ export const sendMentorshipConfirmationEmail = async (learnerEmail, learnerName,
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("✅ Mentorship confirmation email sent to learner:", learnerEmail);
+    console.log(" Mentorship confirmation email sent to learner:", learnerEmail);
   } catch (error) {
-    console.error("❌ Email error:", error);
+    console.error("Email error:", error);
   }
 };

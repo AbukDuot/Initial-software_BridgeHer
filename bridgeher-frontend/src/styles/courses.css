@@ -14,13 +14,13 @@
 }
 
 .courses-header h2 {
-  color: var(--primary-purple);
+  color: var(--purple-light);
   font-size: 2rem;
   font-weight: 700;
 }
 
 .lang-btn {
-  background: var(--primary-purple);
+  background: var(--purple-light);
   color: var(--white);
   border: none;
   padding: var(--space-xs) var(--space-md);
@@ -31,8 +31,8 @@
 }
 
 .lang-btn:hover {
-  background: var(--primary-gold);
-  color: var(--primary-purple);
+  background: var(--gold-dark);
+  color: var(--purple-light);
   transform: translateY(-2px);
 }
 
@@ -60,7 +60,7 @@
 
 .search-input:focus {
   outline: none;
-  border-color: var(--primary-purple);
+  border-color: var(--purple-light);
   box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.1);
 }
 
@@ -70,7 +70,7 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 20px;
-  color: var(--primary-purple);
+  color: var(--purple-light);
 }
 
 .filter-group {
@@ -94,7 +94,7 @@
 
 .filter-select:focus {
   outline: none;
-  border-color: var(--primary-purple);
+  border-color: var(--purple-light);
 }
 
 .results-count {
@@ -122,7 +122,7 @@
 .course-card:hover {
   transform: translateY(-8px);
   box-shadow: var(--shadow-lg);
-  border-color: var(--primary-purple);
+  border-color: var(--purple-light);
 }
 
 .course-card h3 {
@@ -133,7 +133,7 @@
 }
 
 .course-card .category {
-  color: var(--primary-purple);
+  color: var(--purple-light);
   font-weight: 600;
   font-size: 0.875rem;
   margin-bottom: var(--space-sm);
@@ -152,7 +152,7 @@
 .details-btn {
   display: inline-block;
   margin-top: var(--space-md);
-  background: var(--primary-purple);
+  background: var(--purple-light);
   color: var(--white);
   padding: 10px 20px;
   border-radius: var(--radius-md);
@@ -162,8 +162,8 @@
 }
 
 .details-btn:hover {
-  background: var(--primary-gold);
-  color: var(--primary-purple);
+  background: var(--gold-dark);
+  color: var(--purple-light);
   transform: translateX(4px);
 }
 

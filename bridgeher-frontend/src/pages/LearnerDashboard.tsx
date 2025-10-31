@@ -15,6 +15,7 @@ import {
 import { Bar, Doughnut } from "react-chartjs-2";
 import { useLanguage } from "../hooks/useLanguage";
 import { toArabicNumerals } from "../utils/numberUtils";
+import { API_BASE_URL } from "../config/api";
 import "../styles/learnerdashboard.css";
 
 ChartJS.register(
@@ -178,7 +179,7 @@ const LearnerDashboard: React.FC = () => {
           window.location.href = "/login";
           return;
         }
-        const res = await fetch("${API_BASE_URL}/api/dashboards/learner", {
+        const res = await fetch(`${API_BASE_URL}/api/dashboards/learner`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.status === 401) {
@@ -209,6 +210,8 @@ const LearnerDashboard: React.FC = () => {
   const chartTextColor = theme === "dark" ? "#FFFFFF" : "#333333";
   const chartGridColor = theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
 
+  const weeklyHours = dashboardData?.weeklyHours || [0, 0, 0, 0, 0, 0, 0];
+  
   const weeklyData = useMemo(
     () => ({
       labels: isAr
@@ -217,12 +220,12 @@ const LearnerDashboard: React.FC = () => {
       datasets: [
         {
           label: t.analytics.weekly,
-          data: [2, 3, 1.5, 2, 4, 2.5, 3],
-          backgroundColor: "#6A1B9A",
+          data: weeklyHours,
+          backgroundColor: "#4A148C",
         },
       ],
     }),
-    [isAr, t.analytics.weekly]
+    [isAr, t.analytics.weekly, weeklyHours]
   );
 
   const completionData = useMemo(
@@ -275,7 +278,10 @@ const LearnerDashboard: React.FC = () => {
   };
 
   const calendarLang = isAr ? "ar" : "en";
-  const calendarSrc = `https://calendar.google.com/calendar/embed?src=yourcalendarid%40gmail.com&ctz=Africa%2FJuba&hl=${calendarLang}`;
+  const userCalendarId = dashboardData?.user?.calendar_id || user?.email || "";
+  const calendarSrc = userCalendarId 
+    ? `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(userCalendarId)}&ctz=Africa%2FJuba&hl=${calendarLang}`
+    : "";
 
   return (
     <div className={`learner-dashboard ${isAr ? "rtl" : ""}`}>
@@ -394,16 +400,18 @@ const LearnerDashboard: React.FC = () => {
           </div>
         </section>
 
-        <section className="card calendar-embed-section">
-          <h2>{t.calendar.title}</h2>
-          <p className="muted">{t.calendar.desc}</p>
-          <div className="calendar-iframe-container">
-            <iframe src={calendarSrc} width="100%" height="600" style={{ border: 0 }} frameBorder="0" scrolling="no" title="Google Calendar" />
-          </div>
-          <div className="calendar-sync-note">
-            <p className="muted">{t.calendar.note}</p>
-          </div>
-        </section>
+        {calendarSrc && (
+          <section className="card calendar-embed-section">
+            <h2>{t.calendar.title}</h2>
+            <p className="muted">{t.calendar.desc}</p>
+            <div className="calendar-iframe-container">
+              <iframe src={calendarSrc} width="100%" height="600" style={{ border: 0 }} frameBorder="0" scrolling="no" title="Google Calendar" />
+            </div>
+            <div className="calendar-sync-note">
+              <p className="muted">{t.calendar.note}</p>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

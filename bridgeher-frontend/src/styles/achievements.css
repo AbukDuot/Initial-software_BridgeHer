@@ -93,11 +93,11 @@
 
 
 .achievement-card.unlocked {
-  border-left: 4px solid #6a1b9a;
+  border-left: 4px solid #4A148C;
 }
 
 .achievement-card.locked {
-  border-left: 4px solid #6a1b9a;
+  border-left: 4px solid #4A148C;
   opacity: 0.9;
 }
 
@@ -152,5 +152,5 @@
 
 .rtl .achievement-card {
   border-left: none;
-  border-right: 4px solid #6a1b9a;
+  border-right: 4px solid #4A148C;
 }

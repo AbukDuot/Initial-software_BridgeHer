@@ -105,6 +105,7 @@ const Settings: React.FC = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
+  const [calendarId, setCalendarId] = useState("");
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [fontSize, setFontSize] = useState("medium");
   const [accent, setAccent] = useState("#6A1B9A");
@@ -123,6 +124,7 @@ const Settings: React.FC = () => {
           setFullName(data.user.name || "");
           setEmail(data.user.email || "");
           setBio(data.user.bio || "");
+          setCalendarId(data.user.calendar_id || "");
           setProfilePic(data.user.profile_pic || null);
           const savedTheme = data.settings.theme || "light";
           setTheme(savedTheme);
@@ -164,6 +166,7 @@ const Settings: React.FC = () => {
         body: JSON.stringify({
           name: fullName,
           bio,
+          calendarId,
           theme,
           fontSize,
           accent,
@@ -215,6 +218,11 @@ const Settings: React.FC = () => {
             placeholder={t.profile.bio}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
+          />
+          <input
+            placeholder={isAr ? "معرف تقويم Google" : "Google Calendar ID"}
+            value={calendarId}
+            onChange={(e) => setCalendarId(e.target.value)}
           />
         </div>
 

@@ -3,109 +3,114 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const client = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_ACCOUNT_SID.startsWith('AC')
+const twilioClient = process.env.TWILIO_ACCOUNT_SID?.startsWith('AC')
   ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
   : null;
 
-export const sendWelcomeSMS = async (phone, name) => {
-  if (!client) {
-    console.log("⚠️ SMS not configured - Twilio client not initialized");
+export const sendCourseCompletionSMS = async (phoneNumber, name, courseTitle) => {
+  if (!twilioClient) {
+    console.log('SMS not configured');
     return;
   }
-  if (!phone) {
-    console.log("⚠️ SMS skipped - No phone number provided");
-    return;
-  }
+  
   try {
-    const message = await client.messages.create({
-      body: `Welcome ${name} to BridgeHer! Start your learning journey today. Visit: ${process.env.FRONTEND_URL}`,
+    await twilioClient.messages.create({
+      body: `Congratulations ${name}! You've completed ${courseTitle}. Your certificate is ready at BridgeHer.`,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: phone,
+      to: phoneNumber
     });
-    console.log("✅ Welcome SMS sent successfully to:", phone);
-    console.log("📱 Message SID:", message.sid);
+    console.log('SMS sent to:', phoneNumber);
   } catch (error) {
-    console.error("❌ SMS ERROR - Failed to send welcome SMS:");
-    console.error("   To:", phone);
-    console.error("   From:", process.env.TWILIO_PHONE_NUMBER);
-    console.error("   Error:", error.message);
-    if (error.code) console.error("   Twilio Error Code:", error.code);
-    console.error("   Full error:", error);
+    console.error('SMS error:', error.message);
   }
 };
 
-export const sendCourseCompletionSMS = async (phone, name, courseTitle) => {
-  if (!client) {
-    console.log("SMS not configured, skipping completion SMS");
+export const sendEnrollmentSMS = async (phoneNumber, name, courseTitle) => {
+  if (!twilioClient) {
+    console.log('SMS not configured');
     return;
   }
+  
   try {
-    await client.messages.create({
-      body: `Congratulations ${name}! You completed "${courseTitle}". Your certificate is ready at ${process.env.FRONTEND_URL}/certificates`,
+    await twilioClient.messages.create({
+      body: `Hi ${name}! You've enrolled in ${courseTitle} on BridgeHer. Start learning now!`,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: phone,
+      to: phoneNumber
     });
-    console.log("Completion SMS sent to:", phone);
+    console.log(' Enrollment SMS sent to:', phoneNumber);
   } catch (error) {
-    console.error("SMS error:", error);
+    console.error(' SMS error:', error.message);
   }
 };
 
-export const sendMentorshipSMS = async (phone, name, mentorName) => {
-  if (!client) {
-    console.log("SMS not configured, skipping mentorship SMS");
+export const sendMentorshipSMS = async (phoneNumber, name, mentorName) => {
+  if (!twilioClient) {
+    console.log('SMS not configured');
     return;
   }
+  
   try {
-    await client.messages.create({
-      body: `Hi ${name}! ${mentorName} accepted your mentorship request. Check your dashboard: ${process.env.FRONTEND_URL}/dashboard`,
+    await twilioClient.messages.create({
+      body: `Hi ${name}! ${mentorName} has accepted your mentorship request on BridgeHer. Check your dashboard.`,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: phone,
+      to: phoneNumber
     });
-    console.log("Mentorship SMS sent to:", phone);
+    console.log(' Mentorship SMS sent to:', phoneNumber);
   } catch (error) {
-    console.error("SMS error:", error);
+    console.error(' SMS error:', error.message);
   }
 };
 
-export const sendMentorshipRequestSMS = async (mentorPhone, mentorName, learnerName, topic) => {
-  if (!client) {
-    console.log("⚠️ SMS not configured, skipping mentorship request SMS");
+export const sendWelcomeSMS = async (phoneNumber, name) => {
+  if (!twilioClient) {
+    console.log('SMS not configured');
     return;
   }
-  if (!mentorPhone) {
-    console.log("⚠️ SMS skipped - No phone number provided");
-    return;
-  }
+  
   try {
-    await client.messages.create({
-      body: `Hi ${mentorName}! ${learnerName} requested mentorship on "${topic}". Check: ${process.env.FRONTEND_URL}/dashboard`,
+    await twilioClient.messages.create({
+      body: `Welcome to BridgeHer, ${name}! Start your learning journey today.`,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: mentorPhone,
+      to: phoneNumber
     });
-    console.log("✅ Mentorship request SMS sent to mentor:", mentorPhone);
+    console.log('Welcome SMS sent to:', phoneNumber);
   } catch (error) {
-    console.error("❌ SMS error:", error.message);
+    console.error('SMS error:', error.message);
   }
 };
 
-export const sendMentorshipConfirmationSMS = async (learnerPhone, learnerName, mentorName, topic) => {
-  if (!client) {
-    console.log("⚠️ SMS not configured, skipping confirmation SMS");
+export const sendMentorshipRequestSMS = async (phoneNumber, learnerName) => {
+  if (!twilioClient) {
+    console.log('SMS not configured');
     return;
   }
-  if (!learnerPhone) {
-    console.log("⚠️ SMS skipped - No phone number provided");
-    return;
-  }
+  
   try {
-    await client.messages.create({
-      body: `Hi ${learnerName}! Your mentorship request to ${mentorName} on "${topic}" has been submitted. Check: ${process.env.FRONTEND_URL}/dashboard`,
+    await twilioClient.messages.create({
+      body: `Hi! ${learnerName} has sent you a mentorship request on BridgeHer. Check your dashboard.`,
       from: process.env.TWILIO_PHONE_NUMBER,
-      to: learnerPhone,
+      to: phoneNumber
     });
-    console.log("✅ Mentorship confirmation SMS sent to learner:", learnerPhone);
+    console.log('Mentorship request SMS sent to:', phoneNumber);
   } catch (error) {
-    console.error("❌ SMS error:", error.message);
+    console.error('SMS error:', error.message);
+  }
+};
+
+export const sendMentorshipConfirmationSMS = async (phoneNumber, name, mentorName) => {
+  if (!twilioClient) {
+    console.log('SMS not configured');
+    return;
+  }
+  
+  try {
+    await twilioClient.messages.create({
+      body: `Hi ${name}! ${mentorName} has confirmed your mentorship on BridgeHer. Start your journey!`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: phoneNumber
+    });
+    console.log('Mentorship confirmation SMS sent to:', phoneNumber);
+  } catch (error) {
+    console.error('SMS error:', error.message);
   }
 };

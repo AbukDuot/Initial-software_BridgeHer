@@ -4,7 +4,7 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Get all users
+
 router.get('/users', protect, async (req, res) => {
   try {
     const result = await pool.query('SELECT id, name, email, role, created_at FROM users ORDER BY created_at DESC');
@@ -15,7 +15,7 @@ router.get('/users', protect, async (req, res) => {
   }
 });
 
-// Update user
+
 router.put('/users/:id', protect, async (req, res) => {
   try {
     const { id } = req.params;
@@ -37,7 +37,6 @@ router.put('/users/:id', protect, async (req, res) => {
   }
 });
 
-// Delete user
 router.delete('/users/:id', protect, async (req, res) => {
   try {
     const { id } = req.params;

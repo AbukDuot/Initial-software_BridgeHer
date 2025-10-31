@@ -11,7 +11,7 @@
 }
 
 .certificate-border {
-  border: 8px solid #6a1b9a;
+  border: 8px solid #4A148C;
   border-radius: 12px;
   padding: 40px;
   background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
@@ -38,7 +38,7 @@
 }
 
 .certificate-logo h1 {
-  color: #6a1b9a;
+  color: #4A148C;
   font-size: 48px;
   font-weight: 700;
   margin-bottom: 8px;
@@ -75,7 +75,7 @@
 }
 
 .recipient-name {
-  color: #6a1b9a;
+  color: #4A148C;
   font-size: 42px;
   font-weight: 700;
   margin: 20px 0;
@@ -134,7 +134,7 @@
 }
 
 .founder-name {
-  color: #6a1b9a;
+  color: #4A148C;
   font-weight: 600;
   font-size: 16px;
 }
@@ -148,7 +148,7 @@
   height: 80px;
   border-radius: 50%;
   border: 4px solid #ffd700;
-  background: #6a1b9a;
+  background: #4A148C;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -167,13 +167,13 @@
   font-weight: 600;
 }
 
-/* Certificate Actions */
+
 .certificate-actions {
   text-align: center;
 }
 
 .btn-download {
-  background: #6a1b9a;
+  background: #4A148C;
   color: white;
   border: none;
   padding: 14px 32px;
@@ -240,7 +240,7 @@
   background: #005885;
 }
 
-/* RTL Support */
+
 .certificate.rtl {
   direction: rtl;
   text-align: right;
@@ -255,7 +255,7 @@
   text-align: center;
 }
 
-/* Mobile Responsive */
+
 @media (max-width: 768px) {
   .certificate-container {
     padding: 20px 10px;
@@ -296,7 +296,7 @@
   }
 }
 
-/* Print Styles */
+
 @media print {
   .certificate-actions {
     display: none;

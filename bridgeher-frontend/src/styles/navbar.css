@@ -36,7 +36,7 @@
 }
 
 .nav-links li a:hover {
-  color: var(--primary-gold);
+  color: var(--gold-dark);
 }
 
 .nav-actions {
@@ -51,8 +51,8 @@
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  background: var(--primary-gold);
-  color: var(--primary-purple);
+  background: var(--gold-dark);
+  color: var(--purple-light);
   font-weight: 600;
   transition: var(--transition-fast);
 }

@@ -1,14 +1,9 @@
 :root {
   
-  --primary-purple: #4A148C;
-  --primary-gold: #FFD700;
-  --primary-black: #333333;
-  
-  
-  --purple-dark: #4A148C;
   --purple-light: #4A148C;
-  --gold-dark: #FFC700;
-  --gold-light:  #FFC700;
+  --gold-dark: #FFD700;
+  --error-red: #E53935;
+  --primary-black: #333333;
   
   
   --white: #FFFFFF;

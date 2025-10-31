@@ -9,7 +9,7 @@ const LanguageToggle: React.FC = () => {
       onClick={toggleLanguage}
       className="lang-btn"
       style={{
-        backgroundColor: "#6a1b9a",
+        backgroundColor: "#4A148C",
         color: "#fff",
         border: "none",
         borderRadius: "6px",

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_BASE_URL } from "../config/api";
 import "../styles/admincourse.css";
 
 interface Assignment {
@@ -105,7 +106,7 @@ const AdminCourseUpload: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       
-      const courseRes = await fetch("${API_BASE_URL}/api/courses", {
+      const courseRes = await fetch(`${API_BASE_URL}/api/courses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -129,7 +130,7 @@ const AdminCourseUpload: React.FC = () => {
         if (module.video) formData.append("video", module.video);
         if (module.pdf) formData.append("pdf", module.pdf);
 
-        const moduleRes = await fetch("${API_BASE_URL}/api/modules", {
+        const moduleRes = await fetch(`${API_BASE_URL}/api/modules`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
           body: formData,
@@ -139,7 +140,7 @@ const AdminCourseUpload: React.FC = () => {
         
         if (module.assignment) {
           const moduleData = await moduleRes.json();
-          await fetch("${API_BASE_URL}/api/assignments", {
+          await fetch(`${API_BASE_URL}/api/assignments`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

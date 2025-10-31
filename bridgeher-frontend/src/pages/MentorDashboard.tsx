@@ -185,13 +185,7 @@ import { useLanguage } from "../hooks/useLanguage";
 
 const MentorDashboard: React.FC = () => {
   const { language: contextLang } = useLanguage();
-  const [lang, setLang] = useState<Lang>(
-    () => (localStorage.getItem("lang") as Lang) || "en"
-  );
-
-  useEffect(() => {
-    setLang(contextLang === "Arabic" ? "ar" : "en");
-  }, [contextLang]);
+  const lang: Lang = contextLang === "Arabic" ? "ar" : "en";
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
     const saved = localStorage.getItem("soundEnabled");
     return saved ? JSON.parse(saved) : true;
@@ -200,10 +194,7 @@ const MentorDashboard: React.FC = () => {
   const theme = (document.documentElement.dataset.theme as Theme) || "light";
   const t = tMap[lang];
 
-  useEffect(() => {
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    localStorage.setItem("lang", lang);
-  }, [lang]);
+
 
   useEffect(() => {
     localStorage.setItem("soundEnabled", JSON.stringify(soundEnabled));
@@ -223,7 +214,7 @@ const MentorDashboard: React.FC = () => {
           window.location.href = "/login";
           return;
         }
-        const res = await fetch("${API_BASE_URL}/api/dashboards/mentor", {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/dashboards/mentor`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.status === 401) {
@@ -269,11 +260,7 @@ const MentorDashboard: React.FC = () => {
     };
     fetchDashboard();
   }, []);
-  const [feedback] = useState<FeedbackItem[]>([
-    { id: "f1", learner: "Grace", rating: 5, comment: "Excellent session." },
-    { id: "f2", learner: "Mary A.", rating: 4, comment: "Very clear guidance." },
-    { id: "f3", learner: "Joyce K.", rating: 2, comment: "Needs more examples." },
-  ]);
+  const feedback = dashboardData?.feedback || [];
 
   const [showModal, setShowModal] = useState(false);
   const [modalSession, setModalSession] = useState<SessionItem | null>(null);
@@ -298,7 +285,7 @@ const MentorDashboard: React.FC = () => {
           learners.filter((l) => l.status === "scheduled").length,
           requests.length,
         ],
-        backgroundColor: ["#6A1B9A", "#FFD700", "#6A1B9A"],
+        backgroundColor: ["#4A148C", "#FFD700", "#4A148C"],
         borderRadius: 6,
       },
     ],
@@ -334,7 +321,7 @@ const MentorDashboard: React.FC = () => {
           feedback.filter((f) => f.rating === 3 || f.rating === 4).length,
           feedback.filter((f) => f.rating <= 2).length,
         ],
-        backgroundColor: ["#6A1B9A", "#FFD700", "#6A1B9A"],
+        backgroundColor: ["#4A148C", "#FFD700", "#E53935"],
         borderWidth: 1,
       },
     ],
@@ -386,7 +373,7 @@ const MentorDashboard: React.FC = () => {
   const totalLearners = dashboardData?.stats?.totalLearners || 0;
   const totalSessions = dashboardData?.stats?.activeSessions || 0;
   const avgProgress = learners.length > 0 ? learners.reduce((sum, l) => sum + l.progress, 0) / learners.length : 0;
-  const avgRating = feedback.length > 0 ? feedback.reduce((sum, f) => sum + f.rating, 0) / feedback.length : 0;
+  const avgRating = dashboardData?.stats?.avgRating || 0;
 
   const countLearners = useCountUp(totalLearners);
   const countSessions = useCountUp(totalSessions);
@@ -403,9 +390,6 @@ const MentorDashboard: React.FC = () => {
           <p className="welcome">{t.welcome("Mentor")}</p>
         </div>
         <div className="header-controls">
-          <button className="toggle-btn" onClick={() => setLang(lang === "en" ? "ar" : "en")}>
-            {t.langToggle}
-          </button>
           <button className="toggle-btn" onClick={() => setSoundEnabled(!soundEnabled)}>
             {soundEnabled ? "🔊 " + t.soundOn : "🔇 " + t.soundOff}
           </button>

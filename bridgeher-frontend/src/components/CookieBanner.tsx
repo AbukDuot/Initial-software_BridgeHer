@@ -31,7 +31,7 @@ const CookieBanner: React.FC<CookieBannerProps> = ({ language }) => {
   return (
     <div className={`cookie-banner ${isArabic ? "rtl" : ""}`}>
       <div className="cookie-content">
-        <div className="cookie-icon">🍪</div>
+        <div className="cookie-icon"></div>
         <div className="cookie-text">
           <h4>
             {isArabic

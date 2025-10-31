@@ -41,7 +41,7 @@
 }
 
 .footer-col ul li a:hover {
-  color: var(--primary-gold);
+  color: var(--gold-dark);
 }
 
 .social-icons {
@@ -56,7 +56,7 @@
 }
 
 .social-icons a:hover {
-  color: var(--primary-gold);
+  color: var(--gold-dark);
 }
 
 .footer-bottom {
@@ -72,7 +72,7 @@
   position: fixed;
   bottom: 30px;
   right: 30px;
-  background: var(--primary-purple);
+  background: var(--purple-light);
   color: var(--white);
   border: none;
   border-radius: 50%;
@@ -91,16 +91,16 @@
 
 .scroll-to-top:hover {
   transform: scale(1.1);
-  background: var(--primary-gold);
-  color: var(--primary-purple);
+  background: var(--gold-dark);
+  color: var(--purple-light);
 }
 
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 5px var(--primary-purple), 0 0 10px var(--primary-purple);
+    box-shadow: 0 0 5px var(--purple-light), 0 0 10px var(--purple-light);
   }
   50% {
-    box-shadow: 0 0 15px var(--primary-purple), 0 0 30px var(--primary-purple);
+    box-shadow: 0 0 15px var(--purple-light), 0 0 30px var(--purple-light);
   }
 }
 

@@ -238,7 +238,7 @@ const Mentorship: React.FC = () => {
               <p className="mentor-role">{m.role}</p>
               <p className="mentor-location">{t.location}: {m.location}</p>
               <div className="mentor-badges">
-                {m.badges.map((b: string, idx: number) => (
+                {m.badges.map((b: string, idx: number): JSX.Element => (
                   <span key={idx} className="badge">{b}</span>
                 ))}
               </div>

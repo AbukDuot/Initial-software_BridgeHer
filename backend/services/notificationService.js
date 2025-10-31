@@ -42,3 +42,28 @@ export const sendEnrollmentEmail = async (email, name, courseTitle) => {
     html: `<h2>Hi ${name}!</h2><p>You've enrolled in "${courseTitle}". Start learning now!</p>`,
   }).catch(console.error);
 };
+
+export const sendSMS = async (phoneNumber, message) => {
+  if (!twilioClient) {
+    console.log('SMS not configured');
+    return;
+  }
+  try {
+    await twilioClient.messages.create({
+      body: message,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: phoneNumber
+    });
+  } catch (error) {
+    console.error('SMS error:', error.message);
+  }
+};
+
+export const sendNotificationEmail = async (email, title, message) => {
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: title,
+    html: `<h2>${title}</h2><p>${message}</p>`,
+  }).catch(console.error);
+};

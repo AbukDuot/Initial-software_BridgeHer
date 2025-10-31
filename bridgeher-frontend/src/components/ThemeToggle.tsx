@@ -24,7 +24,7 @@ const ThemeToggle: React.FC = () => {
         borderRadius: "6px",
         border: "none",
         cursor: "pointer",
-        background: darkMode ? "#333" : "#6a1b9a",
+        background: darkMode ? "#333" : "#4A148C",
         color: "#fff",
         fontWeight: "bold",
       }}

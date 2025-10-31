@@ -104,18 +104,18 @@
 
 .btn.secondary {
   background-color: var(--white);
-  color: var(--primary-purple);
-  border: 2px solid var(--primary-purple);
+  color: var(--purple-light);
+  border: 2px solid var(--purple-light);
 }
 
 .btn.secondary:hover {
-  background-color: var(--primary-purple);
+  background-color: var(--purple-light);
   color: var(--white);
   transform: translateY(-3px);
 }
 
 .btn.highlight {
-  background-color: var(--primary-gold);
+  background-color: var(--gold-dark);
   color: var(--primary-black);
   font-weight: 700;
   box-shadow: 0 0 18px rgba(255, 215, 0, 0.6);

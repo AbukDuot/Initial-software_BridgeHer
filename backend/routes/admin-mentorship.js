@@ -6,7 +6,6 @@ import { sendMentorshipSMS } from "../services/smsService.js";
 
 const router = express.Router();
 
-// Admin assigns mentor to learner
 router.post("/assign", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { learner_id, mentor_id, topic, message, scheduled_at } = req.body;
@@ -24,28 +23,27 @@ router.post("/assign", requireAuth, requireRole(["Admin"]), async (req, res) => 
     );
     
     if (users[0]) {
-      console.log("\n🔔 Sending mentorship assignment notifications...");
+      console.log("\n Sending mentorship assignment notifications...");
       console.log("   Learner:", users[0].learner_name, users[0].learner_email);
       console.log("   Mentor:", users[0].mentor_name, users[0].mentor_email);
       console.log("   Scheduled:", scheduled_at || "Not scheduled");
       
-      // Notify learner
+
       sendMentorshipNotification(users[0].learner_email, users[0].learner_name, users[0].mentor_name).catch(err => {
-        console.error("❌ Failed to send learner email:", err.message);
+        console.error(" Failed to send learner email:", err.message);
       });
       if (users[0].learner_phone) {
         sendMentorshipSMS(users[0].learner_phone, users[0].learner_name, users[0].mentor_name).catch(err => {
-          console.error("❌ Failed to send learner SMS:", err.message);
+          console.error(" Failed to send learner SMS:", err.message);
         });
       }
       
-      // Notify mentor
       sendMentorshipNotification(users[0].mentor_email, users[0].mentor_name, users[0].learner_name).catch(err => {
-        console.error("❌ Failed to send mentor email:", err.message);
+        console.error("Failed to send mentor email:", err.message);
       });
       if (users[0].mentor_phone) {
         sendMentorshipSMS(users[0].mentor_phone, users[0].mentor_name, users[0].learner_name).catch(err => {
-          console.error("❌ Failed to send mentor SMS:", err.message);
+          console.error(" Failed to send mentor SMS:", err.message);
         });
       }
     }
@@ -56,7 +54,6 @@ router.post("/assign", requireAuth, requireRole(["Admin"]), async (req, res) => 
   }
 });
 
-// Get all mentorship connections
 router.get("/connections", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -74,7 +71,6 @@ router.get("/connections", requireAuth, requireRole(["Admin"]), async (req, res)
   }
 });
 
-// Get available mentors
 router.get("/mentors", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -89,7 +85,6 @@ router.get("/mentors", requireAuth, requireRole(["Admin"]), async (req, res) => 
   }
 });
 
-// Get learners without mentors
 router.get("/unassigned-learners", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { rows } = await pool.query(

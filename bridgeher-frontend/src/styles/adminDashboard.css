@@ -74,7 +74,7 @@
 
 .stat-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);
+  box-shadow: 0 4px 12px rgba(74, 20, 140, 0.2);
 }
 
 .stat-card h3 {
@@ -167,11 +167,11 @@
 }
 
 .btn-small.danger {
-  background: #d32f2f;
+  background: #E53935;
 }
 
 .btn-small.danger:hover {
-  background: #d32f2f;
+  background: #E53935;
 }
 
 .admin-dashboard.rtl {

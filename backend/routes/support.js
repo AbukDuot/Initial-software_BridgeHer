@@ -3,7 +3,7 @@ import pool from "../config/db.js";
 
 const router = express.Router();
 
-// Submit support message
+
 router.post("/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -20,7 +20,7 @@ router.post("/contact", async (req, res) => {
   }
 });
 
-// Get all support messages (Admin only)
+
 router.get("/messages", async (req, res) => {
   try {
     const { rows } = await pool.query(

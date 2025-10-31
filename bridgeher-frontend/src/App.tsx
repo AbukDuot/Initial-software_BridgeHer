@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Courses from "./pages/Courses";
 import About from "./pages/About";
 import Community from "./pages/Community";
+import CreateTopic from "./pages/CreateTopic";
 import LearnerDashboard from "./pages/LearnerDashboard";
 import MentorDashboard from "./pages/MentorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -23,6 +24,7 @@ import ModuleDetail from "./pages/ModuleDetail";
 import Quiz from "./pages/quiz";
 import HelpFAQ from "./pages/HelpFAQ";
 import AnalyticsDashboard from "./components/AnalyticsDashboard";
+import TopicDetail from "./pages/TopicDetail";
 
 import { UserProvider } from "./context/UserContext";
 import { LanguageProvider } from "./context/LanguageContext";
@@ -67,6 +69,8 @@ function App() {
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/community" element={<Community />} />
+                <Route path="/community/create" element={<CreateTopic />} />
+                <Route path="/community/topic/:id" element={<TopicDetail />} />
                 <Route path="/course/:id" element={<CourseDetail />} />
                 <Route
                   path="/course/:id/module/:moduleId"

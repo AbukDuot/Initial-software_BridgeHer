@@ -2,22 +2,29 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pool from "../config/db.js";
-import passport from "../config/passport.js";
 import { sendWelcomeEmail } from "../services/emailService.js";
 import { sendWelcomeSMS } from "../services/smsService.js";
+import { body, validationResult } from "express-validator";
+import { authLimiter } from "../middleware/rateLimiter.js";
 import dotenv from "dotenv";
 
 dotenv.config();
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
+router.post("/register", authLimiter, [
+  body("name").trim().notEmpty().withMessage("Name is required"),
+  body("email").isEmail().withMessage("Valid email is required"),
+  body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
+  body("role").notEmpty().withMessage("Role is required")
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { name, email, password, role } = req.body;
 
   try {
-    
-    if (!name || !email || !password || !role) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
     
     const existingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (existingUser.rows.length > 0) {
@@ -39,24 +46,23 @@ router.post("/register", async (req, res) => {
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
 
-    // Send welcome notifications
-    console.log("\n🔔 Sending welcome notifications...");
+    console.log("\n Sending welcome notifications...");
     console.log("   Email:", user.email);
     console.log("   Phone:", req.body.phone || "Not provided");
     
     sendWelcomeEmail(user.email, user.name).catch(err => {
-      console.error("❌ Email notification failed:", err.message);
+      console.error(" Email notification failed:", err.message);
     });
     
     if (req.body.phone) {
       sendWelcomeSMS(req.body.phone, user.name).catch(err => {
-        console.error("❌ SMS notification failed:", err.message);
+        console.error("SMS notification failed:", err.message);
       });
     } else {
-      console.log("⚠️ SMS skipped - No phone number in request");
+      console.log("SMS skipped - No phone number in request");
     }
 
     res.status(201).json({
@@ -71,15 +77,18 @@ router.post("/register", async (req, res) => {
 });
 
 
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, [
+  body("email").isEmail().withMessage("Valid email is required"),
+  body("password").notEmpty().withMessage("Password is required")
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const { email, password } = req.body;
 
   try {
-    
-
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
-    }
 
     
     const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
@@ -94,13 +103,11 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
-
 
     res.status(200).json({
       message: "Login successful",
@@ -118,23 +125,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Google OAuth
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-
-router.get("/google/callback", passport.authenticate("google", { session: false }), (req, res) => {
-  const token = jwt.sign({ id: req.user.id, email: req.user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
-  res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`);
-});
-
-// Facebook OAuth
-router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }));
-
-router.get("/facebook/callback", passport.authenticate("facebook", { session: false }), (req, res) => {
-  const token = jwt.sign({ id: req.user.id, email: req.user.email }, process.env.JWT_SECRET, { expiresIn: "7d" });
-  res.redirect(`${process.env.FRONTEND_URL}/auth/success?token=${token}`);
-});
-
-// Password Reset
 router.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
   try {

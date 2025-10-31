@@ -4,7 +4,7 @@ import { requireAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Get user points and level
+
 router.get("/points", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -27,7 +27,7 @@ router.get("/points", requireAuth, async (req, res) => {
   }
 });
 
-// Get user badges
+
 router.get("/badges", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -41,7 +41,7 @@ router.get("/badges", requireAuth, async (req, res) => {
   }
 });
 
-// Award badge
+
 router.post("/badges", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -59,7 +59,6 @@ router.post("/badges", requireAuth, async (req, res) => {
   }
 });
 
-// Add points
 router.post("/points/add", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -85,7 +84,7 @@ router.post("/points/add", requireAuth, async (req, res) => {
   }
 });
 
-// Leaderboard
+
 router.get("/leaderboard", async (req, res) => {
   try {
     const { rows } = await pool.query(

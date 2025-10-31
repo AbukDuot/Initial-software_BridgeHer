@@ -22,7 +22,7 @@ const Certificate: React.FC<CertificateProps> = ({
     const certificate = document.getElementById("certificate");
     if (!certificate) return;
 
-    // Simple download as image using canvas
+    
     import("html2canvas").then((html2canvas) => {
       html2canvas.default(certificate, {
         scale: 2,
@@ -116,7 +116,7 @@ const Certificate: React.FC<CertificateProps> = ({
 
       <div className="certificate-actions">
         <button className="btn-download" onClick={downloadCertificate}>
-          📥 {isArabic ? "تحميل الشهادة" : "Download Certificate"}
+          {isArabic ? "تحميل الشهادة" : "Download Certificate"}
         </button>
         
         <div className="share-buttons">

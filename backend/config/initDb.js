@@ -2,7 +2,7 @@ import pool from './db.js';
 
 const initDatabase = async () => {
   try {
-    console.log('🔍 Checking database tables...');
+    console.log(' Checking database tables...');
     
     const checkTables = await pool.query(`
       SELECT table_name FROM information_schema.tables 
@@ -10,11 +10,11 @@ const initDatabase = async () => {
     `);
 
     if (checkTables.rows.length > 0) {
-      console.log('✅ Database tables already exist');
+      console.log('Database tables already exist');
       return;
     }
 
-    console.log('📦 Creating database tables...');
+    console.log('Creating database tables...');
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -23,6 +23,7 @@ const initDatabase = async () => {
         email VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         role VARCHAR(50) DEFAULT 'Learner',
+        phone VARCHAR(20),
         bio TEXT,
         expertise TEXT,
         expertise_ar TEXT,
@@ -31,6 +32,7 @@ const initDatabase = async () => {
         video_intro TEXT,
         badges TEXT[],
         rating DECIMAL(3,2) DEFAULT 0,
+        calendar_id VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -109,11 +111,23 @@ const initDatabase = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS mentorship_feedback (
+        id SERIAL PRIMARY KEY,
+        mentor_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        learner_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        learner_name VARCHAR(100),
+        rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+        comment TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE TABLE IF NOT EXISTS module_progress (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         module_id INTEGER REFERENCES modules(id) ON DELETE CASCADE,
         completed BOOLEAN DEFAULT FALSE,
+        time_spent INTEGER DEFAULT 0,
+        last_position INTEGER DEFAULT 0,
         completed_at TIMESTAMP,
         UNIQUE(user_id, module_id)
       );
@@ -121,8 +135,10 @@ const initDatabase = async () => {
       CREATE TABLE IF NOT EXISTS video_files (
         id SERIAL PRIMARY KEY,
         module_id INTEGER REFERENCES modules(id) ON DELETE CASCADE,
+        filename TEXT NOT NULL,
         file_path TEXT NOT NULL,
         file_size BIGINT,
+        mime_type VARCHAR(100),
         duration INTEGER,
         uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -169,11 +185,36 @@ const initDatabase = async () => {
         earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS announcements (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        created_by INTEGER REFERENCES users(id),
+        pinned BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS content_reports (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        content_type VARCHAR(50) NOT NULL,
+        content_id INTEGER NOT NULL,
+        reason TEXT NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE TABLE IF NOT EXISTS community_topics (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         title VARCHAR(255) NOT NULL,
+        category VARCHAR(100),
+        description TEXT,
         content TEXT,
+        tags TEXT[],
+        views INTEGER DEFAULT 0,
+        likes INTEGER DEFAULT 0,
+        pinned BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -182,7 +223,24 @@ const initDatabase = async () => {
         topic_id INTEGER REFERENCES community_topics(id) ON DELETE CASCADE,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         content TEXT NOT NULL,
+        likes INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS topic_likes (
+        id SERIAL PRIMARY KEY,
+        topic_id INTEGER REFERENCES community_topics(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(topic_id, user_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS reply_likes (
+        id SERIAL PRIMARY KEY,
+        reply_id INTEGER REFERENCES topic_replies(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(reply_id, user_id)
       );
 
       CREATE TABLE IF NOT EXISTS posts (
@@ -233,6 +291,18 @@ const initDatabase = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS notifications (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        type VARCHAR(50) DEFAULT 'info',
+        read BOOLEAN DEFAULT FALSE,
+        sent_via_email BOOLEAN DEFAULT FALSE,
+        sent_via_sms BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE INDEX IF NOT EXISTS idx_enrollments_user ON enrollments(user_id);
       CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
       CREATE INDEX IF NOT EXISTS idx_modules_course ON modules(course_id);
@@ -241,9 +311,9 @@ const initDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_mentorship_mentor ON mentorship_requests(mentor_id);
     `);
 
-    console.log('✅ Database tables created successfully');
+    console.log('Database tables created successfully');
   } catch (error) {
-    console.error('❌ Database initialization error:', error.message);
+    console.error('Database initialization error:', error.message);
     throw error;
   }
 };

@@ -4,9 +4,8 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import path from "path";
-import session from "express-session";
-import passport from "./config/passport.js";
 import pool from "./config/db.js";
+import { generalLimiter } from "./middleware/rateLimiter.js";
 import initDatabase from "./config/initDb.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/user.js";
@@ -25,15 +24,18 @@ import quizRoutes from "./routes/quiz.js";
 import gamificationRoutes from "./routes/gamification.js";
 import offlineRoutes from "./routes/offline.js";
 import supportRoutes from "./routes/support.js";
+import notificationsRoutes from "./routes/notifications.js";
+import profileRoutes from "./routes/profile.js";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://bridgeher.vercel.app'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({ secret: process.env.JWT_SECRET, resave: false, saveUninitialized: false }));
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(generalLimiter);
 
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
@@ -60,6 +62,8 @@ app.use("/api/quizzes", quizRoutes);
 app.use("/api/gamification", gamificationRoutes);
 app.use("/api/offline", offlineRoutes);
 app.use("/api/support", supportRoutes);
+app.use("/api/notifications", notificationsRoutes);
+app.use("/api/profile", profileRoutes);
 
 
 app.use((_req, res) => {
@@ -68,8 +72,8 @@ app.use((_req, res) => {
 
 
 app.use((err, _req, res, _next) => {
-  
-  console.error(err && err.stack ? err.stack : err);
+  const timestamp = new Date().toISOString();
+  console.error(`[${timestamp}] ERROR:`, err && err.stack ? err.stack : err);
   res.status(err?.status || 500).json({ error: err?.message || "Internal Server Error" });
 });
 
@@ -77,7 +81,7 @@ const PORT = Number(process.env.PORT) || 5000;
 
 initDatabase()
   .then(() => {
-    const server = app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+    const server = app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
     
     const shutdown = async () => {
       console.log("Shutting down...");

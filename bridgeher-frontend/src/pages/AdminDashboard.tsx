@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import adminDashboardTranslations from "../i18n/adminDashboardTranslations";
 import { toArabicNumerals } from "../utils/numberUtils";
+import { API_BASE_URL } from "../config/api";
 import "../styles/adminDashboard.css";
 
 const playUiSound = (enabled: boolean) => {
@@ -87,8 +88,8 @@ const AdminDashboard: React.FC = () => {
       }
       
       const [usersRes, coursesRes] = await Promise.all([
-        fetch("${API_BASE_URL}/api/admin/users", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("${API_BASE_URL}/api/courses", { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${API_BASE_URL}/api/admin/users`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/courses`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       
       if (usersRes.status === 401) {
@@ -158,7 +159,7 @@ const AdminDashboard: React.FC = () => {
           setShowUserModal(false);
         }
       } else {
-        const res = await fetch("${API_BASE_URL}/api/auth/register", {
+        const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...userForm, password: "Default123" })
@@ -225,7 +226,7 @@ const AdminDashboard: React.FC = () => {
           setShowCourseModal(false);
         }
       } else {
-        const res = await fetch("${API_BASE_URL}/api/courses", {
+        const res = await fetch(`${API_BASE_URL}/api/courses`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ title: courseForm.title, description: "", category: "General", level: "Beginner", duration: "4 weeks", mentor: "Admin" })

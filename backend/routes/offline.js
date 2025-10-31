@@ -4,12 +4,11 @@ import { requireAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Get downloadable content for a course
 router.get("/course/:courseId", requireAuth, async (req, res) => {
   try {
     const { courseId } = req.params;
     
-    // Get course details
+  
     const { rows: courseRows } = await pool.query(
       "SELECT * FROM courses WHERE id = $1 AND downloadable = true",
       [courseId]
@@ -19,13 +18,12 @@ router.get("/course/:courseId", requireAuth, async (req, res) => {
       return res.status(404).json({ error: "Course not found or not downloadable" });
     }
     
-    // Get modules
+    
     const { rows: moduleRows } = await pool.query(
       "SELECT * FROM modules WHERE course_id = $1 ORDER BY order_index",
       [courseId]
     );
-    
-    // Get offline content
+  
     const { rows: contentRows } = await pool.query(
       "SELECT * FROM offline_content WHERE course_id = $1",
       [courseId]
@@ -41,7 +39,7 @@ router.get("/course/:courseId", requireAuth, async (req, res) => {
   }
 });
 
-// Get all downloadable courses
+
 router.get("/courses", requireAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -53,7 +51,7 @@ router.get("/courses", requireAuth, async (req, res) => {
   }
 });
 
-// Track offline download
+
 router.post("/download/:courseId", requireAuth, async (req, res) => {
   try {
     const { courseId } = req.params;
@@ -72,7 +70,7 @@ router.post("/download/:courseId", requireAuth, async (req, res) => {
   }
 });
 
-// Get user's downloaded courses
+
 router.get("/my-downloads", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;

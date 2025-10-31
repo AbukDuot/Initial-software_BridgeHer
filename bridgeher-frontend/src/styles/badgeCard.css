@@ -16,7 +16,7 @@
 }
 
 .badge-card.earned {
-  border-color: #6a1b9a;
+  border-color:  #4a148c;
   background: linear-gradient(145deg, #f3e8ff, #e0c3ff);
 }
 
@@ -33,7 +33,7 @@
 
 .badge-card h4 {
   margin: 5px 0;
-  color: #6a1b9a;
+  color: #4a148c;
   font-size: 1.1rem;
   font-weight: 600;
 }
@@ -54,7 +54,7 @@
 }
 
 .status.earned {
-  background: #6a1b9a;
+  background:  #4a148c;
   color: white;
 }
 

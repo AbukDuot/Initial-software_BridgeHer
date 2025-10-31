@@ -65,6 +65,7 @@ const Navbar: React.FC = () => {
           <li><Link to="/mentor-dashboard" onClick={toggleMenu}>{t.mentorDashboard}</Link></li>
           <li><Link to="/admin-dashboard" onClick={toggleMenu}>{t.adminDashboard}</Link></li>
           <li><Link to="/community" onClick={toggleMenu}>{t.community}</Link></li>
+          {isLoggedIn && <li><Link to="/settings" onClick={toggleMenu}>{language === "Arabic" ? "الإعدادات" : "Settings"}</Link></li>}
         </ul>
 
         {/* Right Actions: Auth + Language */}
@@ -83,12 +84,12 @@ const Navbar: React.FC = () => {
           ) : (
             <>
               <Link to="/login">
-                <button style={{ background: "#fff", color: "#6a1b9a" }}>
+                <button style={{ background: "#fff", color: "#4A148C" }}>
                   {language === "Arabic" ? "تسجيل الدخول" : "Login"}
                 </button>
               </Link>
               <Link to="/register">
-                <button style={{ background: "#ffd700", color: "#6a1b9a" }}>
+                <button style={{ background: "#ffd700", color: "#4A148C" }}>
                   {language === "Arabic" ? "إنشاء حساب" : "Register"}
                 </button>
               </Link>
@@ -98,15 +99,14 @@ const Navbar: React.FC = () => {
           {/* Language Selector */}
           <select
             value={language}
-            onChange={(e) => {
-              const newLang = e.target.value as "English" | "Arabic";
+            onChange={() => {
               toggleLanguage();
             }}
             style={{
               background: "#fff",
-              color: "#6a1b9a",
+              color: "#4A148C",
               fontWeight: 600,
-              border: "2px solid #6a1b9a",
+              border: "2px solid #4A148C",
               borderRadius: "5px",
               padding: "8px 12px",
               cursor: "pointer",

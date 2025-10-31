@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// OAuth removed - using email/password authentication only
 
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {

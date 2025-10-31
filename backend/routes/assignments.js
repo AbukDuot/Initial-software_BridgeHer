@@ -24,7 +24,6 @@ const assignmentUpload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
 
-// Create assignment (quiz or written questions)
 router.post("/", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { module_id, title, description, due_date, max_score, type, questions } = req.body;
@@ -41,7 +40,6 @@ router.post("/", requireAuth, requireRole(["Admin"]), async (req, res) => {
   }
 });
 
-// Get assignments for a module
 router.get("/module/:moduleId", requireAuth, async (req, res) => {
   try {
     const { moduleId } = req.params;
@@ -55,7 +53,6 @@ router.get("/module/:moduleId", requireAuth, async (req, res) => {
   }
 });
 
-// Get assignment by ID
 router.get("/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -67,14 +64,13 @@ router.get("/:id", requireAuth, async (req, res) => {
   }
 });
 
-// Submit assignment (quiz answers or written responses)
+
 router.post("/:id/submit", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
     const { answers } = req.body;
     
-    // Get assignment to check type and questions
     const { rows: assignmentData } = await pool.query(
       "SELECT type, questions, max_score FROM assignments WHERE id = $1",
       [id]
@@ -85,7 +81,7 @@ router.post("/:id/submit", requireAuth, async (req, res) => {
     const assignment = assignmentData[0];
     let score = null;
     
-    // Auto-grade quiz
+    
     if (assignment.type === 'quiz' && assignment.questions) {
       const questions = JSON.parse(assignment.questions);
       let correct = 0;
@@ -118,7 +114,6 @@ router.post("/:id/submit", requireAuth, async (req, res) => {
   }
 });
 
-// Get user's submission
 router.get("/:id/submission", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -135,7 +130,7 @@ router.get("/:id/submission", requireAuth, async (req, res) => {
   }
 });
 
-// Get all submissions for an assignment (Admin/Mentor only)
+
 router.get("/:id/submissions", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { id } = req.params;
@@ -155,7 +150,7 @@ router.get("/:id/submissions", requireAuth, requireRole(["Admin"]), async (req, 
   }
 });
 
-// Grade submission (Admin/Mentor only)
+
 router.put("/submission/:id/grade", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { id } = req.params;
@@ -184,7 +179,7 @@ router.put("/submission/:id/grade", requireAuth, requireRole(["Admin"]), async (
   }
 });
 
-// Update assignment
+
 router.put("/:id", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { id } = req.params;
@@ -217,7 +212,7 @@ router.put("/:id", requireAuth, requireRole(["Admin"]), async (req, res) => {
   }
 });
 
-// Delete assignment
+
 router.delete("/:id", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { id } = req.params;

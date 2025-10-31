@@ -87,7 +87,7 @@ const Achievements: React.FC<AchievementsProps> = ({ isAr }) => {
                   className="progress-fill"
                   style={{
                     width: `${a.progress}%`,
-                    backgroundColor: a.unlocked ? "#4CAF50" : "#6A1B9A",
+                    backgroundColor: a.unlocked ? "#4CAF50" : "#4A148C",
                   }}
                 ></div>
               </div>

@@ -46,16 +46,16 @@ export async function createRequest(req, res, next) {
       );
       
       if (rows[0] && rows[0].mentor_email) {
-      console.log("\n🔔 Sending mentorship request notifications...");
+      console.log("\n Sending mentorship request notifications...");
       
-      // Notify Mentor
+      
       sendMentorshipRequestEmail(
         rows[0].mentor_email,
         rows[0].mentor_name,
         rows[0].learner_name,
         payload.topic,
         payload.message
-      ).catch(err => console.error("❌ Mentor email failed:", err.message));
+      ).catch(err => console.error("Mentor email failed:", err.message));
       
       if (rows[0].mentor_phone) {
         sendMentorshipRequestSMS(
@@ -63,16 +63,16 @@ export async function createRequest(req, res, next) {
           rows[0].mentor_name,
           rows[0].learner_name,
           payload.topic
-        ).catch(err => console.error("❌ Mentor SMS failed:", err.message));
+        ).catch(err => console.error("Mentor SMS failed:", err.message));
       }
       
-      // Notify Learner (Confirmation)
+      
       sendMentorshipConfirmationEmail(
         rows[0].learner_email,
         rows[0].learner_name,
         rows[0].mentor_name,
         payload.topic
-      ).catch(err => console.error("❌ Learner email failed:", err.message));
+      ).catch(err => console.error("Learner email failed:", err.message));
       
       if (rows[0].learner_phone) {
         sendMentorshipConfirmationSMS(
@@ -80,7 +80,7 @@ export async function createRequest(req, res, next) {
           rows[0].learner_name,
           rows[0].mentor_name,
           payload.topic
-        ).catch(err => console.error("❌ Learner SMS failed:", err.message));
+        ).catch(err => console.error("Learner SMS failed:", err.message));
       }
     }
     }
@@ -110,27 +110,27 @@ export async function updateRequest(req, res, next) {
       );
       
       if (rows[0]) {
-        console.log("\n🔔 Sending mentorship notifications...");
+        console.log("\n Sending mentorship notifications...");
         console.log("   Status:", fields.status || "scheduled");
         console.log("   Scheduled:", fields.scheduled_at || rows[0].scheduled_at || "Not scheduled");
         
         // Notify learner
         sendMentorshipNotification(rows[0].learner_email, rows[0].learner_name, rows[0].mentor_name).catch(err => {
-          console.error("❌ Learner email failed:", err.message);
+          console.error(" Learner email failed:", err.message);
         });
         if (rows[0].learner_phone) {
           sendMentorshipSMS(rows[0].learner_phone, rows[0].learner_name, rows[0].mentor_name).catch(err => {
-            console.error("❌ Learner SMS failed:", err.message);
+            console.error(" Learner SMS failed:", err.message);
           });
         }
         
         // Notify mentor
         sendMentorshipNotification(rows[0].mentor_email, rows[0].mentor_name, rows[0].learner_name).catch(err => {
-          console.error("❌ Mentor email failed:", err.message);
+          console.error(" Mentor email failed:", err.message);
         });
         if (rows[0].mentor_phone) {
           sendMentorshipSMS(rows[0].mentor_phone, rows[0].mentor_name, rows[0].learner_name).catch(err => {
-            console.error("❌ Mentor SMS failed:", err.message);
+            console.error(" Mentor SMS failed:", err.message);
           });
         }
       }

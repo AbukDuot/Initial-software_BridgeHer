@@ -1,4 +1,5 @@
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component } from "react";
+import type { ErrorInfo, ReactNode } from "react";
 import "../styles/error.css";
 
 interface Props {
@@ -29,7 +30,7 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="error-boundary">
           <div className="error-content">
-            <h1>⚠️ Oops! Something went wrong</h1>
+            <h1>Oops! Something went wrong</h1>
             <p>We're sorry for the inconvenience. Please try refreshing the page.</p>
             <button 
               className="btn-refresh" 

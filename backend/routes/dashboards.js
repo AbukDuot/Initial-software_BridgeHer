@@ -4,18 +4,18 @@ import { requireAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Get learner dashboard data
+
 router.get("/learner", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Get user info
+    
     const { rows: userRows } = await pool.query(
       "SELECT name, email, created_at FROM users WHERE id = $1",
       [userId]
     );
 
-    // Get enrolled courses with progress
+    
     const { rows: coursesRows } = await pool.query(
       `SELECT c.id, c.title, c.category, e.progress, e.completed_modules, e.enrolled_at
        FROM enrollments e
@@ -25,19 +25,19 @@ router.get("/learner", requireAuth, async (req, res) => {
       [userId]
     );
 
-    // Get certificates count
+   
     const { rows: certRows } = await pool.query(
       "SELECT COUNT(*) as count FROM certificates WHERE user_id = $1",
       [userId]
     );
 
-    // Get or create gamification points
+    
     let pointsRows = await pool.query(
       "SELECT total_points, level, streak FROM user_points WHERE user_id = $1",
       [userId]
     );
     
-    // If no points record exists, create one
+   
     if (pointsRows.rows.length === 0) {
       await pool.query(
         "INSERT INTO user_points (user_id, total_points, level, streak) VALUES ($1, 0, 1, 0)",
@@ -49,12 +49,36 @@ router.get("/learner", requireAuth, async (req, res) => {
       );
     }
 
-    // Calculate stats
+   
     const totalCourses = coursesRows.length;
     const completedCourses = coursesRows.filter(c => c.progress >= 100).length;
     const avgProgress = totalCourses > 0 
       ? Math.round(coursesRows.reduce((sum, c) => sum + (c.progress || 0), 0) / totalCourses)
       : 0;
+
+    const { rows: activityRows } = await pool.query(
+      `SELECT DATE(created_at) as date, COUNT(*) as count
+       FROM (
+         SELECT created_at FROM module_progress WHERE user_id = $1 AND completed = true
+         UNION ALL
+         SELECT submitted_at as created_at FROM assignment_submissions WHERE user_id = $1
+       ) activities
+       WHERE created_at >= NOW() - INTERVAL '7 days'
+       GROUP BY DATE(created_at)
+       ORDER BY date`,
+      [userId]
+    );
+    
+    const weeklyHours = [0, 0, 0, 0, 0, 0, 0];
+    const today = new Date();
+    activityRows.forEach(row => {
+      const activityDate = new Date(row.date);
+      const daysDiff = Math.floor((today - activityDate) / (1000 * 60 * 60 * 24));
+      if (daysDiff >= 0 && daysDiff < 7) {
+        const dayIndex = (today.getDay() - daysDiff + 7) % 7;
+        weeklyHours[dayIndex] = parseInt(row.count) * 0.5;
+      }
+    });
 
     res.json({
       user: userRows[0],
@@ -70,25 +94,26 @@ router.get("/learner", requireAuth, async (req, res) => {
       completion: {
         completed: avgProgress,
         remaining: 100 - avgProgress
-      }
+      },
+      weeklyHours
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get mentor dashboard data
+
 router.get("/mentor", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Get user info
+   
     const { rows: userRows } = await pool.query(
       "SELECT name, email, created_at FROM users WHERE id = $1",
       [userId]
     );
 
-    // Get mentorship connections
+    
     const { rows: connectionsRows } = await pool.query(
       `SELECT m.*, u.name as learner_name, u.email as learner_email
        FROM mentorship_requests m
@@ -98,19 +123,34 @@ router.get("/mentor", requireAuth, async (req, res) => {
       [userId]
     );
 
-    // Get stats
+   
     const totalLearners = connectionsRows.length;
     const activeSessions = connectionsRows.filter(c => c.status === 'accepted').length;
     const pendingRequests = connectionsRows.filter(c => c.status === 'pending').length;
+
+    const { rows: feedbackRows } = await pool.query(
+      `SELECT id, learner_name as learner, rating, comment
+       FROM mentorship_feedback
+       WHERE mentor_id = $1
+       ORDER BY created_at DESC
+       LIMIT 10`,
+      [userId]
+    );
+
+    const avgRating = feedbackRows.length > 0
+      ? feedbackRows.reduce((sum, f) => sum + f.rating, 0) / feedbackRows.length
+      : 0;
 
     res.json({
       user: userRows[0],
       stats: {
         totalLearners,
         activeSessions,
-        pendingRequests
+        pendingRequests,
+        avgRating: Math.round(avgRating * 10) / 10
       },
-      connections: connectionsRows
+      connections: connectionsRows,
+      feedback: feedbackRows
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

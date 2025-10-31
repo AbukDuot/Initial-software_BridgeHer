@@ -4,7 +4,6 @@ import { requireAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Get user settings
 router.get("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -24,7 +23,7 @@ router.get("/", requireAuth, async (req, res) => {
       settings: settingsRows[0] || {
         theme: 'light',
         font_size: 'medium',
-        accent_color: '#6A1B9A',
+        accent_color: '#4A148C;',
         account_privacy: 'public'
       }
     });
@@ -33,13 +32,12 @@ router.get("/", requireAuth, async (req, res) => {
   }
 });
 
-// Update user settings
+
 router.put("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { name, bio, theme, fontSize, accent, accountPrivacy, profilePic } = req.body;
     
-    // Update user profile
     if (name || bio || profilePic) {
       await pool.query(
         `UPDATE users 
@@ -51,7 +49,7 @@ router.put("/", requireAuth, async (req, res) => {
       );
     }
     
-    // Update or insert settings
+   
     await pool.query(
       `INSERT INTO user_settings (user_id, theme, font_size, accent_color, account_privacy, profile_pic, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())
@@ -72,23 +70,22 @@ router.put("/", requireAuth, async (req, res) => {
   }
 });
 
-// Logout
+
 router.post("/logout", requireAuth, async (req, res) => {
   try {
-    // In a real app, you'd invalidate the JWT token here
-    // For now, just return success
+    
     res.json({ success: true, message: "Logged out successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Delete account
+
 router.delete("/account", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     
-    // Delete user (cascade will delete related data)
+    
     await pool.query("DELETE FROM users WHERE id = $1", [userId]);
     
     res.json({ success: true, message: "Account deleted successfully" });

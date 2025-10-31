@@ -40,7 +40,7 @@ router.put("/:id", requireAuth, requireRole(["Admin"]), upload.single("image"), 
 
 router.delete("/:id", requireAuth, requireRole(["Admin"]), deleteCourse);
 
-// Enroll in course
+
 router.post("/:id/enroll", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -70,7 +70,7 @@ router.post("/:id/enroll", requireAuth, async (req, res) => {
   }
 });
 
-// Get course modules
+
 router.get("/:id/modules", async (req, res) => {
   try {
     const { id } = req.params;
@@ -84,7 +84,7 @@ router.get("/:id/modules", async (req, res) => {
   }
 });
 
-// Update course progress
+
 router.put("/:id/progress", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -114,7 +114,7 @@ router.put("/:id/progress", requireAuth, async (req, res) => {
         [userId]
       );
 
-      // Send completion notifications
+      
       const { rows: userRows } = await pool.query("SELECT name, email, contact FROM users WHERE id = $1", [userId]);
       const { rows: courseRows } = await pool.query("SELECT title FROM courses WHERE id = $1", [id]);
       
@@ -132,7 +132,7 @@ router.put("/:id/progress", requireAuth, async (req, res) => {
   }
 });
 
-// Get user's enrolled courses
+
 router.get("/my/enrolled", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -150,7 +150,7 @@ router.get("/my/enrolled", requireAuth, async (req, res) => {
   }
 });
 
-// Stream video/audio
+
 router.get("/:id/stream/:moduleId", requireAuth, async (req, res) => {
   try {
     const { moduleId } = req.params;
@@ -166,7 +166,7 @@ router.get("/:id/stream/:moduleId", requireAuth, async (req, res) => {
   }
 });
 
-// Download course materials
+
 router.get("/:id/download/:moduleId", requireAuth, async (req, res) => {
   try {
     const { moduleId } = req.params;
@@ -189,7 +189,7 @@ router.get("/:id/download/:moduleId", requireAuth, async (req, res) => {
   }
 });
 
-// Mark content as downloaded for offline
+
 router.post("/:id/offline/:moduleId", requireAuth, async (req, res) => {
   try {
     const { id, moduleId } = req.params;
@@ -208,7 +208,7 @@ router.post("/:id/offline/:moduleId", requireAuth, async (req, res) => {
   }
 });
 
-// Get user's certificates
+
 router.get("/my/certificates", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -227,7 +227,7 @@ router.get("/my/certificates", requireAuth, async (req, res) => {
   }
 });
 
-// Get specific certificate
+
 router.get("/certificate/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;

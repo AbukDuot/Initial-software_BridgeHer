@@ -31,7 +31,7 @@ const pdfStorage = multer.diskStorage({
 
 const videoUpload = multer({
   storage: videoStorage,
-  limits: { fileSize: 500 * 1024 * 1024 }, // 500MB
+  limits: { fileSize: 500 * 1024 * 1024 }, 
   fileFilter: (_req, file, cb) => {
     const allowed = [".mp4", ".webm", ".mov", ".avi"];
     const ext = path.extname(file.originalname).toLowerCase();
@@ -75,7 +75,7 @@ const fileUpload = multer({
   limits: { fileSize: 500 * 1024 * 1024 },
 });
 
-// Create module with video and PDF upload
+
 router.post("/", requireAuth, requireRole(["Admin"]), (useCloudinary ? cloudinaryUpload : fileUpload).fields([{ name: "video", maxCount: 1 }, { name: "pdf", maxCount: 1 }]), async (req, res) => {
   try {
     const { course_id, title, description, content, order_index, duration } = req.body;
@@ -134,7 +134,7 @@ router.post("/", requireAuth, requireRole(["Admin"]), (useCloudinary ? cloudinar
   }
 });
 
-// Get module by ID
+
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -146,7 +146,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Update module
+
 router.put("/:id", requireAuth, requireRole(["Admin"]), fileUpload.fields([{ name: "video", maxCount: 1 }, { name: "pdf", maxCount: 1 }]), async (req, res) => {
   try {
     const { id } = req.params;
@@ -185,7 +185,7 @@ router.put("/:id", requireAuth, requireRole(["Admin"]), fileUpload.fields([{ nam
   }
 });
 
-// Delete module
+
 router.delete("/:id", requireAuth, requireRole(["Admin"]), async (req, res) => {
   try {
     const { id } = req.params;
@@ -203,7 +203,6 @@ router.delete("/:id", requireAuth, requireRole(["Admin"]), async (req, res) => {
   }
 });
 
-// Stream video
 router.get("/:id/stream", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -250,7 +249,7 @@ router.get("/:id/stream", requireAuth, async (req, res) => {
   }
 });
 
-// Download module for offline
+
 router.get("/:id/download", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -273,7 +272,7 @@ router.get("/:id/download", requireAuth, async (req, res) => {
   }
 });
 
-// Download PDF
+
 router.get("/:id/pdf", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -295,7 +294,7 @@ router.get("/:id/pdf", requireAuth, async (req, res) => {
   }
 });
 
-// Track module progress
+
 router.post("/:id/progress", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -318,7 +317,7 @@ router.post("/:id/progress", requireAuth, async (req, res) => {
   }
 });
 
-// Get user's module progress
+
 router.get("/:id/progress", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -330,6 +329,63 @@ router.get("/:id/progress", requireAuth, async (req, res) => {
     );
     
     res.json(rows[0] || { completed: false, time_spent: 0, last_position: 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+router.post("/:id/complete", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `INSERT INTO module_progress (user_id, module_id, completed, completed_at)
+       VALUES ($1, $2, true, now())
+       ON CONFLICT (user_id, module_id) 
+       DO UPDATE SET completed = true, completed_at = now()
+       RETURNING *`,
+      [userId, id]
+    );
+    
+    
+    const { rows: moduleRows } = await pool.query(
+      "SELECT course_id FROM modules WHERE id = $1",
+      [id]
+    );
+    
+    if (moduleRows[0]) {
+      const courseId = moduleRows[0].course_id;
+      
+      const { rows: allModules } = await pool.query(
+        "SELECT COUNT(*) as total FROM modules WHERE course_id = $1",
+        [courseId]
+      );
+      
+      const { rows: completedModules } = await pool.query(
+        `SELECT COUNT(*) as completed FROM module_progress mp
+         JOIN modules m ON m.id = mp.module_id
+         WHERE m.course_id = $1 AND mp.user_id = $2 AND mp.completed = true`,
+        [courseId, userId]
+      );
+      
+      if (allModules[0].total === completedModules[0].completed) {
+        
+        await pool.query(
+          `INSERT INTO certificates (user_id, course_id, issued_at)
+           VALUES ($1, $2, now())
+           ON CONFLICT DO NOTHING`,
+          [userId, courseId]
+        );
+        
+        res.json({ ...rows[0], courseComplete: true });
+      } else {
+        res.json(rows[0]);
+      }
+    } else {
+      res.json(rows[0]);
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

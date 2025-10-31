@@ -39,7 +39,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ isAr }) => {
       {
         label: isAr ? "ساعات التعلم" : "Learning Hours",
         data: [2, 3, 1.5, 2, 4, 2.5, 3],
-        backgroundColor: "#6A1B9A",
+        backgroundColor: "#4A148C",
         borderRadius: 6,
       },
     ],
@@ -50,7 +50,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ isAr }) => {
     datasets: [
       {
         data: [70, 30],
-        backgroundColor: ["#6A1B9A", "#E0E0E0"],
+        backgroundColor: ["#4A148C", "#E0E0E0"],
         cutout: "75%",
       },
     ],
@@ -63,7 +63,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = ({ isAr }) => {
         label: isAr ? "جلسات الإرشاد" : "Mentorship Sessions",
         data: [1, 2, 3, 4],
         fill: false,
-        borderColor: "#6A1B9A",
+        borderColor: "#4A148C",
         tension: 0.3,
       },
     ],

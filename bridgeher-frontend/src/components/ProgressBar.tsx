@@ -12,7 +12,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
   showLabel = true,
   size = "medium",
-  color = "#6a1b9a",
+  color = "#4A148C",
 }) => {
   const clampedProgress = Math.min(Math.max(progress, 0), 100);
 

@@ -28,7 +28,7 @@
 
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(106,27,154,0.2);
+  box-shadow: 0 4px 12px rgba(74, 20, 140, 0.2);
 }
 
 .stat-icon {

@@ -4,7 +4,6 @@ import { requireAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Get quizzes for a course
 router.get("/course/:courseId", async (req, res) => {
   try {
     const { courseId } = req.params;
@@ -18,7 +17,6 @@ router.get("/course/:courseId", async (req, res) => {
   }
 });
 
-// Get quiz by ID
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -30,7 +28,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Submit quiz attempt
+
 router.post("/:id/attempt", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -73,7 +71,7 @@ router.post("/:id/attempt", requireAuth, async (req, res) => {
   }
 });
 
-// Get user's quiz attempts
+
 router.get("/user/attempts", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
