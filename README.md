@@ -334,7 +334,13 @@ BridgeHer is fully responsive and supports **Right-to-Left (RTL)** layout for Ar
 
 ## Video Demo
 
-**BridgeHer Demo Video**
+**Initial_software_product demo**
+🔗 [https://drive.google.com/file/d/1yu4ZRXURmIa3C2YUEhpuP0iDkg7J9SiY/view?usp=sharing](https://drive.google.com/file/d/1yu4ZRXURmIa3C2YUEhpuP0iDkg7J9SiY/view?usp=sharing)
+
+
+**Final version of the product Video Demo**
+
+🔗 [https://drive.google.com/drive/folders/1uLfcK2XwXCyx_L-lWqW9h_40qczWKnLC?usp=sharing]([https://drive.google.com/drive/folders/1uLfcK2XwXCyx_L-lWqW9h_40qczWKnLC?usp=sharing)
 
 Covers:
 - Project setup and environment configuration
@@ -342,8 +348,6 @@ Covers:
 - Registration and login functionality
 - Backend connection and database interaction
 - Responsive design demonstration
-
-🔗 [https://drive.google.com/drive/folders/1uLfcK2XwXCyx_L-lWqW9h_40qczWKnLC?usp=sharing]([https://drive.google.com/drive/folders/1uLfcK2XwXCyx_L-lWqW9h_40qczWKnLC?usp=sharing)
 
 ## Developer Notes
 
