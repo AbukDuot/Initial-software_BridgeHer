@@ -5,7 +5,7 @@ import Home from "./pages/Home";
 import Courses from "./pages/Courses";
 import About from "./pages/About";
 import Community from "./pages/Community";
-import CreateTopic from "./pages/CreateTopic";
+import CreateTopic from "./pages/CommunityCreate";
 import LearnerDashboard from "./pages/LearnerDashboard";
 import MentorDashboard from "./pages/MentorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
