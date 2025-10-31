@@ -90,6 +90,7 @@ const initDatabase = async () => {
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
         progress INTEGER DEFAULT 0,
+        completed_modules INTEGER DEFAULT 0,
         enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(user_id, course_id)
       );
@@ -104,10 +105,12 @@ const initDatabase = async () => {
 
       CREATE TABLE IF NOT EXISTS mentorship_requests (
         id SERIAL PRIMARY KEY,
-        learner_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        requester_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         mentor_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        topic VARCHAR(255),
         status VARCHAR(50) DEFAULT 'pending',
         message TEXT,
+        scheduled_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -146,8 +149,9 @@ const initDatabase = async () => {
       CREATE TABLE IF NOT EXISTS user_points (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        points INTEGER DEFAULT 0,
+        total_points INTEGER DEFAULT 0,
         level INTEGER DEFAULT 1,
+        streak INTEGER DEFAULT 0,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(user_id)
       );
