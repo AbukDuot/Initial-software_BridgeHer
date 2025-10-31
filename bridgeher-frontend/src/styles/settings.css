@@ -93,7 +93,7 @@
 
 
 .upload-btn {
-  background: var(--accent,#4a148c);
+  background: #4A148C;
   color: white;
   font-size: 0.9rem;
   padding: 0.6rem 1.4rem;
@@ -104,7 +104,8 @@
 }
 
 .upload-btn:hover {
-  background: #4a148c;
+  background: #FFD700;
+  color: #4A148C;
 }
 
 
@@ -218,26 +219,33 @@
 }
 
 .settings-btn.logout {
-  background: var(--accent, #4a148c);
+  background: #4A148C;
   color: white;
 }
 
 .settings-btn.logout:hover {
-  background: #4a148c;
+  background: #FFD700;
+  color: #4A148C;
 }
 
 .settings-btn.save {
-  background: #4a148c;
+  background: #4A148C;
   color: white;
 }
 
 .settings-btn.save:hover {
-  background:#4a148c;
+  background: #FFD700;
+  color: #4A148C;
 }
 
 
 [data-theme="dark"] .settings-btn.logout {
-  background:#4a148c;
+  background: #4A148C;
+}
+
+[data-theme="dark"] .settings-btn.logout:hover {
+  background: #FFD700;
+  color: #4A148C;
 }
 
 [data-theme="dark"] .settings-btn.delete {
