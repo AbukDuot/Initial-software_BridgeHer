@@ -31,7 +31,7 @@
 }
 
 .theme-toggle button {
-  background: var(--accent);
+  background: #FFD700;
   border: none;
   padding: 8px 14px;
   border-radius: var(--radius);

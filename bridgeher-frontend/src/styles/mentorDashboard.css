@@ -50,7 +50,7 @@
 }
 
 .toggle-btn {
-  background: var(--accent);
+  background: #FFD700;
   border: none;
   padding: 8px 14px;
   color: var(--primary);
