@@ -29,7 +29,6 @@ ChartJS.register(
 
 type Lang = "en" | "ar";
 type Theme = "light" | "dark";
-type Rating = 1 | 2 | 3 | 4 | 5;
 
 interface Request {
   id: string;
