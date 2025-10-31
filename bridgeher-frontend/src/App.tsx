@@ -1,30 +1,30 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Home from "./pages/Home";
-import Courses from "./pages/Courses";
-import About from "./pages/About";
-import Community from "./pages/Community";
-import CreateTopic from "./pages/CommunityCreate";
-import LearnerDashboard from "./pages/LearnerDashboard";
-import MentorDashboard from "./pages/MentorDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminCourseUpload from "./pages/AdminCourseUpload";
-import CoursePlayer from "./pages/CoursePlayer";
-import ResetPassword from "./pages/ResetPassword";
-import Mentorship from "./pages/Mentorship";
-import Settings from "./pages/Settings";
-import MyCertificates from "./pages/MyCertificates";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import AuthSuccess from "./pages/AuthSuccess";
-import Profile from "./pages/Profile";
-import CourseDetail from "./pages/CourseDetail";
-import ModuleDetail from "./pages/ModuleDetail";
-import Quiz from "./pages/quiz";
-import HelpFAQ from "./pages/HelpFAQ";
-import AnalyticsDashboard from "./components/AnalyticsDashboard";
-import TopicDetail from "./pages/TopicDetail";
+const Home = lazy(() => import("./pages/Home"));
+const Courses = lazy(() => import("./pages/Courses"));
+const About = lazy(() => import("./pages/About"));
+const Community = lazy(() => import("./pages/Community"));
+const CreateTopic = lazy(() => import("./pages/CommunityCreate"));
+const LearnerDashboard = lazy(() => import("./pages/LearnerDashboard"));
+const MentorDashboard = lazy(() => import("./pages/MentorDashboard"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminCourseUpload = lazy(() => import("./pages/AdminCourseUpload"));
+const CoursePlayer = lazy(() => import("./pages/CoursePlayer"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Mentorship = lazy(() => import("./pages/Mentorship"));
+const Settings = lazy(() => import("./pages/Settings"));
+const MyCertificates = lazy(() => import("./pages/MyCertificates"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const AuthSuccess = lazy(() => import("./pages/AuthSuccess"));
+const Profile = lazy(() => import("./pages/Profile"));
+const CourseDetail = lazy(() => import("./pages/CourseDetail"));
+const ModuleDetail = lazy(() => import("./pages/ModuleDetail"));
+const Quiz = lazy(() => import("./pages/quiz"));
+const HelpFAQ = lazy(() => import("./pages/HelpFAQ"));
+const AnalyticsDashboard = lazy(() => import("./components/AnalyticsDashboard"));
+const TopicDetail = lazy(() => import("./pages/TopicDetail"));
 
 import { UserProvider } from "./context/UserContext";
 import { LanguageProvider } from "./context/LanguageContext";
@@ -64,6 +64,7 @@ function App() {
             <CookieBanner language="English" />
 
             <main className="flex-grow-1">
+              <Suspense fallback={<div style={{textAlign: 'center', padding: '50px'}}>Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/courses" element={<Courses />} />
@@ -100,6 +101,7 @@ function App() {
                 <Route path="/help" element={<HelpFAQ />} />
                 <Route path="/analytics" element={<AnalyticsDashboard />} />
               </Routes>
+              </Suspense>
             </main>
 
             <Footer />
