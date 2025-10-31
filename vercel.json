@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd bridgeher-frontend && npm run build",
+  "outputDirectory": "bridgeher-frontend/dist",
+  "installCommand": "cd bridgeher-frontend && npm install",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
