@@ -206,7 +206,7 @@ const MentorDashboard: React.FC = () => {
           window.location.href = "/login";
           return;
         }
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/dashboards/mentor`, {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://bridgeher-backend.onrender.com'}/api/dashboards/mentor`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.status === 401) {
