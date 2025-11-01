@@ -60,11 +60,9 @@ const Navbar: React.FC = () => {
         {/* Navigation Links */}
         <ul className={`nav-links ${menuOpen ? "active" : ""}`}>
           <li><Link to="/" onClick={toggleMenu}>{t.home}</Link></li>
-          <li><Link to="/courses" onClick={toggleMenu}>{t.courses}</Link></li>
           <li><Link to="/learner-dashboard" onClick={toggleMenu}>{t.learnerDashboard}</Link></li>
           <li><Link to="/mentor-dashboard" onClick={toggleMenu}>{t.mentorDashboard}</Link></li>
           <li><Link to="/admin-dashboard" onClick={toggleMenu}>{t.adminDashboard}</Link></li>
-          <li><Link to="/community" onClick={toggleMenu}>{t.community}</Link></li>
         </ul>
 
         {/* Right Actions: Auth + Language */}

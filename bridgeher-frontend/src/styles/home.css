@@ -92,12 +92,12 @@
 }
 
 .btn.primary {
-  background-color: #4A148C !important;
+  background-color: #4A148C;
   color: var(--white);
 }
 
 .btn.primary:hover {
-  background-color: #4A148C !important;
+  background-color: #4A148C;
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
 }
@@ -118,7 +118,7 @@
   background-color: var(--gold-dark);
   color: var(--primary-black);
   font-weight: 700;
-  box-shadow: 0 0 18px rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 18px rgba(255, 215, 0, 0.8);
 }
 
 .btn.highlight:hover {
