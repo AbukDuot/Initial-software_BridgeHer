@@ -34,14 +34,24 @@ interface Announcement {
   pinned: boolean;
 }
 
+interface Category {
+  category: string;
+  count: number;
+}
+
+interface Tag {
+  tag: string;
+  count: number;
+}
+
 const Community: React.FC = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const isArabic = language === "Arabic";
 
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [tags, setTags] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [activity, setActivity] = useState<Activity[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,7 +80,7 @@ const Community: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         const topicsData = Array.isArray(data) ? data : (data.topics || []);
-        setTopics(topicsData.map((t: any) => ({
+        setTopics(topicsData.map((t: Topic) => ({
           ...t,
           replies: Number(t.replies) || 0,
           views: Number(t.views) || 0,
@@ -89,7 +99,7 @@ const Community: React.FC = () => {
       const res = await fetch(`${API_BASE_URL}/api/community/categories`);
       if (res.ok) {
         const data = await res.json();
-        setCategories(Array.isArray(data) ? data.map((c: any) => ({...c, count: Number(c.count) || 0})) : []);
+        setCategories(Array.isArray(data) ? data.map((c: Category) => ({...c, count: Number(c.count) || 0})) : []);
       }
     } catch (err) {
       console.error("Failed to fetch categories", err);
@@ -102,7 +112,7 @@ const Community: React.FC = () => {
       const res = await fetch(`${API_BASE_URL}/api/community/tags`);
       if (res.ok) {
         const data = await res.json();
-        setTags(Array.isArray(data) ? data.map((t: any) => ({...t, count: Number(t.count) || 0})) : []);
+        setTags(Array.isArray(data) ? data.map((t: Tag) => ({...t, count: Number(t.count) || 0})) : []);
       }
     } catch (err) {
       console.error("Failed to fetch tags", err);
@@ -134,7 +144,7 @@ const Community: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         const topicsData = Array.isArray(data) ? data : [];
-        setTopics(topicsData.map((t: any) => ({
+        setTopics(topicsData.map((t: Topic) => ({
           ...t,
           replies: Number(t.replies) || 0,
           views: Number(t.views) || 0,
@@ -177,7 +187,7 @@ const Community: React.FC = () => {
           {/* Announcements */}
           {announcements.length > 0 && (
             <div className="sidebar-card announcements-card">
-              <h3>{isArabic ? "📢 الإعلانات" : "📢 Announcements"}</h3>
+              <h3>{isArabic ? " الإعلانات" : " Announcements"}</h3>
               <div className="announcements-list">
                 {announcements.map((ann) => (
                   <div key={ann.id} className="announcement-item">
@@ -231,7 +241,7 @@ const Community: React.FC = () => {
               {activity.slice(0, 10).map((act, idx) => (
                 <li key={idx}>
                   <span className="activity-type">
-                    {act.type === 'topic' ? '📝' : '💬'}
+                    {act.type === 'topic' ? '' : ''}
                   </span>
                   <div>
                     <strong>{act.author}</strong>
