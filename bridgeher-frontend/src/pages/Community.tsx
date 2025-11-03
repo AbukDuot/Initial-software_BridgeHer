@@ -59,6 +59,14 @@ const Community: React.FC = () => {
   const [sortBy, setSortBy] = useState("recent");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({
+    tag: "",
+    author: "",
+    dateFrom: "",
+    dateTo: "",
+    status: ""
+  });
 
   useEffect(() => {
     fetchTopics();
@@ -134,13 +142,20 @@ const Community: React.FC = () => {
   };
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) {
+    if (!searchQuery.trim() && !advancedFilters.tag && !advancedFilters.author && !advancedFilters.status) {
       fetchTopics();
       return;
     }
     
     try {
-      const res = await fetch(`${API_BASE_URL}/api/community/search?q=${encodeURIComponent(searchQuery)}`);
+      let url = `${API_BASE_URL}/api/community/search?q=${encodeURIComponent(searchQuery)}`;
+      if (advancedFilters.tag) url += `&tag=${encodeURIComponent(advancedFilters.tag)}`;
+      if (advancedFilters.author) url += `&author=${encodeURIComponent(advancedFilters.author)}`;
+      if (advancedFilters.dateFrom) url += `&dateFrom=${advancedFilters.dateFrom}`;
+      if (advancedFilters.dateTo) url += `&dateTo=${advancedFilters.dateTo}`;
+      if (advancedFilters.status) url += `&status=${advancedFilters.status}`;
+      
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         const topicsData = Array.isArray(data) ? data : [];
@@ -275,7 +290,55 @@ const Community: React.FC = () => {
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
               <button onClick={handleSearch}>🔍</button>
+              <button onClick={() => setShowAdvancedSearch(!showAdvancedSearch)} className="advanced-search-btn">
+                {isArabic ? "بحته متقدم" : "Advanced"}
+              </button>
             </div>
+            
+            {showAdvancedSearch && (
+              <div className="advanced-search-panel">
+                <input
+                  type="text"
+                  placeholder={isArabic ? "وسم" : "Tag"}
+                  value={advancedFilters.tag}
+                  onChange={(e) => setAdvancedFilters({ ...advancedFilters, tag: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder={isArabic ? "اسم المؤلف" : "Author"}
+                  value={advancedFilters.author}
+                  onChange={(e) => setAdvancedFilters({ ...advancedFilters, author: e.target.value })}
+                />
+                <input
+                  type="date"
+                  placeholder={isArabic ? "من تاريخ" : "From Date"}
+                  value={advancedFilters.dateFrom}
+                  onChange={(e) => setAdvancedFilters({ ...advancedFilters, dateFrom: e.target.value })}
+                />
+                <input
+                  type="date"
+                  placeholder={isArabic ? "إلى تاريخ" : "To Date"}
+                  value={advancedFilters.dateTo}
+                  onChange={(e) => setAdvancedFilters({ ...advancedFilters, dateTo: e.target.value })}
+                />
+                <select
+                  value={advancedFilters.status}
+                  onChange={(e) => setAdvancedFilters({ ...advancedFilters, status: e.target.value })}
+                >
+                  <option value="">{isArabic ? "كل الحالات" : "All Status"}</option>
+                  <option value="open">{isArabic ? "مفتوح" : "Open"}</option>
+                  <option value="solved">{isArabic ? "محلول" : "Solved"}</option>
+                  <option value="closed">{isArabic ? "مغلق" : "Closed"}</option>
+                </select>
+                <button onClick={() => {
+                  setAdvancedFilters({ tag: "", author: "", dateFrom: "", dateTo: "", status: "" });
+                  setSearchQuery("");
+                  fetchTopics();
+                }} className="clear-filters-btn">
+                  {isArabic ? "مسح الفلاتر" : "Clear Filters"}
+                </button>
+              </div>
+            )}
 
             <select value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }}>
               <option value="recent">{isArabic ? "الأحدث" : "Recent"}</option>

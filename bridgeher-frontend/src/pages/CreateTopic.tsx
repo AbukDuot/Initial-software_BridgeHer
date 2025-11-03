@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import RichTextEditor from "../components/RichTextEditor";
 import "../styles/createTopic.css";
 
 const CreateTopic: React.FC = () => {
@@ -113,11 +114,10 @@ const CreateTopic: React.FC = () => {
 
           <div className="form-group">
             <label>{isArabic ? "المحتوى" : "Content"}</label>
-            <textarea
+            <RichTextEditor
               value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              onChange={(value) => setFormData({ ...formData, content: value })}
               placeholder={isArabic ? "اكتب محتوى الموضوع هنا..." : "Write your topic content here..."}
-              rows={10}
             />
           </div>
 

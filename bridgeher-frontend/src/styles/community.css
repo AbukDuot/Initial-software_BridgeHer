@@ -198,6 +198,7 @@
 
 .community-controls {
   display: flex;
+  flex-direction: column;
   gap: 15px;
   background: white;
   padding: 20px;
@@ -206,7 +207,6 @@
 }
 
 .search-bar {
-  flex: 1;
   display: flex;
   gap: 10px;
 }
@@ -226,29 +226,56 @@
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
+  transition: all 0.3s;
 }
 
-.search-bar {
-  flex: 1;
-  display: flex;
+.search-bar button:hover {
+  background: #FFD700;
+  color: #4A148C;
+}
+
+.advanced-search-btn {
+  background: #FFD700 !important;
+  color: #4A148C !important;
+  font-weight: 600;
+}
+
+.advanced-search-btn:hover {
+  background: #4A148C !important;
+  color: white !important;
+}
+
+.advanced-search-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 5px;
+  border: 2px solid #4A148C;
 }
 
-.search-bar input {
-  flex: 1;
-  padding: 10px 15px;
+.advanced-search-panel input,
+.advanced-search-panel select {
+  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 14px;
 }
 
-.search-bar button {
-  background: #4A148C;
+.clear-filters-btn {
+  background: #E53935;
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.clear-filters-btn:hover {
+  background: #c62828;
 }
 
 .community-controls select {

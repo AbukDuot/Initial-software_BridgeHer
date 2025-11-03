@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
 import { timeAgo } from "../utils/timeAgo";
+import RichTextEditor from "../components/RichTextEditor";
 import "../styles/topicDetail.css";
 
 interface Topic {
@@ -12,9 +13,12 @@ interface Topic {
   description: string;
   content: string;
   author_name: string;
+  user_id: number;
   views: number;
   likes: number;
   user_liked: boolean;
+  status: string;
+  locked: boolean;
   created_at: string;
 }
 
@@ -322,6 +326,44 @@ const TopicDetail: React.FC = () => {
     }
   };
 
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (res.ok) {
+        alert(isArabic ? "تم تحديث الحالة" : "Status updated");
+        await fetchTopic();
+      }
+    } catch (err) {
+      console.error("Failed to update status", err);
+    }
+  };
+
+  const handleLockToggle = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/lock`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        alert(isArabic ? "تم تحديث القفل" : "Lock status updated");
+        await fetchTopic();
+      }
+    } catch (err) {
+      console.error("Failed to toggle lock", err);
+    }
+  };
+
   if (loading) return <div className="loading">{isArabic ? "جاري التحميل..." : "Loading..."}</div>;
   if (!topic) return <div className="error">{isArabic ? "الموضوع غير موجود" : "Topic not found"}</div>;
 
@@ -395,6 +437,14 @@ const TopicDetail: React.FC = () => {
           </button>
           <span>👁️ {topic.views} {isArabic ? "مشاهدة" : "Views"}</span>
           <span>💬 {replies.length} {isArabic ? "رد" : "Replies"}</span>
+          {topic.status && (
+            <span className={`status-badge status-${topic.status}`}>
+              {topic.status === 'solved' ? (isArabic ? '✓ محلول' : '✓ Solved') : 
+               topic.status === 'closed' ? (isArabic ? '🔒 مغلق' : '🔒 Closed') : 
+               (isArabic ? 'مفتوح' : 'Open')}
+            </span>
+          )}
+          {topic.locked && <span className="locked-badge">🔒 {isArabic ? "مقفل" : "Locked"}</span>}
           {currentUser && !editingTopic && (
             <button className="edit-btn" onClick={() => {
               setEditTopicData({ title: topic.title, description: topic.description, content: topic.content });
@@ -409,9 +459,25 @@ const TopicDetail: React.FC = () => {
             </button>
           )}
           {currentUser && currentUser.role === 'Admin' && (
-            <button className="pin-btn" onClick={handlePinTopic}>
-              📌 {isArabic ? "تثبيت" : "Pin"}
-            </button>
+            <>
+              <button className="pin-btn" onClick={handlePinTopic}>
+                📌 {isArabic ? "تثبيت" : "Pin"}
+              </button>
+              <button className="lock-btn" onClick={handleLockToggle}>
+                {topic.locked ? '🔓' : '🔒'} {topic.locked ? (isArabic ? "فتح" : "Unlock") : (isArabic ? "قفل" : "Lock")}
+              </button>
+            </>
+          )}
+          {currentUser && (currentUser.id === topic.user_id || currentUser.role === 'Admin') && (
+            <select 
+              className="status-select"
+              value={topic.status || 'open'}
+              onChange={(e) => handleStatusChange(e.target.value)}
+            >
+              <option value="open">{isArabic ? "مفتوح" : "Open"}</option>
+              <option value="solved">{isArabic ? "محلول" : "Solved"}</option>
+              <option value="closed">{isArabic ? "مغلق" : "Closed"}</option>
+            </select>
           )}
           {currentUser && (
             <>
@@ -494,21 +560,25 @@ const TopicDetail: React.FC = () => {
           )}
 
           {/* Reply Form */}
-          <div className="reply-form">
-            <h3>{isArabic ? "أضف رداً" : "Add a Reply"}</h3>
-            <form onSubmit={handleSubmitReply}>
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder={isArabic ? "اكتب ردك هنا..." : "Write your reply here..."}
-                rows={4}
-                required
-              />
-              <button type="submit" className="btn-primary">
-                {isArabic ? "إرسال الرد" : "Submit Reply"}
-              </button>
-            </form>
-          </div>
+          {!topic.locked ? (
+            <div className="reply-form">
+              <h3>{isArabic ? "أضف رداً" : "Add a Reply"}</h3>
+              <form onSubmit={handleSubmitReply}>
+                <RichTextEditor
+                  value={replyText}
+                  onChange={setReplyText}
+                  placeholder={isArabic ? "اكتب ردك هنا..." : "Write your reply here..."}
+                />
+                <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
+                  {isArabic ? "إرسال الرد" : "Submit Reply"}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="locked-message">
+              <p>🔒 {isArabic ? "هذا الموضوع مقفل. لا يمكن إضافة ردود جديدة." : "This topic is locked. No new replies can be added."}</p>
+            </div>
+          )}
         </div>
       </div>
 

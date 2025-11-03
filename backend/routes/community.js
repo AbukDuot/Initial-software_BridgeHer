@@ -1,6 +1,7 @@
 import express from "express";
 import pool from "../config/db.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
+import { checkAndAwardBadges } from "../utils/badgeAwarder.js";
 
 const router = express.Router();
 
@@ -158,6 +159,8 @@ router.post("/topics", requireAuth, async (req, res) => {
       [userId, title, category || null, description || '', tags || []]
     );
     
+    checkAndAwardBadges(userId);
+    
     res.status(201).json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -297,6 +300,8 @@ router.post("/topics/:id/replies", requireAuth, async (req, res) => {
         ]
       );
     }
+    
+    checkAndAwardBadges(userId);
     
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -438,22 +443,52 @@ router.delete("/replies/:id", requireAuth, async (req, res) => {
 
 router.get("/search", async (req, res) => {
   try {
-    const { q } = req.query;
+    const { q, tag, author, dateFrom, dateTo, status } = req.query;
     
-    if (!q) return res.json([]);
+    if (!q && !tag && !author && !dateFrom && !status) return res.json([]);
     
-    const { rows } = await pool.query(
-      `SELECT t.*, u.name as author_name,
+    let query = `SELECT t.*, u.name as author_name,
        (SELECT COUNT(*) FROM topic_replies WHERE topic_id = t.id) as replies,
        (SELECT COUNT(*) FROM topic_likes WHERE topic_id = t.id) as likes
        FROM community_topics t
        JOIN users u ON u.id = t.user_id
-       WHERE t.title ILIKE $1 OR t.description ILIKE $1
-       ORDER BY t.created_at DESC
-       LIMIT 50`,
-      [`%${q}%`]
-    );
+       WHERE 1=1`;
     
+    const params = [];
+    
+    if (q) {
+      params.push(`%${q}%`);
+      query += ` AND (t.title ILIKE $${params.length} OR t.description ILIKE $${params.length})`;
+    }
+    
+    if (tag) {
+      params.push(tag);
+      query += ` AND $${params.length} = ANY(t.tags)`;
+    }
+    
+    if (author) {
+      params.push(`%${author}%`);
+      query += ` AND u.name ILIKE $${params.length}`;
+    }
+    
+    if (dateFrom) {
+      params.push(dateFrom);
+      query += ` AND t.created_at >= $${params.length}`;
+    }
+    
+    if (dateTo) {
+      params.push(dateTo);
+      query += ` AND t.created_at <= $${params.length}`;
+    }
+    
+    if (status) {
+      params.push(status);
+      query += ` AND t.status = $${params.length}`;
+    }
+    
+    query += ` ORDER BY t.created_at DESC LIMIT 50`;
+    
+    const { rows } = await pool.query(query, params);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -646,6 +681,53 @@ router.get("/bookmarks", requireAuth, async (req, res) => {
       [userId]
     );
     res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put("/topics/:id/status", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT user_id FROM community_topics WHERE id = $1`,
+      [id]
+    );
+    
+    if (!existing[0]) return res.status(404).json({ error: "Topic not found" });
+    if (existing[0].user_id !== userId && userRole !== 'Admin') {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+    
+    const { rows } = await pool.query(
+      `UPDATE community_topics SET status = $1 WHERE id = $2 RETURNING *`,
+      [status, id]
+    );
+    
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put("/topics/:id/lock", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Admin only" });
+    }
+    
+    const { rows } = await pool.query(
+      `UPDATE community_topics SET locked = NOT locked WHERE id = $1 RETURNING locked`,
+      [id]
+    );
+    
+    res.json({ locked: rows[0].locked });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

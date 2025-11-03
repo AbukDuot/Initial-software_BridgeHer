@@ -201,17 +201,19 @@
 }
 
 .delete-btn-small {
-  background: transparent;
+  background: #E53935;
+  color: white;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  padding: 5px 10px;
-  transition: transform 0.2s;
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 15px;
+  transition: all 0.3s;
   margin-left: 10px;
 }
 
 .delete-btn-small:hover {
-  transform: scale(1.2);
+  background: #c62828;
 }
 
 .edit-btn {
@@ -279,6 +281,78 @@
 .bookmark-btn:hover {
   background: #4A148C;
   color: white;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-open {
+  background: #4CAF50;
+  color: white;
+}
+
+.status-solved {
+  background: #2196F3;
+  color: white;
+}
+
+.status-closed {
+  background: #9E9E9E;
+  color: white;
+}
+
+.locked-badge {
+  background: #E53935;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lock-btn {
+  background: #E53935;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.lock-btn:hover {
+  background: #c62828;
+}
+
+.status-select {
+  padding: 8px 12px;
+  border: 2px solid #4A148C;
+  border-radius: 5px;
+  background: white;
+  color: #4A148C;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.status-select:hover {
+  background: #f0f0f0;
+}
+
+.locked-message {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  color: #856404;
+  font-weight: 500;
 }
 
 .edit-btn-small,
