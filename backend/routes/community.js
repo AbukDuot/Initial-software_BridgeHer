@@ -225,10 +225,12 @@ router.put("/replies/:id", requireAuth, async (req, res) => {
 router.get("/topics/:id", async (req, res) => {
   try {
     const { id } = req.params;
+    const { skipView } = req.query;
     const userId = req.user?.id;
     
-   
-    await pool.query(`UPDATE community_topics SET views = views + 1 WHERE id = $1`, [id]);
+    if (skipView !== 'true') {
+      await pool.query(`UPDATE community_topics SET views = views + 1 WHERE id = $1`, [id]);
+    }
     
     const { rows: topicRows } = await pool.query(
       `SELECT t.*, u.name as author_name, u.avatar_url,
@@ -473,6 +475,39 @@ router.get("/reports", requireAuth, async (req, res) => {
     );
     
     res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put("/reports/:id/resolve", requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Admin only" });
+    }
+    
+    const { id } = req.params;
+    await pool.query(
+      `UPDATE content_reports SET status = 'resolved' WHERE id = $1`,
+      [id]
+    );
+    
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/reports/:id", requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Admin only" });
+    }
+    
+    const { id } = req.params;
+    await pool.query(`DELETE FROM content_reports WHERE id = $1`, [id]);
+    
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

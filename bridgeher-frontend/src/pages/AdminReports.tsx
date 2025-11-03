@@ -51,6 +51,42 @@ const AdminReports: React.FC = () => {
     }
   };
 
+  const handleResolve = async (reportId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/community/reports/${reportId}/resolve`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        setReports(reports.filter(r => r.id !== reportId));
+        alert(isArabic ? "تم حل البلاغ" : "Report resolved");
+      }
+    } catch (err) {
+      console.error("Failed to resolve report", err);
+    }
+  };
+
+  const handleDelete = async (reportId: number) => {
+    if (!confirm(isArabic ? "هل تريد حذف هذا البلاغ؟" : "Delete this report?")) return;
+    
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/community/reports/${reportId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        setReports(reports.filter(r => r.id !== reportId));
+        alert(isArabic ? "تم حذف البلاغ" : "Report deleted");
+      }
+    } catch (err) {
+      console.error("Failed to delete report", err);
+    }
+  };
+
   if (loading) return <div className="loading">{isArabic ? "جاري التحميل..." : "Loading..."}</div>;
 
   return (
@@ -87,6 +123,12 @@ const AdminReports: React.FC = () => {
                 <div className="report-actions">
                   <button onClick={() => viewContent(report)} className="btn-view">
                     {isArabic ? "عرض المحتوى" : "View Content"}
+                  </button>
+                  <button onClick={() => handleResolve(report.id)} className="btn-resolve">
+                    {isArabic ? "حل" : "Resolve"}
+                  </button>
+                  <button onClick={() => handleDelete(report.id)} className="btn-delete">
+                    {isArabic ? "حذف" : "Delete"}
                   </button>
                 </div>
               </div>

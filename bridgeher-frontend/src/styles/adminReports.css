@@ -107,6 +107,34 @@
   background: #6A1B9A;
 }
 
+.btn-resolve {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-resolve:hover {
+  background: #45a049;
+}
+
+.btn-delete {
+  background: #E53935;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-delete:hover {
+  background: #c62828;
+}
+
 .admin-reports.rtl {
   direction: rtl;
 }

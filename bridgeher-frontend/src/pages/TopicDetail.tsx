@@ -60,7 +60,10 @@ const TopicDetail: React.FC = () => {
   const fetchTopic = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}`, {
+      const viewedTopics = JSON.parse(localStorage.getItem("viewedTopics") || "[]");
+      const alreadyViewed = viewedTopics.includes(Number(id));
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}?skipView=${alreadyViewed}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       
@@ -68,6 +71,11 @@ const TopicDetail: React.FC = () => {
         const data = await res.json();
         setTopic(data.topic);
         setReplies(data.replies);
+        
+        if (!alreadyViewed) {
+          viewedTopics.push(Number(id));
+          localStorage.setItem("viewedTopics", JSON.stringify(viewedTopics));
+        }
       }
     } catch (err) {
       console.error("Failed to fetch topic", err);
@@ -347,7 +355,7 @@ const TopicDetail: React.FC = () => {
             className={`like-btn ${topic.user_liked ? 'liked' : ''}`}
             onClick={handleLikeTopic}
           >
-            ❤️ {topic.likes} {isArabic ? "إعجاب" : "Likes"}
+            {topic.user_liked ? '❤️' : '🤍'} {topic.likes} {isArabic ? "إعجاب" : "Likes"}
           </button>
           <span>👁️ {topic.views} {isArabic ? "مشاهدة" : "Views"}</span>
           <span>💬 {replies.length} {isArabic ? "رد" : "Replies"}</span>
@@ -414,7 +422,7 @@ const TopicDetail: React.FC = () => {
                         className={`like-btn-small ${reply.user_liked ? 'liked' : ''}`}
                         onClick={() => handleLikeReply(reply.id)}
                       >
-                        ❤️ {reply.likes}
+                        {reply.user_liked ? '❤️' : '🤍'} {reply.likes}
                       </button>
                       {currentUser && (
                         <>
