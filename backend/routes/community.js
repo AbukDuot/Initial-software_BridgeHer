@@ -278,6 +278,26 @@ router.post("/topics/:id/replies", requireAuth, async (req, res) => {
       [id, userId, content]
     );
     
+    const { rows: topicRows } = await pool.query(
+      `SELECT t.user_id, t.title, u.name as replier_name 
+       FROM community_topics t, users u 
+       WHERE t.id = $1 AND u.id = $2`,
+      [id, userId]
+    );
+    
+    if (topicRows[0] && topicRows[0].user_id !== userId) {
+      await pool.query(
+        `INSERT INTO notifications (user_id, type, content, link)
+         VALUES ($1, $2, $3, $4)`,
+        [
+          topicRows[0].user_id,
+          'reply',
+          `${topicRows[0].replier_name} replied to your topic "${topicRows[0].title}"`,
+          `/community/topic/${id}`
+        ]
+      );
+    }
+    
     res.status(201).json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -296,18 +316,37 @@ router.post("/topics/:id/like", requireAuth, async (req, res) => {
     );
     
     if (existing.length > 0) {
-      
       await pool.query(
         `DELETE FROM topic_likes WHERE topic_id = $1 AND user_id = $2`,
         [id, userId]
       );
       res.json({ liked: false });
     } else {
-      
       await pool.query(
         `INSERT INTO topic_likes (topic_id, user_id) VALUES ($1, $2)`,
         [id, userId]
       );
+      
+      const { rows: topicRows } = await pool.query(
+        `SELECT t.user_id, t.title, u.name as liker_name 
+         FROM community_topics t, users u 
+         WHERE t.id = $1 AND u.id = $2`,
+        [id, userId]
+      );
+      
+      if (topicRows[0] && topicRows[0].user_id !== userId) {
+        await pool.query(
+          `INSERT INTO notifications (user_id, type, content, link)
+           VALUES ($1, $2, $3, $4)`,
+          [
+            topicRows[0].user_id,
+            'like',
+            `${topicRows[0].liker_name} liked your topic "${topicRows[0].title}"`,
+            `/community/topic/${id}`
+          ]
+        );
+      }
+      
       res.json({ liked: true });
     }
   } catch (err) {

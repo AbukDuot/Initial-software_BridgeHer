@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import navbarTranslations from "../i18n/navbarTranslations";
+import NotificationBell from "./NotificationBell";
 import "../styles/navbar.css";
 
 const Navbar: React.FC = () => {
@@ -73,6 +74,7 @@ const Navbar: React.FC = () => {
         <div className="nav-actions">
           {isLoggedIn ? (
             <>
+              <NotificationBell />
               <span>
                 {language === "Arabic"
                   ? `مرحبًا، ${username}`

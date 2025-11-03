@@ -1,79 +1,168 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FaBell } from "react-icons/fa";
-import "../styles/notification.css";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
+import "../styles/notificationBell.css";
 
 interface Notification {
   id: number;
-  message: string;
-  read?: boolean;
+  type: string;
+  content: string;
+  link: string;
+  read: boolean;
+  created_at: string;
 }
 
-interface NotificationBellProps {
-  notifications: Notification[];
-  onOpenPanel?: () => void; 
-}
-
-const NotificationBell: React.FC<NotificationBellProps> = ({
-  notifications,
-  onOpenPanel,
-}) => {
-  const [open, setOpen] = useState(false);
+const NotificationBell: React.FC = () => {
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
-    const unread = notifications.filter((n) => !n.read).length;
-    setUnreadCount(unread);
-  }, [notifications]);
-
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (showDropdown) {
+      fetchNotifications();
+    }
+  }, [showDropdown]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const res = await fetch(`${API_BASE_URL}/api/notifications/unread-count`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadCount(data.count);
+      }
+    } catch (err) {
+      console.error("Failed to fetch unread count", err);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const res = await fetch(`${API_BASE_URL}/api/notifications`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch notifications", err);
+    }
+  };
+
+  const markAsRead = async (id: number, link: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${API_BASE_URL}/api/notifications/${id}/read`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+      setUnreadCount(Math.max(0, unreadCount - 1));
+      setShowDropdown(false);
+      navigate(link);
+    } catch (err) {
+      console.error("Failed to mark as read", err);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${API_BASE_URL}/api/notifications/mark-all-read`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setNotifications(notifications.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error("Failed to mark all as read", err);
+    }
+  };
+
+  const deleteNotification = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const token = localStorage.getItem("token");
+      await fetch(`${API_BASE_URL}/api/notifications/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setNotifications(notifications.filter(n => n.id !== id));
+      fetchUnreadCount();
+    } catch (err) {
+      console.error("Failed to delete notification", err);
+    }
+  };
+
   return (
-    <div className="notification-bell" ref={dropdownRef}>
-      <button
-        className="bell-icon"
-        onClick={() => {
-          setOpen(!open);
-          if (onOpenPanel) onOpenPanel();
-        }}
-        aria-label="Notifications"
+    <div className="notification-bell">
+      <button 
+        className="bell-button" 
+        onClick={() => setShowDropdown(!showDropdown)}
       >
-        <FaBell size={22} />
-        {unreadCount > 0 && (
-          <span className="notification-badge">{unreadCount}</span>
-        )}
+        🔔
+        {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
       </button>
 
-      {open && (
-        <div className="notification-dropdown">
-          {notifications.length > 0 ? (
-            notifications.map((note) => (
-              <p key={note.id} className="notification-item">
-                {note.message}
-              </p>
-            ))
-          ) : (
-            <p className="no-notifications">No new notifications</p>
-          )}
-          <button
-            className="view-all-btn"
-            onClick={onOpenPanel}
-          >
-            View All
-          </button>
-        </div>
+      {showDropdown && (
+        <>
+          <div className="dropdown-overlay" onClick={() => setShowDropdown(false)} />
+          <div className="notifications-dropdown">
+            <div className="dropdown-header">
+              <h3>Notifications</h3>
+              {unreadCount > 0 && (
+                <button onClick={markAllAsRead} className="mark-all-btn">
+                  Mark all read
+                </button>
+              )}
+            </div>
+
+            <div className="notifications-list">
+              {notifications.length === 0 ? (
+                <p className="empty-state">No notifications</p>
+              ) : (
+                notifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    className={`notification-item ${!notif.read ? 'unread' : ''}`}
+                    onClick={() => markAsRead(notif.id, notif.link)}
+                  >
+                    <div className="notif-content">
+                      <p>{notif.content}</p>
+                      <small>{new Date(notif.created_at).toLocaleString()}</small>
+                    </div>
+                    <button
+                      className="delete-btn"
+                      onClick={(e) => deleteNotification(notif.id, e)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
