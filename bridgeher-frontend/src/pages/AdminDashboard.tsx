@@ -290,8 +290,18 @@ const AdminDashboard: React.FC = () => {
     <div className={`admin-dashboard ${isArabic ? "rtl" : ""}`}>
       <header className="admin-header">
         <h1>{t.title}</h1>
-        <button onClick={() => navigate('/admin-reports')} className="btn" style={{marginRight: '10px'}}>
-          🚩 {isArabic ? 'البلاغات' : 'Reports'}
+        <button 
+          onClick={() => navigate('/admin-reports')} 
+          className="btn" 
+          style={{
+            marginRight: '10px', 
+            background: '#FFD700', 
+            color: '#4A148C',
+            fontWeight: '600',
+            border: '2px solid #4A148C'
+          }}
+        >
+          {isArabic ? 'البلاغات' : 'Reports'}
         </button>
         <div className="theme-toggle">
           <button
