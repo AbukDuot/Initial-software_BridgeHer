@@ -11,7 +11,7 @@ const Navbar: React.FC = () => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
-  const [userRole, setUserRole] = useState("");
+  const [, setUserRole] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {

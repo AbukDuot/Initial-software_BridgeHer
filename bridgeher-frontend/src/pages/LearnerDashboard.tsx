@@ -343,7 +343,7 @@ const LearnerDashboard: React.FC = () => {
         setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, done: !r.done } : r)));
       }
     } catch (err) {
-      console.error("Failed to update reminder", err);
+      console.error("Failed to update reminder", err instanceof Error ? err.message : err);
     }
   };
 
@@ -359,7 +359,7 @@ const LearnerDashboard: React.FC = () => {
         setReminders((prev) => prev.filter((r) => r.id !== id));
       }
     } catch (err) {
-      console.error("Failed to delete reminder", err);
+      console.error("Failed to delete reminder", err instanceof Error ? err.message : err);
     }
   };
 

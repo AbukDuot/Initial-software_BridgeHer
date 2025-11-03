@@ -32,7 +32,7 @@ const playUiSound = (enabled: boolean) => {
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { toasts, addToast, removeToast } = useToast();
+  const { toasts, showToast: addToast, removeToast } = useToast();
   const isArabic = language === "Arabic";
   const lang = isArabic ? "ar" : "en";
   const t = adminDashboardTranslations[lang];

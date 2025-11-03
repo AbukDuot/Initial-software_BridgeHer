@@ -259,7 +259,7 @@ const Mentorship: React.FC = () => {
         const session = sessionDate && sessionTime ? `${sessionDate} ${sessionTime}` : "-";
         setRequests((prev) => [
           ...prev,
-          { id: newRequest.id, mentor: modalMentor.name, date: new Date().toLocaleString(), session, status: 'pending' },
+          { id: newRequest.id, mentor: modalMentor.name, mentor_id: modalMentor.id, date: new Date().toLocaleString(), session, status: 'pending' },
         ]);
         alert(lang === "ar" ? "تم إرسال الطلب بنجاح!" : "Request sent successfully!");
         setModalMentor(null);
