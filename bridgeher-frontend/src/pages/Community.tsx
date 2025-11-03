@@ -260,7 +260,7 @@ const Community: React.FC = () => {
                   </span>
                   <div>
                     <strong>{act.author}</strong>
-                    <p>{act.content.substring(0, 50)}...</p>
+                    <p>{act.content.replace(/<[^>]*>/g, '').substring(0, 50)}...</p>
                     <small>{new Date(act.created_at).toLocaleDateString()}</small>
                   </div>
                 </li>
