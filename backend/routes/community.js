@@ -602,4 +602,53 @@ router.get("/user/:userId/stats", async (req, res) => {
   }
 });
 
+router.post("/topics/:id/bookmark", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT * FROM topic_bookmarks WHERE topic_id = $1 AND user_id = $2`,
+      [id, userId]
+    );
+    
+    if (existing.length > 0) {
+      await pool.query(
+        `DELETE FROM topic_bookmarks WHERE topic_id = $1 AND user_id = $2`,
+        [id, userId]
+      );
+      res.json({ bookmarked: false });
+    } else {
+      await pool.query(
+        `INSERT INTO topic_bookmarks (topic_id, user_id) VALUES ($1, $2)`,
+        [id, userId]
+      );
+      res.json({ bookmarked: true });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/bookmarks", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { rows } = await pool.query(
+      `SELECT t.*, u.name as author_name,
+       (SELECT COUNT(*) FROM topic_replies WHERE topic_id = t.id) as replies,
+       (SELECT COUNT(*) FROM topic_likes WHERE topic_id = t.id) as likes,
+       b.created_at as bookmarked_at
+       FROM topic_bookmarks b
+       JOIN community_topics t ON t.id = b.topic_id
+       JOIN users u ON u.id = t.user_id
+       WHERE b.user_id = $1
+       ORDER BY b.created_at DESC`,
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

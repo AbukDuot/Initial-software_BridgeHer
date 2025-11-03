@@ -44,6 +44,7 @@ const TopicDetail: React.FC = () => {
   const [editReplyText, setEditReplyText] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportData, setReportData] = useState({ type: "", id: 0, reason: "" });
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
     fetchTopic();
@@ -263,6 +264,33 @@ const TopicDetail: React.FC = () => {
     }
   };
 
+  const handleBookmark = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        navigate("/login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/bookmark`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setIsBookmarked(data.bookmarked);
+        alert(data.bookmarked 
+          ? (isArabic ? "تم الحفظ في المفضلة" : "Bookmarked!")
+          : (isArabic ? "تم الإزالة من المفضلة" : "Bookmark removed")
+        );
+      }
+    } catch (err) {
+      console.error("Failed to bookmark", err);
+    }
+  };
+
   const handleReport = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -386,12 +414,17 @@ const TopicDetail: React.FC = () => {
             </button>
           )}
           {currentUser && (
-            <button className="report-btn" onClick={() => {
-              setReportData({ type: "topic", id: topic.id, reason: "" });
-              setShowReportModal(true);
-            }}>
-              {isArabic ? "بلاغ" : "Report"}
-            </button>
+            <>
+              <button className="bookmark-btn" onClick={handleBookmark}>
+                {isBookmarked ? '⭐' : '☆'} {isArabic ? "حفظ" : "Bookmark"}
+              </button>
+              <button className="report-btn" onClick={() => {
+                setReportData({ type: "topic", id: topic.id, reason: "" });
+                setShowReportModal(true);
+              }}>
+                {isArabic ? "بلاغ" : "Report"}
+              </button>
+            </>
           )}
         </div>
 

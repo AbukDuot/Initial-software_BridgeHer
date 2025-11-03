@@ -264,6 +264,23 @@
   color: white;
 }
 
+.bookmark-btn {
+  background: #FFD700;
+  color: #4A148C;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.bookmark-btn:hover {
+  background: #4A148C;
+  color: white;
+}
+
 .edit-btn-small,
 .report-btn-small {
   background: transparent;

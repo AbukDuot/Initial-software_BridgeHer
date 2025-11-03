@@ -27,6 +27,7 @@ const AnalyticsDashboard = lazy(() => import("./components/AnalyticsDashboard"))
 const TopicDetail = lazy(() => import("./pages/TopicDetail"));
 const AdminReports = lazy(() => import("./pages/AdminReports"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
+const Bookmarks = lazy(() => import("./pages/Bookmarks"));
 
 import { UserProvider } from "./context/UserContext";
 import { LanguageProvider } from "./context/LanguageContext";
@@ -104,6 +105,7 @@ function App() {
                 <Route path="/analytics" element={<AnalyticsDashboard />} />
                 <Route path="/admin-reports" element={<AdminReports />} />
                 <Route path="/user/:userId" element={<UserProfile />} />
+                <Route path="/bookmarks" element={<Bookmarks />} />
               </Routes>
               </Suspense>
             </main>
