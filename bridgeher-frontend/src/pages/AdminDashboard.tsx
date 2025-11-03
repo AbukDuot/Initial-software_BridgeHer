@@ -121,7 +121,7 @@ const AdminDashboard: React.FC = () => {
       
       if (coursesRes.ok) {
         const coursesData = await coursesRes.json();
-        setCourses(coursesData.map((c: any) => ({ ...c, enrollments: 0, status: "Active" })));
+        setCourses(coursesData.map((c: Course) => ({ ...c, enrollments: 0, status: "Active" })));
         setStats(prev => ({ ...prev, totalCourses: coursesData.length }));
       }
     } catch (err) {
@@ -180,7 +180,7 @@ const AdminDashboard: React.FC = () => {
           addToast(isArabic ? "تمت إضافة المستخدم بنجاح" : "User added successfully", "success");
         }
       }
-    } catch (err) {
+    } catch {
       addToast(isArabic ? "فشل في حفظ المستخدم" : "Failed to save user", "error");
     }
   };
@@ -198,7 +198,7 @@ const AdminDashboard: React.FC = () => {
           await fetchData();
           addToast(isArabic ? "تم حذف المستخدم بنجاح" : "User deleted successfully", "success");
         }
-      } catch (err) {
+      } catch {
         addToast(isArabic ? "فشل في حذف المستخدم" : "Failed to delete user", "error");
       }
     }
@@ -252,7 +252,7 @@ const AdminDashboard: React.FC = () => {
           addToast(isArabic ? "تمت إضافة الدورة بنجاح" : "Course added successfully", "success");
         }
       }
-    } catch (err) {
+    } catch {
       addToast(isArabic ? "فشل في حفظ الدورة" : "Failed to save course", "error");
     }
   };
@@ -270,7 +270,7 @@ const AdminDashboard: React.FC = () => {
           await fetchData();
           addToast(isArabic ? "تم حذف الدورة بنجاح" : "Course deleted successfully", "success");
         }
-      } catch (err) {
+      } catch {
         addToast(isArabic ? "فشل في حذف الدورة" : "Failed to delete course", "error");
       }
     }
