@@ -142,13 +142,13 @@ const Community: React.FC = () => {
   };
 
   const handleSearch = async () => {
-    if (!searchQuery.trim() && !advancedFilters.tag && !advancedFilters.author && !advancedFilters.status) {
+    if (!searchQuery.trim() && !advancedFilters.tag && !advancedFilters.author && !advancedFilters.status && !advancedFilters.dateFrom) {
       fetchTopics();
       return;
     }
     
     try {
-      let url = `${API_BASE_URL}/api/community/search?q=${encodeURIComponent(searchQuery)}`;
+      let url = `${API_BASE_URL}/api/community/search?q=${encodeURIComponent(searchQuery || '')}`;
       if (advancedFilters.tag) url += `&tag=${encodeURIComponent(advancedFilters.tag)}`;
       if (advancedFilters.author) url += `&author=${encodeURIComponent(advancedFilters.author)}`;
       if (advancedFilters.dateFrom) url += `&dateFrom=${advancedFilters.dateFrom}`;
@@ -330,12 +330,15 @@ const Community: React.FC = () => {
                   <option value="solved">{isArabic ? "محلول" : "Solved"}</option>
                   <option value="closed">{isArabic ? "مغلق" : "Closed"}</option>
                 </select>
+                <button onClick={handleSearch} className="search-filters-btn">
+                  {isArabic ? "بحث" : "Search"}
+                </button>
                 <button onClick={() => {
                   setAdvancedFilters({ tag: "", author: "", dateFrom: "", dateTo: "", status: "" });
                   setSearchQuery("");
                   fetchTopics();
                 }} className="clear-filters-btn">
-                  {isArabic ? "مسح الفلاتر" : "Clear Filters"}
+                  {isArabic ? "مسح" : "Clear"}
                 </button>
               </div>
             )}
