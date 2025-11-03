@@ -356,12 +356,12 @@ const TopicDetail: React.FC = () => {
               setEditTopicData({ title: topic.title, description: topic.description, content: topic.content });
               setEditingTopic(true);
             }}>
-              ✏️ {isArabic ? "تعديل" : "Edit"}
+              {isArabic ? "تعديل" : "Edit"}
             </button>
           )}
           {currentUser && (
             <button className="delete-btn" onClick={handleDeleteTopic}>
-              🗑️ {isArabic ? "حذف" : "Delete"}
+              {isArabic ? "حذف" : "Delete"}
             </button>
           )}
           {currentUser && currentUser.role === 'Admin' && (
@@ -374,7 +374,7 @@ const TopicDetail: React.FC = () => {
               setReportData({ type: "topic", id: topic.id, reason: "" });
               setShowReportModal(true);
             }}>
-              🚩 {isArabic ? "بلاغ" : "Report"}
+              {isArabic ? "بلاغ" : "Report"}
             </button>
           )}
         </div>
@@ -422,10 +422,10 @@ const TopicDetail: React.FC = () => {
                             setEditReplyText(reply.content);
                             setEditingReply(reply.id);
                           }}>
-                            ✏️
+                            {isArabic ? "تعديل" : "Edit"}
                           </button>
                           <button className="delete-btn-small" onClick={() => handleDeleteReply(reply.id)}>
-                            🗑️
+                            {isArabic ? "حذف" : "Delete"}
                           </button>
                         </>
                       )}
@@ -434,7 +434,7 @@ const TopicDetail: React.FC = () => {
                           setReportData({ type: "reply", id: reply.id, reason: "" });
                           setShowReportModal(true);
                         }}>
-                          🚩
+                          {isArabic ? "بلاغ" : "Report"}
                         </button>
                       )}
                     </div>
