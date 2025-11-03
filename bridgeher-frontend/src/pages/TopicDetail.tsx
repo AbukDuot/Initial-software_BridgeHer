@@ -336,7 +336,15 @@ const TopicDetail: React.FC = () => {
               <h1>{topic.title}</h1>
               <div className="topic-meta">
                 <span className="category-badge">{topic.category}</span>
-                <span>{isArabic ? "بواسطة" : "by"} <strong>{topic.author_name}</strong></span>
+                <span>
+                  {isArabic ? "بواسطة" : "by"}{" "}
+                  <strong 
+                    className="author-link" 
+                    onClick={(e) => { e.stopPropagation(); navigate(`/user/${topic.user_id}`); }}
+                  >
+                    {topic.author_name}
+                  </strong>
+                </span>
                 <span>{timeAgo(topic.created_at, isArabic)}</span>
               </div>
             </>

@@ -552,4 +552,54 @@ router.delete("/reports/:id", requireAuth, async (req, res) => {
   }
 });
 
+router.get("/user/:userId/topics", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { rows } = await pool.query(
+      `SELECT t.id, t.title, t.category, t.views, t.created_at,
+       (SELECT COUNT(*) FROM topic_replies WHERE topic_id = t.id) as replies,
+       (SELECT COUNT(*) FROM topic_likes WHERE topic_id = t.id) as likes
+       FROM community_topics t
+       WHERE t.user_id = $1
+       ORDER BY t.created_at DESC
+       LIMIT 50`,
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/user/:userId/stats", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const { rows: topicsCount } = await pool.query(
+      `SELECT COUNT(*) as count FROM community_topics WHERE user_id = $1`,
+      [userId]
+    );
+    
+    const { rows: repliesCount } = await pool.query(
+      `SELECT COUNT(*) as count FROM topic_replies WHERE user_id = $1`,
+      [userId]
+    );
+    
+    const { rows: likesCount } = await pool.query(
+      `SELECT COUNT(*) as count FROM topic_likes tl
+       JOIN community_topics t ON t.id = tl.topic_id
+       WHERE t.user_id = $1`,
+      [userId]
+    );
+    
+    res.json({
+      totalTopics: parseInt(topicsCount[0].count),
+      totalReplies: parseInt(repliesCount[0].count),
+      totalLikes: parseInt(likesCount[0].count)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

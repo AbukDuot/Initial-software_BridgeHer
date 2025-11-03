@@ -143,6 +143,16 @@
   color: #999;
 }
 
+.author-link {
+  color: #4A148C;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.author-link:hover {
+  color: #FFD700;
+}
+
 .reply-content p {
   color: #333;
   line-height: 1.6;

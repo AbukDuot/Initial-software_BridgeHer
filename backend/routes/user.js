@@ -47,7 +47,40 @@ router.get("/mentors", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.get("/:id", requireAuth, requireRole(["Admin"]), getUser);
+router.get("/:id", async (req, res) => {
+  try {
+    const pool = (await import("../config/db.js")).default;
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT id, name, email, role, profile_pic, created_at, bio
+       FROM users WHERE id = $1`,
+      [id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/:id/badges", async (req, res) => {
+  try {
+    const pool = (await import("../config/db.js")).default;
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT badge_name, badge_icon, earned_at
+       FROM user_badges WHERE user_id = $1
+       ORDER BY earned_at DESC`,
+      [id]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.delete("/:id", requireAuth, requireRole(["Admin"]), deleteUser);
 
 export default router;
