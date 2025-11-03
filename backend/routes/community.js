@@ -445,8 +445,6 @@ router.get("/search", async (req, res) => {
   try {
     const { q, tag, author, dateFrom, dateTo, status } = req.query;
     
-    if (!q && !tag && !author && !dateFrom && !status) return res.json([]);
-    
     let query = `SELECT t.*, u.name as author_name,
        (SELECT COUNT(*) FROM topic_replies WHERE topic_id = t.id) as replies,
        (SELECT COUNT(*) FROM topic_likes WHERE topic_id = t.id) as likes
@@ -456,17 +454,17 @@ router.get("/search", async (req, res) => {
     
     const params = [];
     
-    if (q) {
+    if (q && q.trim()) {
       params.push(`%${q}%`);
       query += ` AND (t.title ILIKE $${params.length} OR t.description ILIKE $${params.length})`;
     }
     
-    if (tag) {
-      params.push(tag);
+    if (tag && tag.trim()) {
+      params.push(tag.trim());
       query += ` AND $${params.length} = ANY(t.tags)`;
     }
     
-    if (author) {
+    if (author && author.trim()) {
       params.push(`%${author}%`);
       query += ` AND u.name ILIKE $${params.length}`;
     }
@@ -488,9 +486,13 @@ router.get("/search", async (req, res) => {
     
     query += ` ORDER BY t.created_at DESC LIMIT 50`;
     
+    console.log('🔍 Search query:', query);
+    console.log('🔍 Search params:', params);
+    
     const { rows } = await pool.query(query, params);
     res.json(rows);
   } catch (err) {
+    console.error('❌ Search error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
