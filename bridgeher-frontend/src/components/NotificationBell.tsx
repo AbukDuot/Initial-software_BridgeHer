@@ -6,8 +6,8 @@ import "../styles/notificationBell.css";
 interface Notification {
   id: number;
   type: string;
-  content: string;
-  link: string;
+  title: string;
+  message: string;
   read: boolean;
   created_at: string;
 }
@@ -66,7 +66,7 @@ const NotificationBell: React.FC = () => {
     }
   };
 
-  const markAsRead = async (id: number, link: string) => {
+  const markAsRead = async (id: number, message: string) => {
     try {
       const token = localStorage.getItem("token");
       await fetch(`${API_BASE_URL}/api/notifications/${id}/read`, {
@@ -77,7 +77,11 @@ const NotificationBell: React.FC = () => {
       setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
       setUnreadCount(Math.max(0, unreadCount - 1));
       setShowDropdown(false);
-      navigate(link);
+      
+      const linkMatch = message.match(/\/community\/topic\/\d+/);
+      if (linkMatch) {
+        navigate(linkMatch[0]);
+      }
     } catch (err) {
       console.error("Failed to mark as read", err);
     }
@@ -145,10 +149,11 @@ const NotificationBell: React.FC = () => {
                   <div
                     key={notif.id}
                     className={`notification-item ${!notif.read ? 'unread' : ''}`}
-                    onClick={() => markAsRead(notif.id, notif.link)}
+                    onClick={() => markAsRead(notif.id, notif.message)}
                   >
                     <div className="notif-content">
-                      <p>{notif.content}</p>
+                      <strong>{notif.title}</strong>
+                      <p>{notif.message.split('. Click to view:')[0]}</p>
                       <small>{new Date(notif.created_at).toLocaleString()}</small>
                     </div>
                     <button

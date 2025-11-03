@@ -116,9 +116,16 @@
   flex: 1;
 }
 
+.notif-content strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: #4A148C;
+}
+
 .notif-content p {
   margin: 0 0 5px 0;
-  font-size: 14px;
+  font-size: 13px;
   color: #333;
 }
 

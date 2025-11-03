@@ -287,13 +287,13 @@ router.post("/topics/:id/replies", requireAuth, async (req, res) => {
     
     if (topicRows[0] && topicRows[0].user_id !== userId) {
       await pool.query(
-        `INSERT INTO notifications (user_id, type, content, link)
+        `INSERT INTO notifications (user_id, type, title, message)
          VALUES ($1, $2, $3, $4)`,
         [
           topicRows[0].user_id,
           'reply',
-          `${topicRows[0].replier_name} replied to your topic "${topicRows[0].title}"`,
-          `/community/topic/${id}`
+          'New Reply',
+          `${topicRows[0].replier_name} replied to your topic "${topicRows[0].title}". Click to view: /community/topic/${id}`
         ]
       );
     }
@@ -336,13 +336,13 @@ router.post("/topics/:id/like", requireAuth, async (req, res) => {
       
       if (topicRows[0] && topicRows[0].user_id !== userId) {
         await pool.query(
-          `INSERT INTO notifications (user_id, type, content, link)
+          `INSERT INTO notifications (user_id, type, title, message)
            VALUES ($1, $2, $3, $4)`,
           [
             topicRows[0].user_id,
             'like',
-            `${topicRows[0].liker_name} liked your topic "${topicRows[0].title}"`,
-            `/community/topic/${id}`
+            'New Like',
+            `${topicRows[0].liker_name} liked your topic "${topicRows[0].title}". Click to view: /community/topic/${id}`
           ]
         );
       }
