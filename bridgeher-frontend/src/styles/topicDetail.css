@@ -238,18 +238,20 @@
 }
 
 .report-btn {
-  background: #FF9800;
-  color: white;
+  background: #FFD700;
+  color: #4A148C;
   border: none;
   padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 600;
   transition: all 0.3s;
 }
 
 .report-btn:hover {
-  background: #F57C00;
+  background: #4A148C;
+  color: white;
 }
 
 .edit-btn-small,
