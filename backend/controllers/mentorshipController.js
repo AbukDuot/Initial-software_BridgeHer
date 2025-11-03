@@ -46,7 +46,7 @@ export async function createRequest(req, res, next) {
     
     if (payload.mentor_id) {
       const { rows } = await pool.query(
-        "SELECT l.name as learner_name, l.email as learner_email, l.contact as learner_phone, m.name as mentor_name, m.email as mentor_email, m.contact as mentor_phone FROM users l LEFT JOIN users m ON m.id = $2 WHERE l.id = $1",
+        "SELECT l.name as learner_name, l.email as learner_email, l.phone as learner_phone, m.name as mentor_name, m.email as mentor_email, m.phone as mentor_phone FROM users l LEFT JOIN users m ON m.id = $2 WHERE l.id = $1",
         [payload.requester_id, payload.mentor_id]
       );
       
@@ -110,7 +110,7 @@ export async function updateRequest(req, res, next) {
     
     if (fields.status === 'accepted' || fields.scheduled_at) {
       const { rows } = await pool.query(
-        "SELECT l.name as learner_name, l.email as learner_email, l.contact as learner_phone, m.name as mentor_name, m.email as mentor_email, m.contact as mentor_phone, mr.scheduled_at FROM users l, users m, mentorship_requests mr WHERE mr.id = $1 AND l.id = mr.requester_id AND m.id = mr.mentor_id",
+        "SELECT l.name as learner_name, l.email as learner_email, l.phone as learner_phone, m.name as mentor_name, m.email as mentor_email, m.phone as mentor_phone, mr.scheduled_at FROM users l, users m, mentorship_requests mr WHERE mr.id = $1 AND l.id = mr.requester_id AND m.id = mr.mentor_id",
         [id]
       );
       

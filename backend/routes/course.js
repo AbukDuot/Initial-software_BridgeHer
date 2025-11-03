@@ -4,7 +4,7 @@ import path from "path";
 import fs from "fs";
 import pool from "../config/db.js";
 import { sendCourseCompletionEmail } from "../services/emailService.js";
-import { sendCourseCompletionSMS } from "../services/smsService.js";
+import { sendCourseCompletionSMS, sendEnrollmentSMS } from "../services/smsService.js";
 import { sendEnrollmentEmail } from "../services/notificationService.js";
 import {
   listCourses,
@@ -56,11 +56,14 @@ router.post("/:id/enroll", requireAuth, async (req, res) => {
     
     if (rows[0]) {
       const { rows: userData } = await pool.query(
-        "SELECT u.name, u.email, c.title FROM users u, courses c WHERE u.id = $1 AND c.id = $2",
+        "SELECT u.name, u.email, u.phone, c.title FROM users u, courses c WHERE u.id = $1 AND c.id = $2",
         [userId, id]
       );
       if (userData[0]) {
         sendEnrollmentEmail(userData[0].email, userData[0].name, userData[0].title).catch(console.error);
+        if (userData[0].phone) {
+          sendEnrollmentSMS(userData[0].phone, userData[0].name, userData[0].title).catch(console.error);
+        }
       }
     }
     
@@ -115,13 +118,13 @@ router.put("/:id/progress", requireAuth, async (req, res) => {
       );
 
       
-      const { rows: userRows } = await pool.query("SELECT name, email, contact FROM users WHERE id = $1", [userId]);
+      const { rows: userRows } = await pool.query("SELECT name, email, phone FROM users WHERE id = $1", [userId]);
       const { rows: courseRows } = await pool.query("SELECT title FROM courses WHERE id = $1", [id]);
       
       if (userRows[0] && courseRows[0]) {
         sendCourseCompletionEmail(userRows[0].email, userRows[0].name, courseRows[0].title).catch(console.error);
-        if (userRows[0].contact) {
-          sendCourseCompletionSMS(userRows[0].contact, userRows[0].name, courseRows[0].title).catch(console.error);
+        if (userRows[0].phone) {
+          sendCourseCompletionSMS(userRows[0].phone, userRows[0].name, courseRows[0].title).catch(console.error);
         }
       }
     }

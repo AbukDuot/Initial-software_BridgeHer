@@ -2,6 +2,7 @@ import express from "express";
 import pool from "../config/db.js";
 import { listRequests, getRequest, createRequest, updateRequest, deleteRequest, mentorSummary } from "../controllers/mentorshipController.js";
 import { requireAuth, requireRole } from "../middleware/authMiddleware.js";
+import { sendMentorshipRequestSMS, sendMentorshipSMS } from "../services/smsService.js";
 
 const router = express.Router();
 
@@ -27,6 +28,15 @@ router.put("/requests/:id/accept", requireAuth, async (req, res) => {
     if (updated.rows.length === 0) {
       return res.status(404).json({ error: "Request not found" });
     }
+    
+    const { rows: userData } = await pool.query(
+      "SELECT l.name, l.phone, m.name as mentor_name FROM users l, users m WHERE l.id = $1 AND m.id = $2",
+      [updated.rows[0].requester_id, updated.rows[0].mentor_id]
+    );
+    if (userData[0]?.phone) {
+      sendMentorshipSMS(userData[0].phone, userData[0].name, userData[0].mentor_name).catch(console.error);
+    }
+    
     res.json(updated.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });

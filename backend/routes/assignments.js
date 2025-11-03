@@ -5,6 +5,7 @@ import fs from "fs";
 import pool from "../config/db.js";
 import { requireAuth, requireRole } from "../middleware/authMiddleware.js";
 import { sendAssignmentSubmittedEmail, sendAssignmentGradedEmail } from "../services/notificationService.js";
+import { sendAssignmentSubmittedSMS, sendAssignmentGradedSMS } from "../services/assignmentSmsService.js";
 
 const router = express.Router();
 
@@ -101,11 +102,14 @@ router.post("/:id/submit", requireAuth, async (req, res) => {
     );
     
     const { rows: userData } = await pool.query(
-      "SELECT u.name, u.email, a.title FROM users u, assignments a WHERE u.id = $1 AND a.id = $2",
+      "SELECT u.name, u.email, u.phone, a.title FROM users u, assignments a WHERE u.id = $1 AND a.id = $2",
       [userId, id]
     );
     if (userData[0]) {
       sendAssignmentSubmittedEmail(userData[0].email, userData[0].name, userData[0].title).catch(console.error);
+      if (userData[0].phone) {
+        sendAssignmentSubmittedSMS(userData[0].phone, userData[0].name, userData[0].title).catch(console.error);
+      }
     }
     
     res.status(201).json(rows[0]);
@@ -166,11 +170,14 @@ router.put("/submission/:id/grade", requireAuth, requireRole(["Admin"]), async (
     if (!rows[0]) return res.status(404).json({ error: "Submission not found" });
     
     const { rows: userData } = await pool.query(
-      "SELECT u.name, u.email, a.title FROM users u, assignment_submissions s, assignments a WHERE s.id = $1 AND u.id = s.user_id AND a.id = s.assignment_id",
+      "SELECT u.name, u.email, u.phone, a.title FROM users u, assignment_submissions s, assignments a WHERE s.id = $1 AND u.id = s.user_id AND a.id = s.assignment_id",
       [id]
     );
     if (userData[0]) {
       sendAssignmentGradedEmail(userData[0].email, userData[0].name, userData[0].title, score).catch(console.error);
+      if (userData[0].phone) {
+        sendAssignmentGradedSMS(userData[0].phone, userData[0].name, userData[0].title, score).catch(console.error);
+      }
     }
     
     res.json(rows[0]);

@@ -8,17 +8,29 @@ The platform provides a seamless user experience through a React + TypeScript fr
 
 ## Problem Statement
 
-Young women in South Sudan face overlapping social, technical, and structural barriers that limit their access to education and economic empowerment. According to UNDP (2025) and Muras (2023), most available programs focus on one skill area, such as entrepreneurship, financial literacy, or basic digital training, rather than offering a single, integrated pathway. This fragmentation weakens long-term outcomes and prevents young women from gaining the full set of competencies needed for sustainable independence.
+Young women in South Sudan face multiple interconnected barriers preventing access to education and economic empowerment. Current programs are fragmented, focusing on single skills rather than providing comprehensive, integrated pathways to sustainable independence.
 
-Two existing initiatives closely align with what this study proposes:
+### Key Challenges
 
-1. **UNDP Women's Social and Economic Empowerment Project**: Provides financial literacy and entrepreneurship training to disadvantaged women in urban centers (UNDP, 2025). However, its reach is limited geographically, it relies heavily on in-person sessions, and it lacks a digital learning component that could scale to rural communities.
+**1. Program Fragmentation**
+- Existing initiatives address only one area: entrepreneurship OR financial literacy OR digital skills
+- No single platform combines all necessary competencies for holistic development
 
-2. **Education Action in Crisis Digital Literacy Program**: Introduces basic computer skills through mobile-friendly modules (Education Action in Crisis, 2025). While innovative in its offline functionality, it focuses mainly on digital literacy and does not integrate financial education, entrepreneurship, or mentorship into a single framework.
+**2. Limited Reach & Accessibility**
+- **UNDP Women's Social and Economic Empowerment Project**: Geographic limitations (urban only), in-person sessions, no digital scalability to rural areas
+- **Education Action in Crisis Digital Literacy Program**: Focuses solely on computer skills, lacks financial education, entrepreneurship, and mentorship integration
 
-Beyond these programs, internet access in South Sudan remains costly and unreliable, especially in rural areas, making many interventions difficult to sustain (Nilotik Blog, 2024; Brata et al., 2022). Even when training is offered, follow-up mentorship is rare. Without mentors and peer networks, women often lack the guidance and confidence to turn new knowledge into income-generating opportunities (Whipkey, 2021; Flint Global, 2022).
+**3. Infrastructure Challenges**
+- Internet access is costly and unreliable, especially in rural areas
+- Creates significant urban-rural digital divide
 
-These gaps highlight the need for an integrated, multilingual, offline-capable digital platform that combines entrepreneurship, financial literacy, digital skills, and structured mentorship into a single, accessible system.
+**4. Mentorship Gap**
+- Follow-up mentorship is rare or non-existent
+- Women lack guidance to apply knowledge and build confidence
+- Missing peer support networks for sustained growth
+
+### The Solution Need
+An **integrated, multilingual, offline-capable digital platform** combining entrepreneurship, financial literacy, digital skills, and structured mentorship in a single, accessible system designed for low-connectivity environments.
 
 ## Proposed Solution
 
@@ -84,6 +96,14 @@ Create a `.env` file:
 PORT=5000
 DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/bridgeher_db
 JWT_SECRET=your_jwt_secret_key
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_PHONE_NUMBER=your_twilio_phone_number
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 ```
 
 Create the database:
@@ -390,8 +410,19 @@ BridgeHer successfully delivered on its core objectives:
  **Notification System**:
 - Real-time notifications for replies, likes, and badges
 - Email notifications for important events
+- SMS notifications via Twilio for critical updates
 - Notification bell with unread count
 - Mark as read/delete functionality
+
+**SMS Notification Triggers**:
+- Welcome message on registration (if phone provided)
+- Course enrollment confirmation
+- Course completion certificate
+- Assignment submission confirmation
+- Assignment graded notification
+- Mentorship request sent (to mentor)
+- Mentorship request accepted (to learner)
+- Mentorship session scheduled
 
 **Responsive Design**: Mobile-first approach with full tablet and desktop support
 
@@ -399,7 +430,7 @@ BridgeHer successfully delivered on its core objectives:
 
 ### Objectives Partially Achieved
 
-**SMS Notifications**: Twilio integration configured but not fully integrated into all notification flows
+**SMS Notifications**: Fully integrated Twilio SMS notifications for all key user actions
 
 **Offline Mode**: Basic offline content download implemented but requires further testing
 
@@ -656,128 +687,6 @@ Covers:
 ![Email - Assignment Submitted](./screenshots/email-assignment-submitted.png)
 
 *Email notification confirming assignment submission*
-
----
-
-**Assignment Graded Notification**
-
-![Email - Assignment Graded](./screenshots/email-assignment-graded.png)
-
-*Email notification when an assignment has been graded*
-
----
-
-### In-App Notifications
-
-**Notification Bell with Unread Count**
-
-![Notification Bell](./screenshots/notification-bell.png)
-
-*Real-time notification bell showing unread count in navbar*
-
----
-
-**Notification Dropdown**
-
-![Notification Dropdown](./screenshots/notification-dropdown.png)
-
-*Dropdown showing recent notifications (replies, likes, badges)*
-
----
-
-**Badge Earned Notification**
-
-![Badge Notification](./screenshots/badge-notification.png)
-
-*Notification when user earns a new badge*
-
----
-
-### Community Forum Features
-
-**Topic Creation with Rich Text Editor**
-
-![Create Topic](./screenshots/create-topic.png)
-
-*Rich text editor for creating forum topics with formatting*
-
----
-
-**Advanced Search Filters**
-
-![Advanced Search](./screenshots/advanced-search.png)
-
-*Advanced search panel with tag, author, date range, and status filters*
-
----
-
-**Topic Status and Moderation**
-
-![Topic Status](./screenshots/topic-status.png)
-
-*Topic with status badges (open/solved/closed) and lock functionality*
-
----
-
-### Course Features
-
-**Video Playback**
-
-![Video Player](./screenshots/video-player.png)
-
-*Course module with video playback from Cloudinary*
-
----
-
-**Progress Tracking**
-
-![Progress Tracking](./screenshots/progress-tracking.png)
-
-*User dashboard showing course progress and completion*
-
----
-
-### Multilingual Support
-
-**English Interface**
-
-![English UI](./screenshots/ui-english.png)
-
-*Platform interface in English*
-
----
-
-**Arabic Interface (RTL)**
-
-![Arabic UI](./screenshots/ui-arabic.png)
-
-*Platform interface in Arabic with Right-to-Left layout*
-
----
-
-### Responsive Design
-
-**Desktop View**
-
-![Desktop View](./screenshots/desktop-view.png)
-
-*Full desktop layout (1920x1080)*
-
----
-
-**Tablet View**
-
-![Tablet View](./screenshots/tablet-view.png)
-
-*Responsive tablet layout (768x1024)*
-
----
-
-**Mobile View**
-
-![Mobile View](./screenshots/mobile-view.png)
-
-*Mobile-optimized layout (375x667)*
 
 ---
 

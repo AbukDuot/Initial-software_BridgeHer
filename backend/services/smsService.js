@@ -79,7 +79,7 @@ export const sendWelcomeSMS = async (phoneNumber, name) => {
   }
 };
 
-export const sendMentorshipRequestSMS = async (phoneNumber, learnerName) => {
+export const sendMentorshipRequestSMS = async (phoneNumber, mentorName, learnerName, topic) => {
   if (!twilioClient) {
     console.log('SMS not configured');
     return;
@@ -87,7 +87,7 @@ export const sendMentorshipRequestSMS = async (phoneNumber, learnerName) => {
   
   try {
     await twilioClient.messages.create({
-      body: `Hi! ${learnerName} has sent you a mentorship request on BridgeHer. Check your dashboard.`,
+      body: `Hi ${mentorName}! ${learnerName} has sent you a mentorship request for "${topic}" on BridgeHer. Check your dashboard.`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: phoneNumber
     });
@@ -97,7 +97,7 @@ export const sendMentorshipRequestSMS = async (phoneNumber, learnerName) => {
   }
 };
 
-export const sendMentorshipConfirmationSMS = async (phoneNumber, name, mentorName) => {
+export const sendMentorshipConfirmationSMS = async (phoneNumber, name, mentorName, topic) => {
   if (!twilioClient) {
     console.log('SMS not configured');
     return;
@@ -105,7 +105,7 @@ export const sendMentorshipConfirmationSMS = async (phoneNumber, name, mentorNam
   
   try {
     await twilioClient.messages.create({
-      body: `Hi ${name}! ${mentorName} has confirmed your mentorship on BridgeHer. Start your journey!`,
+      body: `Hi ${name}! Your mentorship request for "${topic}" with ${mentorName} has been sent on BridgeHer. You'll be notified when accepted.`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: phoneNumber
     });
