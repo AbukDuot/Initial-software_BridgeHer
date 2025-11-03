@@ -53,9 +53,9 @@ router.get("/topics", async (req, res) => {
     }
     
     if (sort === 'popular') {
-      query += ` ORDER BY t.views DESC, t.likes DESC`;
+      query += ` ORDER BY t.views DESC, (SELECT COUNT(*) FROM topic_likes WHERE topic_id = t.id) DESC`;
     } else if (sort === 'trending') {
-      query += ` ORDER BY t.likes DESC, t.created_at DESC`;
+      query += ` ORDER BY (SELECT COUNT(*) FROM topic_likes WHERE topic_id = t.id) DESC, t.created_at DESC`;
     } else {
       query += ` ORDER BY t.pinned DESC, t.created_at DESC`;
     }
