@@ -26,6 +26,15 @@
   font-size: 1.3rem;
 }
 
+.course-form label, .module-form label {
+  display: block;
+  margin-bottom: var(--space-xs);
+  margin-top: var(--space-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
 .course-form input, .course-form textarea, .course-form select,
 .module-form input, .module-form textarea {
   width: 100%;

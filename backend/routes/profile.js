@@ -19,14 +19,17 @@ router.get("/", requireAuth, async (req, res) => {
 router.put("/", requireAuth, async (req, res) => {
   const { name, phone, bio, location, calendar_id } = req.body;
   try {
+    console.log('Updating profile for user:', req.user.id, req.body);
     const { rows } = await pool.query(
-      `UPDATE users SET name = $1, phone = $2, bio = $3, location = $4, calendar_id = $5 
+      `UPDATE users SET name = $1, phone = $2, bio = $3, location = $4, calendar_id = $5
        WHERE id = $6 RETURNING id, name, email, role, phone, bio, location, calendar_id`,
       [name, phone, bio, location, calendar_id, req.user.id]
     );
+    console.log('Profile updated successfully');
     res.json({ message: "Profile updated", user: rows[0] });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error('Profile update error:', err.message);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 

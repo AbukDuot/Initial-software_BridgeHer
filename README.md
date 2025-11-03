@@ -332,6 +332,41 @@ BridgeHer is fully responsive and supports **Right-to-Left (RTL)** layout for Ar
 - Frontend: [https://bridgeher.vercel.app](https://bridgeher.vercel.app)
 - Backend: [https://bridgeher-backend.onrender.com](https://bridgeher-backend.onrender.com)
 
+### Required Environment Variables on Render
+
+**CRITICAL**: Ensure these are set in Render Dashboard → Environment:
+
+```env
+DATABASE_URL=postgresql://user:password@host:5432/database
+JWT_SECRET=your_jwt_secret_key
+NODE_ENV=production
+PORT=5000
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password
+TWILIO_ACCOUNT_SID=your_twilio_sid
+TWILIO_AUTH_TOKEN=your_twilio_token
+TWILIO_PHONE_NUMBER=your_twilio_number
+```
+
+### Troubleshooting Production Errors
+
+**500 Errors on Render:**
+1. Check Render logs: Dashboard → Logs tab
+2. Verify DATABASE_URL is correctly set
+3. Ensure PostgreSQL database is created and accessible
+4. Check if all required tables exist (run migrations)
+5. Verify SSL connection is enabled for production database
+
+**Database Connection Issues:**
+- Render PostgreSQL requires SSL in production
+- DATABASE_URL format: `postgresql://user:password@host:5432/dbname`
+- Test connection in Render Shell: `psql $DATABASE_URL`
+
+**Frontend Can't Reach Backend:**
+- Verify CORS is configured for `https://bridgeher.vercel.app`
+- Check backend is running: visit `https://bridgeher-backend.onrender.com`
+- Ensure API_BASE_URL in frontend points to correct backend URL
+
 ## Video Demo
 
 **Initial_software_product demo**
@@ -356,6 +391,8 @@ Covers:
 - Use Postman for API testing
 - Restart the server after modifying environment variables
 - Maintain consistent folder naming conventions
+- Check Render logs regularly for production errors
+- Free tier Render services sleep after 15 min inactivity (first request may be slow)
 
 ## Author
 

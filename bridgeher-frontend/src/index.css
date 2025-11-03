@@ -45,7 +45,7 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #6a1b9a;
+  background-color: #4A148C;
   padding: 1rem 2rem;
   color: white;
 }
@@ -96,17 +96,17 @@ footer {
 }
 
 .btn.primary {
-  background-color: #6a1b9a;
+  background-color: #4A148C;
   color: white;
 }
 
 .btn.primary:hover {
-  background-color: #6a1b9a;
+  background-color: #4A148C;
 }
 
 .btn.secondary {
   background-color: #f3e5f5;
-  color: #6a1b9a;
+  color: #4A148C;
 }
 
 .btn.secondary:hover {

@@ -5,6 +5,7 @@ import { useToast } from "../hooks/useToast";
 import Toast from "../components/Toast";
 import LoadingSpinner from "../components/LoadingSpinner";
 import coursesTranslations from "../i18n/coursesTranslations";
+import { API_BASE_URL } from "../config/api";
 import "../styles/courses.css";
 
 interface Course {
@@ -15,6 +16,7 @@ interface Course {
   level: string;
   duration: string;
   mentor: string;
+  enrolled?: boolean;
 }
 
 const Courses: React.FC = () => {
@@ -26,6 +28,7 @@ const Courses: React.FC = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [enrolling, setEnrolling] = useState<number | null>(null);
 
   const t = coursesTranslations[language];
 
@@ -35,13 +38,51 @@ const Courses: React.FC = () => {
 
   const fetchCourses = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/courses");
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/courses`);
       const data = await res.json();
-      setCourses(data);
+      
+      if (token) {
+        const enrolledRes = await fetch(`${API_BASE_URL}/api/courses/my/enrolled`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const enrolled = await enrolledRes.json();
+        const enrolledIds = enrolled.map((c: any) => c.id);
+        setCourses(data.map((c: Course) => ({ ...c, enrolled: enrolledIds.includes(c.id) })));
+      } else {
+        setCourses(data);
+      }
     } catch (err) {
       console.error("Failed to fetch courses", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEnroll = async (courseId: number) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert(language === "Arabic" ? "يرجى تسجيل الدخول أولاً" : "Please login first");
+      return;
+    }
+    
+    setEnrolling(courseId);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/courses/${courseId}/enroll`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        setCourses(courses.map(c => c.id === courseId ? { ...c, enrolled: true } : c));
+        alert(language === "Arabic" ? "تم التسجيل بنجاح!" : "Enrolled successfully!");
+      } else {
+        alert(language === "Arabic" ? "فشل التسجيل" : "Enrollment failed");
+      }
+    } catch (err) {
+      alert(language === "Arabic" ? "خطأ في الاتصال" : "Connection error");
+    } finally {
+      setEnrolling(null);
     }
   };
 
@@ -169,9 +210,21 @@ const Courses: React.FC = () => {
             <p>{course.description}</p>
             <p><strong> {course.mentor}</strong></p>
             <p><strong> {course.level}</strong> |  {course.duration}</p>
-            <Link to={`/course-player/${course.id}`} className="details-btn">
-              {t.viewCourse}
-            </Link>
+            {course.enrolled ? (
+              <Link to={`/course-player/${course.id}`} className="details-btn">
+                {t.viewCourse}
+              </Link>
+            ) : (
+              <button 
+                onClick={() => handleEnroll(course.id)} 
+                className="details-btn"
+                disabled={enrolling === course.id}
+              >
+                {enrolling === course.id 
+                  ? (language === "Arabic" ? "جارٍ التسجيل..." : "Enrolling...") 
+                  : (language === "Arabic" ? "التسجيل" : "Enroll")}
+              </button>
+            )}
           </div>
         ))}
         </div>

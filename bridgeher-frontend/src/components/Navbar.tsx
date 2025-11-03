@@ -11,6 +11,7 @@ const Navbar: React.FC = () => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
+  const [userRole, setUserRole] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -22,9 +23,12 @@ const Navbar: React.FC = () => {
     if (token && user) {
       setIsLoggedIn(true);
       try {
-        setUsername(JSON.parse(user).name || "");
+        const userData = JSON.parse(user);
+        setUsername(userData.name || "");
+        setUserRole(userData.role || "");
       } catch {
         setUsername("");
+        setUserRole("");
       }
     } else {
       setIsLoggedIn(false);

@@ -28,6 +28,9 @@ export async function getRequest(req, res, next) {
 
 export async function createRequest(req, res, next) {
   try {
+    console.log('Creating mentorship request...');
+    console.log('User:', req.user);
+    console.log('Body:', req.body);
     const payload = {
       requester_id: req.user?.id || req.body.requester_id,
       mentor_id: req.body.mentor_id || null,
@@ -36,8 +39,10 @@ export async function createRequest(req, res, next) {
       status: req.body.status || "pending",
       scheduled_at: req.body.scheduled_at || null,
     };
+    console.log('Payload:', payload);
     if (!payload.requester_id) return res.status(400).json({ error: "requester_id is required" });
     const created = await MentorshipModel.create(payload);
+    console.log('Created:', created);
     
     if (payload.mentor_id) {
       const { rows } = await pool.query(

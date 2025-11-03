@@ -152,8 +152,38 @@ const Mentorship: React.FC = () => {
   const [sessionTime, setSessionTime] = useState("");
   const [message, setMessage] = useState("");
   const [requests, setRequests] = useState<
-    { mentor: string; date: string; session: string }[]
+    { id: number; mentor: string; mentor_id: number; date: string; session: string; status: string }[]
   >([]);
+  const [feedbackModal, setFeedbackModal] = useState<any>(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+
+  React.useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch(`${API_BASE_URL}/api/mentorship`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const mapped = data.map((r: any) => ({
+            id: r.id,
+            mentor: r.mentor_name || 'Mentor',
+            mentor_id: r.mentor_id,
+            date: new Date(r.created_at).toLocaleString(),
+            session: r.scheduled_at ? new Date(r.scheduled_at).toLocaleString() : '-',
+            status: r.status
+          }));
+          setRequests(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to fetch requests", err);
+      }
+    };
+    fetchRequests();
+  }, []);
 
   const allExpertise = useMemo(
     () => Array.from(new Set(mentors.flatMap((m) => m.expertise))),
@@ -168,11 +198,49 @@ const Mentorship: React.FC = () => {
     return byName && byTag;
   });
 
+  const openFeedbackModal = (req: any) => {
+    setFeedbackModal(req);
+    setRating(5);
+    setComment("");
+  };
+
+  const submitFeedback = async () => {
+    if (!feedbackModal) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/mentorship/feedback`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          mentor_id: feedbackModal.mentor_id,
+          rating,
+          comment
+        })
+      });
+      if (res.ok) {
+        alert(lang === "ar" ? "شكراً لتقييمك!" : "Thank you for your feedback!");
+        setFeedbackModal(null);
+      } else {
+        alert(lang === "ar" ? "فشل الإرسال" : "Failed to submit");
+      }
+    } catch (err) {
+      alert(lang === "ar" ? "خطأ في الاتصال" : "Connection error");
+    }
+  };
+
   const confirmRequest = async () => {
     if (!modalMentor) return;
     
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        alert(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please login first");
+        return;
+      }
+      
       const res = await fetch(`${API_BASE_URL}/api/mentorship`, {
         method: "POST",
         headers: {
@@ -187,17 +255,25 @@ const Mentorship: React.FC = () => {
       });
       
       if (res.ok) {
+        const newRequest = await res.json();
         const session = sessionDate && sessionTime ? `${sessionDate} ${sessionTime}` : "-";
         setRequests((prev) => [
           ...prev,
-          { mentor: modalMentor.name, date: new Date().toLocaleString(), session },
+          { id: newRequest.id, mentor: modalMentor.name, date: new Date().toLocaleString(), session, status: 'pending' },
         ]);
+        alert(lang === "ar" ? "تم إرسال الطلب بنجاح!" : "Request sent successfully!");
+        setModalMentor(null);
+        setMessage("");
+        setSessionDate("");
+        setSessionTime("");
+      } else {
+        const error = await res.json();
+        alert(lang === "ar" ? `فشل الإرسال: ${error.error || 'خطأ'}` : `Failed to send: ${error.error || 'Error'}`);
       }
     } catch (err) {
       console.error("Failed to send request", err);
+      alert(lang === "ar" ? "خطأ في الاتصال" : "Connection error");
     }
-    
-    setModalMentor(null);
   };
 
   if (loading) return <div className="loading">Loading mentors...</div>;
@@ -275,14 +351,49 @@ const Mentorship: React.FC = () => {
           <p className="empty">{t.none}</p>
         ) : (
           <ul>
-            {requests.map((r, i) => (
-              <li key={i}>
-                {r.mentor} — {r.session} ({r.date})
+            {requests.map((r) => (
+              <li key={r.id} style={{marginBottom: '10px', padding: '10px', background: '#f5f5f5', borderRadius: '5px'}}>
+                <strong>{r.mentor}</strong> — {r.session}<br/>
+                <small>Requested: {r.date}</small><br/>
+                <span style={{color: r.status === 'accepted' ? 'green' : r.status === 'declined' ? 'red' : 'orange'}}>
+                  Status: {r.status}
+                </span>
+                {r.status === 'accepted' && (
+                  <button onClick={() => openFeedbackModal(r)} style={{marginLeft: '10px', padding: '5px 10px', background: '#4A148C', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer'}}>Rate Mentor</button>
+                )}
               </li>
             ))}
           </ul>
         )}
       </section>
+
+      {feedbackModal && (
+        <div className="modal-overlay" onClick={() => setFeedbackModal(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px'}}>
+            <h3>Rate {feedbackModal.mentor}</h3>
+            <label style={{display: 'block', marginBottom: '10px'}}>
+              Rating (1-5):
+              <select value={rating} onChange={(e) => setRating(Number(e.target.value))} style={{marginLeft: '10px', padding: '5px'}}>
+                <option value={1}>1 - Poor</option>
+                <option value={2}>2 - Fair</option>
+                <option value={3}>3 - Good</option>
+                <option value={4}>4 - Very Good</option>
+                <option value={5}>5 - Excellent</option>
+              </select>
+            </label>
+            <textarea
+              placeholder="Share your experience..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              style={{width: '100%', minHeight: '80px', marginBottom: '10px', padding: '8px'}}
+            />
+            <div className="modal-actions">
+              <button onClick={submitFeedback}>Submit</button>
+              <button onClick={() => setFeedbackModal(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {modalMentor && (
         <div className="modal-overlay" onClick={() => setModalMentor(null)}>

@@ -40,7 +40,7 @@ const OfflineBanner: React.FC = () => {
   return (
     <div
       style={{
-        backgroundColor: "#b91c1c",
+        backgroundColor: "#E53935",
         color: "white",
         textAlign: "center",
         padding: "10px 0",

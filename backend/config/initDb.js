@@ -267,7 +267,8 @@ const initDatabase = async () => {
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         reminder_text TEXT NOT NULL,
-        reminder_time TIMESTAMP NOT NULL,
+        reminder_time TIMESTAMP,
+        done BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -275,14 +276,21 @@ const initDatabase = async () => {
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
         language VARCHAR(10) DEFAULT 'en',
+        theme VARCHAR(20) DEFAULT 'light',
+        font_size VARCHAR(20) DEFAULT 'medium',
+        accent_color VARCHAR(20) DEFAULT '#4A148C',
+        account_privacy VARCHAR(20) DEFAULT 'public',
+        profile_pic TEXT,
         notifications_enabled BOOLEAN DEFAULT TRUE,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
       CREATE TABLE IF NOT EXISTS support_messages (
         id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        subject VARCHAR(255) NOT NULL,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        name VARCHAR(100),
+        email VARCHAR(100),
+        subject VARCHAR(255),
         message TEXT NOT NULL,
         status VARCHAR(50) DEFAULT 'open',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -304,7 +312,7 @@ const initDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
       CREATE INDEX IF NOT EXISTS idx_modules_course ON modules(course_id);
       CREATE INDEX IF NOT EXISTS idx_assignments_module ON assignments(module_id);
-      CREATE INDEX IF NOT EXISTS idx_mentorship_learner ON mentorship_requests(learner_id);
+      CREATE INDEX IF NOT EXISTS idx_mentorship_requester ON mentorship_requests(requester_id);
       CREATE INDEX IF NOT EXISTS idx_mentorship_mentor ON mentorship_requests(mentor_id);
     `);
 

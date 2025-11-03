@@ -17,6 +17,7 @@ import settingsRoutes from "./routes/settings.js";
 import dashboardsRoutes from "./routes/dashboards.js";
 import courseRoutes from "./routes/course.js";
 import moduleRoutes from "./routes/modules.js";
+import cloudinaryModulesRoutes from "./routes/cloudinary-modules.js";
 import assignmentRoutes from "./routes/assignments.js";
 import adminMentorshipRoutes from "./routes/admin-mentorship.js";
 import adminRoutes from "./routes/admin.js";
@@ -26,6 +27,7 @@ import offlineRoutes from "./routes/offline.js";
 import supportRoutes from "./routes/support.js";
 import notificationsRoutes from "./routes/notifications.js";
 import profileRoutes from "./routes/profile.js";
+import remindersRoutes from "./routes/reminders.js";
 
 const app = express();
 
@@ -55,6 +57,7 @@ app.use("/api/settings", settingsRoutes);
 app.use("/api/dashboards", dashboardsRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/modules", moduleRoutes);
+app.use("/api/cloudinary-modules", cloudinaryModulesRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/admin/mentorship", adminMentorshipRoutes);
 app.use("/api/admin", adminRoutes);
@@ -64,6 +67,7 @@ app.use("/api/offline", offlineRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/reminders", remindersRoutes);
 
 
 app.use((_req, res) => {

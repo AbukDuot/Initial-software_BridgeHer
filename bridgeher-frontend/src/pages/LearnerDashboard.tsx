@@ -163,13 +163,9 @@ const LearnerDashboard: React.FC = () => {
 
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [reminders, setReminders] = useState<{ id: number; text: string; done: boolean; isNew?: boolean }[]>(
-    () => {
-      const stored = localStorage.getItem("bh-reminders");
-      return stored ? JSON.parse(stored) : [];
-    }
-  );
+  const [reminders, setReminders] = useState<{ id: number; reminder_text: string; done: boolean; isNew?: boolean; reminder_time?: string }[]>([]);
   const [input, setInput] = useState("");
+  const [reminderTime, setReminderTime] = useState("");
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -189,6 +185,9 @@ const LearnerDashboard: React.FC = () => {
         }
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
+        console.log('📊 Learner Dashboard Data:', data);
+        console.log('📊 Weekly Hours:', data.weeklyHours);
+        console.log('📊 Calendar ID:', data.user?.calendar_id);
         setDashboardData(data);
       } catch (err) {
         console.error("Failed to fetch dashboard", err);
@@ -201,10 +200,52 @@ const LearnerDashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("bh-reminders", JSON.stringify(reminders));
-  }, [reminders]);
+    const fetchReminders = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch(`${API_BASE_URL}/api/reminders`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setReminders(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch reminders", err);
+      }
+    };
+    fetchReminders();
+  }, []);
 
-  const { user = { name: "User" }, stats = {}, completion = { completed: 0, remaining: 100 } } = dashboardData || {};
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      reminders.forEach(r => {
+        if (!r.done && r.reminder_time) {
+          const reminderDate = new Date(r.reminder_time);
+          const diff = reminderDate.getTime() - now.getTime();
+          if (diff > 0 && diff < 60000) {
+            if (Notification.permission === 'granted') {
+              new Notification('BridgeHer Reminder', {
+                body: r.reminder_text,
+                icon: '/logo.png'
+              });
+            }
+            playUiSound(sound, 'success');
+          }
+        }
+      });
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [reminders, sound]);
+
+  const { user = { name: "User" }, stats = {}, completion = { completed: 0, remaining: 100 }, dailyQuote = { en: "", ar: "" } } = dashboardData || {};
   const { streak = 0, xp = 0, level = 1 } = stats;
 
   const chartTextColor = theme === "dark" ? "#FFFFFF" : "#333333";
@@ -260,34 +301,86 @@ const LearnerDashboard: React.FC = () => {
   if (loading) return <div className="loading">Loading...</div>;
   if (!dashboardData) return <div className="error">Failed to load dashboard</div>;
 
-  const addReminder = () => {
+  const addReminder = async () => {
     if (!input.trim()) return;
     playUiSound(sound);
-    setReminders((prev) => [...prev, { id: Date.now(), text: input, done: false, isNew: true }]);
-    setInput("");
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/reminders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ text: input, reminderTime: reminderTime || null })
+      });
+      if (res.ok) {
+        const newReminder = await res.json();
+        setReminders((prev) => [{ ...newReminder, isNew: true }, ...prev]);
+        setInput("");
+        setReminderTime("");
+      }
+    } catch (err) {
+      console.error("Failed to add reminder", err);
+    }
   };
 
-  const toggleDone = (id: number) => {
+  const toggleDone = async (id: number) => {
     playUiSound(sound, "success");
-    setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, done: !r.done } : r)));
+    const reminder = reminders.find(r => r.id === id);
+    if (!reminder) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/reminders/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ done: !reminder.done })
+      });
+      if (res.ok) {
+        setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, done: !r.done } : r)));
+      }
+    } catch (err) {
+      console.error("Failed to update reminder", err);
+    }
   };
 
-  const remove = (id: number) => {
+  const remove = async (id: number) => {
     playUiSound(sound);
-    setReminders((prev) => prev.filter((r) => r.id !== id));
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/reminders/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setReminders((prev) => prev.filter((r) => r.id !== id));
+      }
+    } catch (err) {
+      console.error("Failed to delete reminder", err);
+    }
   };
 
-  const calendarLang = isAr ? "ar" : "en";
-  const userCalendarId = dashboardData?.user?.calendar_id || user?.email || "";
-  const calendarSrc = userCalendarId 
-    ? `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(userCalendarId)}&ctz=Africa%2FJuba&hl=${calendarLang}`
-    : "";
+
 
   return (
     <div className={`learner-dashboard ${isAr ? "rtl" : ""}`}>
       <aside className="sidebar">
         <div className="user-section">
-          <div className="user-avatar-placeholder" />
+          <img 
+            src={dashboardData?.user?.profile_pic || "/default-profile.png"} 
+            alt="Profile" 
+            className="user-avatar"
+            style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '3px solid #FFD700'
+            }}
+          />
           <div>
             <h3>{user.name}</h3>
             <p>{isAr ? "متعلمة متميزة" : "Star Learner"}</p>
@@ -332,9 +425,11 @@ const LearnerDashboard: React.FC = () => {
           </div>
         </header>
 
-        <section className="card">
-          <strong>{t.quotes[new Date().getDate() % t.quotes.length]}</strong>
-        </section>
+        {dailyQuote && (
+          <section className="card">
+            <strong>{isAr ? dailyQuote.ar : dailyQuote.en}</strong>
+          </section>
+        )}
 
         <section className="stats-section">
           <div className="stat-card">
@@ -366,7 +461,60 @@ const LearnerDashboard: React.FC = () => {
         </section>
 
         <section className="reminders-section">
-          <h2>{t.reminders.title}</h2>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+            <h2>{t.reminders.title}</h2>
+            <button 
+              className="btn-small" 
+              onClick={() => {
+                console.log('Notification button clicked');
+                if (!('Notification' in window)) {
+                  alert(isAr ? 'المتصفح لا يدعم التنبيهات' : 'Browser does not support notifications');
+                  return;
+                }
+                
+                console.log('Current permission:', Notification.permission);
+                
+                if (Notification.permission === 'granted') {
+                  try {
+                    new Notification('BridgeHer', {
+                      body: isAr ? 'التنبيهات مفعلة بالفعل!' : 'Notifications already enabled!',
+                      icon: '/logo.png'
+                    });
+                    playUiSound(sound, 'success');
+                  } catch (err) {
+                    console.error('Notification error:', err);
+                    alert('Notification failed: ' + err.message);
+                  }
+                } else if (Notification.permission === 'denied') {
+                  alert(isAr ? 'التنبيهات محظورة. يرجى تفعيلها من إعدادات المتصفح' : 'Notifications blocked. Please enable in browser settings');
+                } else {
+                  Notification.requestPermission().then(permission => {
+                    console.log('Permission result:', permission);
+                    if (permission === 'granted') {
+                      try {
+                        new Notification('BridgeHer', {
+                          body: isAr ? 'تم تفعيل التنبيهات بنجاح!' : 'Notifications enabled!',
+                          icon: '/logo.png'
+                        });
+                        playUiSound(sound, 'success');
+                      } catch (err) {
+                        console.error('Notification error:', err);
+                        alert('Notification failed: ' + err.message);
+                      }
+                    } else {
+                      alert(isAr ? 'تم رفض التنبيهات' : 'Notification permission denied');
+                    }
+                  }).catch(err => {
+                    console.error('Permission error:', err);
+                    alert('Error: ' + err.message);
+                  });
+                }
+              }}
+              style={{fontSize: '0.85rem', padding: '6px 12px'}}
+            >
+              🔔 {isAr ? 'تفعيل التنبيهات' : 'Enable Notifications'}
+            </button>
+          </div>
           {reminders.length === 0 ? (
             <p className="muted">{t.reminders.empty}</p>
           ) : (
@@ -379,7 +527,12 @@ const LearnerDashboard: React.FC = () => {
                     setReminders((prev) => prev.map((x) => (x.id === r.id ? { ...x, isNew: false } : x)))
                   }
                 >
-                  <span>{r.text}</span>
+                  <div>
+                    <span>{r.reminder_text}</span>
+                    {r.reminder_time && <small style={{display: 'block', color: '#888', fontSize: '0.85em', marginTop: '4px'}}>
+                      {new Date(r.reminder_time).toLocaleString()}
+                    </small>}
+                  </div>
                   <div className="reminder-actions">
                     <button className="btn-small" onClick={() => toggleDone(r.id)}>
                       {t.reminders.done}
@@ -393,25 +546,26 @@ const LearnerDashboard: React.FC = () => {
             </ul>
           )}
           <div className="add-reminder">
-            <input value={input} onChange={(e) => setInput(e.target.value)} placeholder={t.reminders.placeholder} />
-            <button className="btn-primary" onClick={addReminder}>
+            <input 
+              value={input} 
+              onChange={(e) => setInput(e.target.value)} 
+              placeholder={t.reminders.placeholder}
+              onKeyPress={(e) => e.key === 'Enter' && addReminder()}
+            />
+            <input 
+              type="datetime-local" 
+              value={reminderTime} 
+              onChange={(e) => setReminderTime(e.target.value)}
+              style={{marginTop: '8px', padding: '8px', borderRadius: '5px', border: '1px solid #ccc', width: '100%'}}
+              placeholder={isAr ? 'اختر الوقت (اختياري)' : 'Select time (optional)'}
+            />
+            <button className="btn-primary" onClick={addReminder} style={{marginTop: '8px'}}>
               {t.reminders.add}
             </button>
           </div>
         </section>
 
-        {calendarSrc && (
-          <section className="card calendar-embed-section">
-            <h2>{t.calendar.title}</h2>
-            <p className="muted">{t.calendar.desc}</p>
-            <div className="calendar-iframe-container">
-              <iframe src={calendarSrc} width="100%" height="600" style={{ border: 0 }} frameBorder="0" scrolling="no" title="Google Calendar" />
-            </div>
-            <div className="calendar-sync-note">
-              <p className="muted">{t.calendar.note}</p>
-            </div>
-          </section>
-        )}
+
       </main>
     </div>
   );

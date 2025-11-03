@@ -8,26 +8,39 @@ router.get("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     
-    const { rows: userRows } = await pool.query(
-      "SELECT name, email, bio, profile_pic FROM users WHERE id = $1",
+    let userRows = [];
+    try {
+      const result = await pool.query(
+        "SELECT name, email, bio, profile_pic, calendar_id FROM users WHERE id = $1",
+        [userId]
+      );
+      userRows = result.rows;
+    } catch (err) {
+      const result = await pool.query(
+        "SELECT name, email, bio, profile_pic FROM users WHERE id = $1",
+        [userId]
+      );
+      userRows = result.rows;
+    }
+    
+    const settingsResult = await pool.query(
+      "SELECT settings FROM user_settings WHERE user_id = $1",
       [userId]
     );
     
-    const { rows: settingsRows } = await pool.query(
-      "SELECT * FROM user_settings WHERE user_id = $1",
-      [userId]
-    );
+    const settingsData = settingsResult.rows[0]?.settings || {};
     
     res.json({
-      user: userRows[0],
-      settings: settingsRows[0] || {
-        theme: 'light',
-        font_size: 'medium',
-        accent_color: '#4A148C;',
-        account_privacy: 'public'
+      user: userRows[0] || {},
+      settings: {
+        theme: settingsData.theme || 'light',
+        font_size: settingsData.font_size || 'medium',
+        accent_color: settingsData.accent_color || '#4A148C',
+        account_privacy: settingsData.account_privacy || 'public'
       }
     });
   } catch (err) {
+    console.error('Settings GET error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -36,36 +49,51 @@ router.get("/", requireAuth, async (req, res) => {
 router.put("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, bio, theme, fontSize, accent, accountPrivacy, profilePic } = req.body;
+    const { name, bio, calendarId, theme, fontSize, accent, accountPrivacy, profilePic } = req.body;
     
-    if (name || bio || profilePic) {
-      await pool.query(
-        `UPDATE users 
-         SET name = COALESCE($1, name),
-             bio = COALESCE($2, bio),
-             profile_pic = COALESCE($3, profile_pic)
-         WHERE id = $4`,
-        [name, bio, profilePic, userId]
-      );
+    if (name || bio || calendarId !== undefined || profilePic !== undefined) {
+      try {
+        await pool.query(
+          `UPDATE users 
+           SET name = COALESCE($1, name),
+               bio = COALESCE($2, bio),
+               calendar_id = COALESCE($3, calendar_id),
+               profile_pic = COALESCE($4, profile_pic)
+           WHERE id = $5`,
+          [name, bio, calendarId, profilePic, userId]
+        );
+      } catch (err) {
+        await pool.query(
+          `UPDATE users 
+           SET name = COALESCE($1, name),
+               bio = COALESCE($2, bio),
+               profile_pic = COALESCE($3, profile_pic)
+           WHERE id = $4`,
+          [name, bio, profilePic, userId]
+        );
+      }
     }
     
-   
+    const settingsData = {
+      theme: theme || 'light',
+      font_size: fontSize || 'medium',
+      accent_color: accent || '#4A148C',
+      account_privacy: accountPrivacy || 'public'
+    };
+    
     await pool.query(
-      `INSERT INTO user_settings (user_id, theme, font_size, accent_color, account_privacy, profile_pic, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW())
+      `INSERT INTO user_settings (user_id, settings, updated_at)
+       VALUES ($1, $2, NOW())
        ON CONFLICT (user_id) 
        DO UPDATE SET 
-         theme = COALESCE($2, user_settings.theme),
-         font_size = COALESCE($3, user_settings.font_size),
-         accent_color = COALESCE($4, user_settings.accent_color),
-         account_privacy = COALESCE($5, user_settings.account_privacy),
-         profile_pic = COALESCE($6, user_settings.profile_pic),
+         settings = $2,
          updated_at = NOW()`,
-      [userId, theme, fontSize, accent, accountPrivacy, profilePic]
+      [userId, JSON.stringify(settingsData)]
     );
     
     res.json({ success: true, message: "Settings updated successfully" });
   } catch (err) {
+    console.error('Settings PUT error:', err);
     res.status(500).json({ error: err.message });
   }
 });

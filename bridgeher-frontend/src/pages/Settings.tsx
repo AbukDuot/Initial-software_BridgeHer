@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "../hooks/useLanguage";
+import { API_BASE_URL } from "../config/api";
 import "../styles/settings.css";
 
 const playUiSound = (enabled: boolean, tone: "tap" | "success" = "tap") => {
@@ -116,7 +117,7 @@ const Settings: React.FC = () => {
     const fetchSettings = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("${API_BASE_URL}/api/settings", {
+        const res = await fetch(`${API_BASE_URL}/api/settings`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -124,7 +125,7 @@ const Settings: React.FC = () => {
           setFullName(data.user.name || "");
           setEmail(data.user.email || "");
           setBio(data.user.bio || "");
-          setCalendarId(data.user.calendar_id || "");
+          setCalendarId(data.user.calendar_id || data.user.email || "");
           setProfilePic(data.user.profile_pic || null);
           const savedTheme = data.settings.theme || "light";
           setTheme(savedTheme);
@@ -157,7 +158,7 @@ const Settings: React.FC = () => {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("${API_BASE_URL}/api/settings", {
+      const res = await fetch(`${API_BASE_URL}/api/settings`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -219,11 +220,19 @@ const Settings: React.FC = () => {
             value={bio}
             onChange={(e) => setBio(e.target.value)}
           />
-          <input
-            placeholder={isAr ? "معرف تقويم Google" : "Google Calendar ID"}
-            value={calendarId}
-            onChange={(e) => setCalendarId(e.target.value)}
-          />
+          <div style={{marginTop: '10px'}}>
+            <label style={{fontSize: '0.9rem', color: '#666', display: 'block', marginBottom: '5px'}}>
+              {isAr ? 'معرف تقويم Google (للمرشدين)' : 'Google Calendar ID (For Mentors)'}
+            </label>
+            <input
+              placeholder={isAr ? 'مثال: mentor@gmail.com' : 'e.g., mentor@gmail.com'}
+              value={calendarId}
+              onChange={(e) => setCalendarId(e.target.value)}
+            />
+            <small style={{fontSize: '0.8rem', color: '#888', display: 'block', marginTop: '5px'}}>
+              {isAr ? 'للمزامنة مع Google Calendar للجلسات' : 'To sync mentorship sessions with Google Calendar'}
+            </small>
+          </div>
         </div>
 
         <button className="upload-btn" onClick={handleSave}>
@@ -306,7 +315,7 @@ const Settings: React.FC = () => {
               if (window.confirm(t.account.confirmDelete)) {
                 try {
                   const token = localStorage.getItem("token");
-                  const res = await fetch("${API_BASE_URL}/api/settings/account", {
+                  const res = await fetch(`${API_BASE_URL}/api/settings/account`, {
                     method: "DELETE",
                     headers: { Authorization: `Bearer ${token}` }
                   });
@@ -327,7 +336,7 @@ const Settings: React.FC = () => {
             onClick={async () => {
               try {
                 const token = localStorage.getItem("token");
-                await fetch("${API_BASE_URL}/api/settings/logout", {
+                await fetch(`${API_BASE_URL}/api/settings/logout`, {
                   method: "POST",
                   headers: { Authorization: `Bearer ${token}` }
                 });

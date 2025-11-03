@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import { timeAgo } from "../utils/timeAgo";
 import "../styles/topicDetail.css";
 
 interface Topic {
@@ -328,7 +329,7 @@ const TopicDetail: React.FC = () => {
               <div className="topic-meta">
                 <span className="category-badge">{topic.category}</span>
                 <span>{isArabic ? "بواسطة" : "by"} <strong>{topic.author_name}</strong></span>
-                <span>{new Date(topic.created_at).toLocaleString()}</span>
+                <span>{timeAgo(topic.created_at, isArabic)}</span>
               </div>
             </>
           )}
@@ -390,7 +391,7 @@ const TopicDetail: React.FC = () => {
                 <div key={reply.id} className="reply-card">
                   <div className="reply-header">
                     <strong>{reply.author_name}</strong>
-                    <span>{new Date(reply.created_at).toLocaleString()}</span>
+                    <span>{timeAgo(reply.created_at, isArabic)}</span>
                   </div>
                   <div className="reply-content">
                     <p>{reply.content}</p>

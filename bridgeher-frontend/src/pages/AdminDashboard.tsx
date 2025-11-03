@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
+import { useToast } from "../hooks/useToast";
+import Toast from "../components/Toast";
+import LoadingSpinner from "../components/LoadingSpinner";
 import adminDashboardTranslations from "../i18n/adminDashboardTranslations";
 import { toArabicNumerals } from "../utils/numberUtils";
 import { API_BASE_URL } from "../config/api";
@@ -29,6 +32,7 @@ const playUiSound = (enabled: boolean) => {
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { toasts, addToast, removeToast } = useToast();
   const isArabic = language === "Arabic";
   const lang = isArabic ? "ar" : "en";
   const t = adminDashboardTranslations[lang];
@@ -66,6 +70,7 @@ const AdminDashboard: React.FC = () => {
 
   const [users, setUsers] = useState<User[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [showUserModal, setShowUserModal] = useState<boolean>(false);
   const [showCourseModal, setShowCourseModal] = useState<boolean>(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -78,11 +83,12 @@ const AdminDashboard: React.FC = () => {
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       
       if (!token) {
-        alert("No authentication token found. Please login again.");
+        addToast(isArabic ? "لم يتم العثور على رمز المصادقة. يرجى تسجيل الدخول مرة أخرى" : "No authentication token found. Please login again.", "error");
         navigate("/login");
         return;
       }
@@ -93,7 +99,7 @@ const AdminDashboard: React.FC = () => {
       ]);
       
       if (usersRes.status === 401) {
-        alert("Session expired. Please login again.");
+        addToast(isArabic ? "انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى" : "Session expired. Please login again.", "error");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         navigate("/login");
@@ -120,6 +126,9 @@ const AdminDashboard: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to fetch data", err);
+      addToast(isArabic ? "فشل في تحميل البيانات" : "Failed to load data", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -142,7 +151,7 @@ const AdminDashboard: React.FC = () => {
   const handleSaveUser = async () => {
     playUiSound(sound);
     if (!userForm.name || !userForm.email) {
-      alert(isArabic ? "الرجاء ملء جميع الحقول" : "Please fill all fields");
+      addToast(isArabic ? "الرجاء ملء جميع الحقول" : "Please fill all fields", "error");
       return;
     }
     
@@ -157,6 +166,7 @@ const AdminDashboard: React.FC = () => {
         if (res.ok) {
           await fetchData();
           setShowUserModal(false);
+          addToast(isArabic ? "تم تحديث المستخدم بنجاح" : "User updated successfully", "success");
         }
       } else {
         const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
@@ -167,10 +177,11 @@ const AdminDashboard: React.FC = () => {
         if (res.ok) {
           await fetchData();
           setShowUserModal(false);
+          addToast(isArabic ? "تمت إضافة المستخدم بنجاح" : "User added successfully", "success");
         }
       }
     } catch (err) {
-      alert("Failed to save user");
+      addToast(isArabic ? "فشل في حفظ المستخدم" : "Failed to save user", "error");
     }
   };
 
@@ -183,9 +194,12 @@ const AdminDashboard: React.FC = () => {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (res.ok) await fetchData();
+        if (res.ok) {
+          await fetchData();
+          addToast(isArabic ? "تم حذف المستخدم بنجاح" : "User deleted successfully", "success");
+        }
       } catch (err) {
-        alert("Failed to delete user");
+        addToast(isArabic ? "فشل في حذف المستخدم" : "Failed to delete user", "error");
       }
     }
   };
@@ -209,7 +223,7 @@ const AdminDashboard: React.FC = () => {
   const handleSaveCourse = async () => {
     playUiSound(sound);
     if (!courseForm.title) {
-      alert(isArabic ? "الرجاء إدخال عنوان الدورة" : "Please enter course title");
+      addToast(isArabic ? "الرجاء إدخال عنوان الدورة" : "Please enter course title", "error");
       return;
     }
     
@@ -224,6 +238,7 @@ const AdminDashboard: React.FC = () => {
         if (res.ok) {
           await fetchData();
           setShowCourseModal(false);
+          addToast(isArabic ? "تم تحديث الدورة بنجاح" : "Course updated successfully", "success");
         }
       } else {
         const res = await fetch(`${API_BASE_URL}/api/courses`, {
@@ -234,10 +249,11 @@ const AdminDashboard: React.FC = () => {
         if (res.ok) {
           await fetchData();
           setShowCourseModal(false);
+          addToast(isArabic ? "تمت إضافة الدورة بنجاح" : "Course added successfully", "success");
         }
       }
     } catch (err) {
-      alert("Failed to save course");
+      addToast(isArabic ? "فشل في حفظ الدورة" : "Failed to save course", "error");
     }
   };
 
@@ -250,17 +266,27 @@ const AdminDashboard: React.FC = () => {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (res.ok) await fetchData();
+        if (res.ok) {
+          await fetchData();
+          addToast(isArabic ? "تم حذف الدورة بنجاح" : "Course deleted successfully", "success");
+        }
       } catch (err) {
-        alert("Failed to delete course");
+        addToast(isArabic ? "فشل في حذف الدورة" : "Failed to delete course", "error");
       }
     }
   };
 
 
 
+  if (loading) {
+    return <LoadingSpinner size="large" message={isArabic ? "جارٍ التحميل..." : "Loading..."} />;
+  }
+
   return (
     <>
+    {toasts.map((toast) => (
+      <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
+    ))}
     <div className={`admin-dashboard ${isArabic ? "rtl" : ""}`}>
       <header className="admin-header">
         <h1>{t.title}</h1>
@@ -312,7 +338,14 @@ const AdminDashboard: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{textAlign: 'center', padding: '40px'}}>
+                  <p style={{marginBottom: '20px'}}>{isArabic ? "لا يوجد مستخدمون بعد" : "No users yet"}</p>
+                  <button className="btn primary" onClick={handleAddUser}>{isArabic ? "إضافة أول مستخدم" : "Add First User"}</button>
+                </td>
+              </tr>
+            ) : users.map((user) => (
               <tr key={user.id}>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
@@ -347,7 +380,14 @@ const AdminDashboard: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {courses.map((course) => (
+            {courses.length === 0 ? (
+              <tr>
+                <td colSpan={4} style={{textAlign: 'center', padding: '40px'}}>
+                  <p style={{marginBottom: '20px'}}>{isArabic ? "لا توجد دورات بعد" : "No courses yet"}</p>
+                  <button className="btn primary" onClick={handleAddCourse}>{isArabic ? "إضافة أول دورة" : "Add First Course"}</button>
+                </td>
+              </tr>
+            ) : courses.map((course) => (
               <tr key={course.id}>
                 <td>{course.title}</td>
                 <td>{isArabic ? toArabicNumerals(course.enrollments) : course.enrollments}</td>

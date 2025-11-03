@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import { timeAgo } from "../utils/timeAgo";
 import "../styles/community.css";
 
 interface Topic {
@@ -273,7 +274,7 @@ const Community: React.FC = () => {
                     <div className="topic-meta">
                       {topic.category && <span className="category-badge">{topic.category}</span>}
                       <span>{isArabic ? "بواسطة" : "by"} {topic.author_name}</span>
-                      <span>{new Date(topic.created_at).toLocaleDateString()}</span>
+                      <span>{timeAgo(topic.created_at, isArabic)}</span>
                     </div>
                   </div>
                   <div className="topic-stats">

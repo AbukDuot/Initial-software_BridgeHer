@@ -8,14 +8,20 @@ router.post("/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
     
-    const { rows } = await pool.query(
-      `INSERT INTO support_messages (name, email, message)
-       VALUES ($1, $2, $3) RETURNING *`,
-      [name, email, message]
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+    
+    await pool.query(
+      `INSERT INTO support_messages (name, email, message, subject)
+       VALUES ($1, $2, $3, $4)`,
+      [name, email, message, 'Contact Form Submission']
     );
     
+    console.log('✅ Support message saved:', { name, email });
     res.status(201).json({ success: true, message: "Message sent successfully" });
   } catch (err) {
+    console.error('❌ Support contact error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

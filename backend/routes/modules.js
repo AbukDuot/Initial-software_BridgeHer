@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { Readable } from "stream";
 import pool from "../config/db.js";
 import { requireAuth, requireRole } from "../middleware/authMiddleware.js";
 import { videoStorage as cloudinaryVideoStorage, pdfStorage as cloudinaryPdfStorage } from "../config/cloudinary.js";
@@ -40,23 +41,11 @@ const videoUpload = multer({
   },
 });
 
-const useCloudinary = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_CLOUD_NAME !== "your_cloud_name";
+const useCloudinary = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
 
 const cloudinaryUpload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      if (file.fieldname === "video") {
-        cb(null, videoDir);
-      } else if (file.fieldname === "pdf") {
-        cb(null, pdfDir);
-      }
-    },
-    filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      cb(null, `${file.fieldname}-${Date.now()}${ext}`);
-    },
-  }),
-  limits: { fileSize: 100 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 500 * 1024 * 1024 },
 });
 
 const fileUpload = multer({
@@ -76,7 +65,7 @@ const fileUpload = multer({
 });
 
 
-router.post("/", requireAuth, requireRole(["Admin"]), (useCloudinary ? cloudinaryUpload : fileUpload).fields([{ name: "video", maxCount: 1 }, { name: "pdf", maxCount: 1 }]), async (req, res) => {
+router.post("/", requireAuth, requireRole(["Admin"]), cloudinaryUpload.fields([{ name: "video", maxCount: 1 }, { name: "pdf", maxCount: 1 }]), async (req, res) => {
   try {
     const { course_id, title, description, content, order_index, duration } = req.body;
     
@@ -87,15 +76,24 @@ router.post("/", requireAuth, requireRole(["Admin"]), (useCloudinary ? cloudinar
     if (req.files?.video?.[0]) {
       if (useCloudinary) {
         const { cloudinary } = await import("../config/cloudinary.js");
-        const result = await cloudinary.uploader.upload(req.files.video[0].path, {
-          folder: "bridgeher-videos",
-          resource_type: "video",
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "bridgeher-videos", resource_type: "video" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          const streamifier = Readable.from(req.files.video[0].buffer);
+          streamifier.pipe(stream);
         });
         videoPath = result.secure_url;
         fileSize = result.bytes;
-        fs.unlinkSync(req.files.video[0].path);
       } else {
-        videoPath = `/uploads/videos/${req.files.video[0].filename}`;
+        const filename = `video-${Date.now()}${path.extname(req.files.video[0].originalname)}`;
+        const filePath = path.join(videoDir, filename);
+        fs.writeFileSync(filePath, req.files.video[0].buffer);
+        videoPath = `/uploads/videos/${filename}`;
         fileSize = req.files.video[0].size;
       }
     }
@@ -103,14 +101,23 @@ router.post("/", requireAuth, requireRole(["Admin"]), (useCloudinary ? cloudinar
     if (req.files?.pdf?.[0]) {
       if (useCloudinary) {
         const { cloudinary } = await import("../config/cloudinary.js");
-        const result = await cloudinary.uploader.upload(req.files.pdf[0].path, {
-          folder: "bridgeher-pdfs",
-          resource_type: "raw",
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "bridgeher-pdfs", resource_type: "raw" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          const streamifier = Readable.from(req.files.pdf[0].buffer);
+          streamifier.pipe(stream);
         });
         pdfPath = result.secure_url;
-        fs.unlinkSync(req.files.pdf[0].path);
       } else {
-        pdfPath = `/uploads/pdfs/${req.files.pdf[0].filename}`;
+        const filename = `pdf-${Date.now()}${path.extname(req.files.pdf[0].originalname)}`;
+        const filePath = path.join(pdfDir, filename);
+        fs.writeFileSync(filePath, req.files.pdf[0].buffer);
+        pdfPath = `/uploads/pdfs/${filename}`;
       }
     }
     

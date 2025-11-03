@@ -216,32 +216,41 @@ const MentorDashboard: React.FC = () => {
         }
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
+        console.log('🔍 FULL Mentor Dashboard Data:', JSON.stringify(data, null, 2));
+        console.log('🔍 Connections Array:', data.connections);
+        console.log('🔍 Connections Length:', data.connections?.length);
         setDashboardData(data);
         
         if (data.connections && Array.isArray(data.connections)) {
           const pending = data.connections.filter((c: any) => c.status === 'pending');
+          console.log('🔍 Pending requests:', pending);
+          console.log('🔍 Pending count:', pending.length);
           setRequests(pending.map((c: any) => ({
             id: c.id.toString(),
             learner: c.learner_name,
             course: c.topic,
             status: c.status
           })));
+          console.log('🔍 Requests state set to:', pending.length, 'items');
           
           const accepted = data.connections.filter((c: any) => c.status === 'accepted');
+          console.log('Accepted connections:', accepted);
           setLearners(accepted.map((c: any) => ({
             id: c.id.toString(),
             name: c.learner_name,
             course: c.topic,
-            progress: 50,
+            progress: c.progress || 0,
             status: 'ongoing' as const
           })));
           
-          setSessions(accepted.slice(0, 3).map((c: any) => ({
+          const sessions = accepted.slice(0, 3).map((c: any) => ({
             id: c.id.toString(),
             learner: c.learner_name,
             topic: c.topic,
             dateISO: c.scheduled_at || new Date(Date.now() + 24 * 3600 * 1000).toISOString()
-          })));
+          }));
+          console.log('Sessions:', sessions);
+          setSessions(sessions);
         }
       } catch (err) {
         console.error("Failed to fetch dashboard", err);
@@ -274,7 +283,7 @@ const MentorDashboard: React.FC = () => {
         label: t.sessions,
         data: [
           learners.filter((l) => l.status === "completed").length,
-          learners.filter((l) => l.status === "scheduled").length,
+          learners.filter((l) => l.status === "ongoing").length,
           requests.length,
         ],
         backgroundColor: ["#4A148C", "#FFD700", "#4A148C"],
@@ -331,13 +340,36 @@ const MentorDashboard: React.FC = () => {
   };
 
 
-  const handleAccept = (id: string) => {
+  const handleAccept = async (id: string) => {
     playToastSound(theme, "accept", soundEnabled);
-    setRequests((prev) => prev.filter((r) => r.id !== id));
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://bridgeher-backend.onrender.com'}/api/mentorship/requests/${id}/accept`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setRequests((prev) => prev.filter((r) => r.id !== id));
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Failed to accept request", err);
+    }
   };
-  const handleDecline = (id: string) => {
+  const handleDecline = async (id: string) => {
     playToastSound(theme, "decline", soundEnabled);
-    setRequests((prev) => prev.filter((r) => r.id !== id));
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://bridgeher-backend.onrender.com'}/api/mentorship/requests/${id}/decline`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setRequests((prev) => prev.filter((r) => r.id !== id));
+      }
+    } catch (err) {
+      console.error("Failed to decline request", err);
+    }
   };
   const openReschedule = (s: SessionItem) => {
     setModalSession(s);
@@ -348,23 +380,43 @@ const MentorDashboard: React.FC = () => {
     setModalTime(`${hh}:${mm}`);
     setShowModal(true);
   };
-  const saveReschedule = () => {
+  const saveReschedule = async () => {
     if (!modalSession) return;
     const [h, m] = modalTime.split(":").map(Number);
     const newDate = new Date(modalDate);
     newDate.setHours(h, m, 0, 0);
-    setSessions((prev) =>
-      prev.map((s) =>
-        s.id === modalSession.id ? { ...s, dateISO: newDate.toISOString() } : s
-      )
-    );
-    playToastSound(theme, "reschedule", soundEnabled);
-    setShowModal(false);
+    
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://bridgeher-backend.onrender.com'}/api/mentorship/${modalSession.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ scheduled_at: newDate.toISOString() })
+      });
+      
+      if (res.ok) {
+        setSessions((prev) =>
+          prev.map((s) =>
+            s.id === modalSession.id ? { ...s, dateISO: newDate.toISOString() } : s
+          )
+        );
+        playToastSound(theme, "reschedule", soundEnabled);
+        setShowModal(false);
+      } else {
+        alert("Failed to reschedule");
+      }
+    } catch (err) {
+      console.error("Failed to reschedule", err);
+      alert("Connection error");
+    }
   };
 
   const totalLearners = dashboardData?.stats?.totalLearners || 0;
   const totalSessions = dashboardData?.stats?.activeSessions || 0;
-  const avgProgress = learners.length > 0 ? learners.reduce((sum, l) => sum + l.progress, 0) / learners.length : 0;
+  const avgProgress = learners.length > 0 ? Math.round(learners.reduce((sum, l) => sum + l.progress, 0) / learners.length) : 0;
   const avgRating = dashboardData?.stats?.avgRating || 0;
 
   const countLearners = useCountUp(totalLearners);

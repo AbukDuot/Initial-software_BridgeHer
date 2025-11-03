@@ -115,7 +115,11 @@ const AdminCourseUpload: React.FC = () => {
         body: JSON.stringify(courseData),
       });
 
-      if (!courseRes.ok) throw new Error("Failed to create course");
+      if (!courseRes.ok) {
+        const errorData = await courseRes.json().catch(() => ({}));
+        console.error("Course creation error:", errorData);
+        throw new Error(errorData.error || `Failed to create course (${courseRes.status})`);
+      }
       
       const course = await courseRes.json();
 
@@ -170,9 +174,13 @@ const AdminCourseUpload: React.FC = () => {
 
       <div className="course-form">
         <h2>Course Details</h2>
-        <input name="title" placeholder="Course Title" value={courseData.title} onChange={handleCourseChange} />
-        <textarea name="description" placeholder="Course Description" value={courseData.description} onChange={handleCourseChange} />
+        <label>Course Title *</label>
+        <input name="title" placeholder="Enter course title" value={courseData.title} onChange={handleCourseChange} required />
         
+        <label>Course Description</label>
+        <textarea name="description" placeholder="Enter course description" value={courseData.description} onChange={handleCourseChange} />
+        
+        <label>Category</label>
         <select name="category" value={courseData.category} onChange={handleCourseChange}>
           <option>Technology</option>
           <option>Finance</option>
@@ -182,32 +190,41 @@ const AdminCourseUpload: React.FC = () => {
           <option>Leadership</option>
         </select>
 
+        <label>Level</label>
         <select name="level" value={courseData.level} onChange={handleCourseChange}>
           <option>Beginner</option>
           <option>Intermediate</option>
           <option>Advanced</option>
         </select>
 
-        <input name="duration" placeholder="Duration (e.g., 4 weeks)" value={courseData.duration} onChange={handleCourseChange} />
+        <label>Duration</label>
+        <input name="duration" placeholder="e.g., 4 weeks" value={courseData.duration} onChange={handleCourseChange} />
       </div>
 
       <div className="module-form">
         <h2>Add Module</h2>
-        <input name="title" placeholder="Module Title" value={currentModule.title} onChange={handleModuleChange} />
-        <textarea name="description" placeholder="Module Description" value={currentModule.description} onChange={handleModuleChange} />
-        <textarea name="content" placeholder="Module Content (Text for offline)" value={currentModule.content} onChange={handleModuleChange} />
-        <input type="number" name="duration" placeholder="Duration (minutes)" value={currentModule.duration} onChange={handleModuleChange} />
+        <label>Module Title *</label>
+        <input name="title" placeholder="Enter module title" value={currentModule.title} onChange={handleModuleChange} required />
+        
+        <label>Module Description</label>
+        <textarea name="description" placeholder="Enter module description" value={currentModule.description} onChange={handleModuleChange} />
+        
+        <label>Module Content (Text for offline access)</label>
+        <textarea name="content" placeholder="Enter text content for offline viewing" value={currentModule.content} onChange={handleModuleChange} />
+        
+        <label>Duration (minutes)</label>
+        <input type="number" name="duration" placeholder="e.g., 30" value={currentModule.duration} onChange={handleModuleChange} />
         
         <div className="file-input">
-          <label>Upload Video:</label>
-          <input type="file" accept="video/*" onChange={handleVideoChange} />
-          {currentModule.video && <span>{currentModule.video.name}</span>}
+          <label>Upload Video * (Will be stored on Cloudinary)</label>
+          <input type="file" accept="video/*" onChange={handleVideoChange} required />
+          {currentModule.video && <span>✓ {currentModule.video.name}</span>}
         </div>
 
         <div className="file-input">
-          <label>Upload PDF (Optional):</label>
+          <label>Upload PDF (Optional - Will be stored on Cloudinary)</label>
           <input type="file" accept=".pdf" onChange={handlePdfChange} />
-          {currentModule.pdf && <span>{currentModule.pdf.name}</span>}
+          {currentModule.pdf && <span>✓ {currentModule.pdf.name}</span>}
         </div>
 
         <div className="assignment-toggle">

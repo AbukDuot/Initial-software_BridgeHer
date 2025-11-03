@@ -15,12 +15,14 @@ router.get("/announcements", async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
+    console.error('❌ Announcements error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
 router.get("/topics", async (req, res) => {
   try {
+    console.log('📋 Fetching topics...');
     const { category, tag, sort = 'recent', page = 1, limit = 20 } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
     
@@ -66,6 +68,7 @@ router.get("/topics", async (req, res) => {
       (conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : '');
     const { rows: countRows } = await pool.query(countQuery, params.slice(0, -2));
     
+    console.log('✅ Topics fetched:', rows.length);
     res.json({ 
       topics: rows, 
       total: parseInt(countRows[0].count),
@@ -73,6 +76,8 @@ router.get("/topics", async (req, res) => {
       totalPages: Math.ceil(parseInt(countRows[0].count) / parseInt(limit))
     });
   } catch (err) {
+    console.error('❌ Topics error:', err.message);
+    console.error('Stack:', err.stack);
     res.status(500).json({ error: err.message });
   }
 });
@@ -90,6 +95,7 @@ router.get("/categories", async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
+    console.error('❌ Categories error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -106,6 +112,7 @@ router.get("/tags", async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
+    console.error('❌ Tags error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -130,6 +137,7 @@ router.get("/activity", async (req, res) => {
     `);
     res.json(rows);
   } catch (err) {
+    console.error('❌ Activity error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -137,7 +145,7 @@ router.get("/activity", async (req, res) => {
 
 router.post("/topics", requireAuth, async (req, res) => {
   try {
-    const { title, category, description, content, tags } = req.body;
+    const { title, category, description, tags } = req.body;
     const userId = req.user.id;
     
     if (!title || title.trim() === '') {
@@ -145,9 +153,9 @@ router.post("/topics", requireAuth, async (req, res) => {
     }
     
     const { rows } = await pool.query(
-      `INSERT INTO community_topics (user_id, title, category, description, content, tags)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [userId, title, category || null, description || '', content || '', tags || []]
+      `INSERT INTO community_topics (user_id, title, category, description, tags)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [userId, title, category || null, description || '', tags || []]
     );
     
     res.status(201).json(rows[0]);
@@ -159,7 +167,7 @@ router.post("/topics", requireAuth, async (req, res) => {
 router.put("/topics/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, category, description, content, tags } = req.body;
+    const { title, category, description, tags } = req.body;
     const userId = req.user.id;
     const userRole = req.user.role;
     
@@ -175,9 +183,9 @@ router.put("/topics/:id", requireAuth, async (req, res) => {
     
     const { rows } = await pool.query(
       `UPDATE community_topics 
-       SET title = $1, category = $2, description = $3, content = $4, tags = $5
-       WHERE id = $6 RETURNING *`,
-      [title, category, description, content, tags || [], id]
+       SET title = $1, category = $2, description = $3, tags = $4
+       WHERE id = $5 RETURNING *`,
+      [title, category, description, tags || [], id]
     );
     
     res.json(rows[0]);
@@ -399,7 +407,7 @@ router.get("/search", async (req, res) => {
        (SELECT COUNT(*) FROM topic_likes WHERE topic_id = t.id) as likes
        FROM community_topics t
        JOIN users u ON u.id = t.user_id
-       WHERE t.title ILIKE $1 OR t.description ILIKE $1 OR t.content ILIKE $1
+       WHERE t.title ILIKE $1 OR t.description ILIKE $1
        ORDER BY t.created_at DESC
        LIMIT 50`,
       [`%${q}%`]
