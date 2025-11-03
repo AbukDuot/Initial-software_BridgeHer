@@ -424,7 +424,7 @@ const TopicDetail: React.FC = () => {
         {/* Topic Content */}
         <div className="topic-body">
           <p className="topic-description">{topic.description}</p>
-          {topic.content && <div className="topic-content">{topic.content}</div>}
+          {topic.content && <div className="topic-content" dangerouslySetInnerHTML={{ __html: topic.content }} />}
         </div>
 
         {/* Topic Stats & Actions */}
@@ -508,9 +508,7 @@ const TopicDetail: React.FC = () => {
                     <strong>{reply.author_name}</strong>
                     <span>{timeAgo(reply.created_at, isArabic)}</span>
                   </div>
-                  <div className="reply-content">
-                    <p>{reply.content}</p>
-                  </div>
+                  <div className="reply-content" dangerouslySetInnerHTML={{ __html: reply.content }} />
                   {editingReply === reply.id ? (
                     <div className="edit-reply-form">
                       <textarea
