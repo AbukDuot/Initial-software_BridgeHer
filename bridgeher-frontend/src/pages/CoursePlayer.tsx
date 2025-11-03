@@ -198,13 +198,23 @@ const CoursePlayer: React.FC = () => {
               <h1>{currentModule.title}</h1>
               
               {!offlineMode && currentModule.video_url ? (
-                currentModule.video_url.startsWith('http') ? (
+                currentModule.video_url.includes('youtube.com') || currentModule.video_url.includes('youtu.be') ? (
                   <iframe
                     width="100%"
                     height="500"
-                    src={currentModule.video_url}
+                    src={currentModule.video_url.replace('watch?v=', 'embed/')}
                     title={currentModule.title}
+                    frameBorder="0"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
+                  />
+                ) : currentModule.video_url.startsWith('http') ? (
+                  <video
+                    ref={videoRef}
+                    controls
+                    onTimeUpdate={handleVideoProgress}
+                    src={currentModule.video_url}
+                    style={{ width: '100%', maxHeight: '500px' }}
                   />
                 ) : (
                   <video
@@ -212,11 +222,16 @@ const CoursePlayer: React.FC = () => {
                     controls
                     onTimeUpdate={handleVideoProgress}
                     src={`${API_BASE_URL}${currentModule.video_url}`}
+                    style={{ width: '100%', maxHeight: '500px' }}
                   />
                 )
-              ) : (
+              ) : offlineMode ? (
                 <div className="offline-content">
                   <p>Video not available offline</p>
+                </div>
+              ) : (
+                <div className="no-video">
+                  <p>No video available</p>
                 </div>
               )}
               
