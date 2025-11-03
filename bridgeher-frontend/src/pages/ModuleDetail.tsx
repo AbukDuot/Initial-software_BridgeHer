@@ -189,16 +189,22 @@ const ModuleDetail: React.FC = () => {
 
       {/* Video Player */}
       <div className="video-container">
-        {module.video_url.startsWith('http') ? (
-          <iframe
-            src={module.video_url}
-            title={module.title}
-            frameBorder="0"
-            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+        {module.video_url ? (
+          module.video_url.includes('youtube.com') || module.video_url.includes('youtu.be') ? (
+            <iframe
+              src={module.video_url.replace('watch?v=', 'embed/')}
+              title={module.title}
+              frameBorder="0"
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : module.video_url.startsWith('http') ? (
+            <video controls src={module.video_url} style={{ width: '100%', maxHeight: '500px' }} />
+          ) : (
+            <video controls src={`${API_BASE_URL}${module.video_url}`} style={{ width: '100%', maxHeight: '500px' }} />
+          )
         ) : (
-          <video controls src={`${API_BASE_URL}${module.video_url}`} />
+          <p>{isArabic ? "لا يوجد فيديو متاح" : "No video available"}</p>
         )}
       </div>
 
