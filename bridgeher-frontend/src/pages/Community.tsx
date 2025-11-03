@@ -69,11 +69,18 @@ const Community: React.FC = () => {
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
-        setTopics(data.topics || data);
+        const topicsData = Array.isArray(data) ? data : (data.topics || []);
+        setTopics(topicsData.map((t: any) => ({
+          ...t,
+          replies: Number(t.replies) || 0,
+          views: Number(t.views) || 0,
+          likes: Number(t.likes) || 0
+        })));
         if (data.totalPages) setTotalPages(data.totalPages);
       }
     } catch (err) {
       console.error("Failed to fetch topics", err);
+      setTopics([]);
     }
   };
 
@@ -82,10 +89,11 @@ const Community: React.FC = () => {
       const res = await fetch(`${API_BASE_URL}/api/community/categories`);
       if (res.ok) {
         const data = await res.json();
-        setCategories(data);
+        setCategories(Array.isArray(data) ? data.map((c: any) => ({...c, count: Number(c.count) || 0})) : []);
       }
     } catch (err) {
       console.error("Failed to fetch categories", err);
+      setCategories([]);
     }
   };
 
@@ -94,10 +102,11 @@ const Community: React.FC = () => {
       const res = await fetch(`${API_BASE_URL}/api/community/tags`);
       if (res.ok) {
         const data = await res.json();
-        setTags(data);
+        setTags(Array.isArray(data) ? data.map((t: any) => ({...t, count: Number(t.count) || 0})) : []);
       }
     } catch (err) {
       console.error("Failed to fetch tags", err);
+      setTags([]);
     }
   };
 
@@ -106,10 +115,11 @@ const Community: React.FC = () => {
       const res = await fetch(`${API_BASE_URL}/api/community/activity`);
       if (res.ok) {
         const data = await res.json();
-        setActivity(data);
+        setActivity(Array.isArray(data) ? data : []);
       }
     } catch (err) {
       console.error("Failed to fetch activity", err);
+      setActivity([]);
     }
   };
 
@@ -123,11 +133,18 @@ const Community: React.FC = () => {
       const res = await fetch(`${API_BASE_URL}/api/community/search?q=${encodeURIComponent(searchQuery)}`);
       if (res.ok) {
         const data = await res.json();
-        setTopics(data);
+        const topicsData = Array.isArray(data) ? data : [];
+        setTopics(topicsData.map((t: any) => ({
+          ...t,
+          replies: Number(t.replies) || 0,
+          views: Number(t.views) || 0,
+          likes: Number(t.likes) || 0
+        })));
         setTotalPages(1);
       }
     } catch (err) {
       console.error("Search failed", err);
+      setTopics([]);
     }
   };
 
@@ -136,10 +153,11 @@ const Community: React.FC = () => {
       const res = await fetch(`${API_BASE_URL}/api/community/announcements`);
       if (res.ok) {
         const data = await res.json();
-        setAnnouncements(data);
+        setAnnouncements(Array.isArray(data) ? data : []);
       }
     } catch (err) {
       console.error("Failed to fetch announcements", err);
+      setAnnouncements([]);
     }
   };
 
