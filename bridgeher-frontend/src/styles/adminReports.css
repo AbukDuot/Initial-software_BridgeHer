@@ -108,17 +108,19 @@
 }
 
 .btn-resolve {
-  background: #4CAF50;
-  color: white;
+  background: #FFD700;
+  color: #4A148C;
   border: none;
   padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 600;
 }
 
 .btn-resolve:hover {
-  background: #45a049;
+  background: #4A148C;
+  color: white;
 }
 
 .btn-delete {
