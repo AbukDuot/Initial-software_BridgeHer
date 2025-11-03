@@ -309,18 +309,6 @@ const Community: React.FC = () => {
                   value={advancedFilters.author}
                   onChange={(e) => setAdvancedFilters({ ...advancedFilters, author: e.target.value })}
                 />
-                <input
-                  type="date"
-                  placeholder={isArabic ? "من تاريخ" : "From Date"}
-                  value={advancedFilters.dateFrom}
-                  onChange={(e) => setAdvancedFilters({ ...advancedFilters, dateFrom: e.target.value })}
-                />
-                <input
-                  type="date"
-                  placeholder={isArabic ? "إلى تاريخ" : "To Date"}
-                  value={advancedFilters.dateTo}
-                  onChange={(e) => setAdvancedFilters({ ...advancedFilters, dateTo: e.target.value })}
-                />
                 <select
                   value={advancedFilters.status}
                   onChange={(e) => setAdvancedFilters({ ...advancedFilters, status: e.target.value })}
