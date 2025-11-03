@@ -359,15 +359,15 @@ const TopicDetail: React.FC = () => {
               ✏️ {isArabic ? "تعديل" : "Edit"}
             </button>
           )}
-          {currentUser && (currentUser.role === 'Admin') && (
-            <>
-              <button className="pin-btn" onClick={handlePinTopic}>
-                📌 {isArabic ? "تثبيت" : "Pin"}
-              </button>
-              <button className="delete-btn" onClick={handleDeleteTopic}>
-                🗑️ {isArabic ? "حذف" : "Delete"}
-              </button>
-            </>
+          {currentUser && (
+            <button className="delete-btn" onClick={handleDeleteTopic}>
+              🗑️ {isArabic ? "حذف" : "Delete"}
+            </button>
+          )}
+          {currentUser && currentUser.role === 'Admin' && (
+            <button className="pin-btn" onClick={handlePinTopic}>
+              📌 {isArabic ? "تثبيت" : "Pin"}
+            </button>
           )}
           {currentUser && (
             <button className="report-btn" onClick={() => {
@@ -417,17 +417,17 @@ const TopicDetail: React.FC = () => {
                         ❤️ {reply.likes}
                       </button>
                       {currentUser && (
-                        <button className="edit-btn-small" onClick={() => {
-                          setEditReplyText(reply.content);
-                          setEditingReply(reply.id);
-                        }}>
-                          ✏️
-                        </button>
-                      )}
-                      {currentUser && (currentUser.role === 'Admin') && (
-                        <button className="delete-btn-small" onClick={() => handleDeleteReply(reply.id)}>
-                          🗑️
-                        </button>
+                        <>
+                          <button className="edit-btn-small" onClick={() => {
+                            setEditReplyText(reply.content);
+                            setEditingReply(reply.id);
+                          }}>
+                            ✏️
+                          </button>
+                          <button className="delete-btn-small" onClick={() => handleDeleteReply(reply.id)}>
+                            🗑️
+                          </button>
+                        </>
                       )}
                       {currentUser && (
                         <button className="report-btn-small" onClick={() => {

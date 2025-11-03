@@ -25,6 +25,7 @@ const Quiz = lazy(() => import("./pages/quiz"));
 const HelpFAQ = lazy(() => import("./pages/HelpFAQ"));
 const AnalyticsDashboard = lazy(() => import("./components/AnalyticsDashboard"));
 const TopicDetail = lazy(() => import("./pages/TopicDetail"));
+const AdminReports = lazy(() => import("./pages/AdminReports"));
 
 import { UserProvider } from "./context/UserContext";
 import { LanguageProvider } from "./context/LanguageContext";
@@ -100,6 +101,7 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/help" element={<HelpFAQ />} />
                 <Route path="/analytics" element={<AnalyticsDashboard />} />
+                <Route path="/admin-reports" element={<AdminReports />} />
               </Routes>
               </Suspense>
             </main>
