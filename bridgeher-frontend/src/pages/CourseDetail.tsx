@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import OfflineDownloadButton from "../components/OfflineDownloadButton";
 import "../styles/courseDetail.css";
 
 interface Module {
@@ -251,15 +252,24 @@ const CourseDetail: React.FC = () => {
         <h2>{isAr ? course.titleAr : course.titleEn}</h2>
         <p className="desc">{isAr ? course.descriptionAr : course.descriptionEn}</p>
 
-        {!enrolled ? (
-          <button className="enroll-btn" onClick={handleEnroll}>
-            {t.enroll}
-          </button>
-        ) : (
-          <div className="enrolled-badge">
-            ✓ {t.enrolled}
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '20px' }}>
+          {!enrolled ? (
+            <button className="enroll-btn" onClick={handleEnroll}>
+              {t.enroll}
+            </button>
+          ) : (
+            <div className="enrolled-badge">
+              ✓ {t.enrolled}
+            </div>
+          )}
+          
+          {enrolled && (
+            <OfflineDownloadButton 
+              courseId={id || ''} 
+              courseName={isAr ? course.titleAr : course.titleEn} 
+            />
+          )}
+        </div>
 
         <h3>{t.modules}</h3>
         <div className="module-grid">

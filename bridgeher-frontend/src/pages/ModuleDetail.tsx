@@ -199,12 +199,42 @@ const ModuleDetail: React.FC = () => {
               allowFullScreen
             />
           ) : module.video_url.startsWith('http') ? (
-            <video controls src={module.video_url} style={{ width: '100%', maxHeight: '500px' }} />
+            <video 
+              controls 
+              src={module.video_url} 
+              style={{ width: '100%', maxHeight: '500px' }}
+              onError={(e) => {
+                const target = e.target as HTMLVideoElement;
+                if (!navigator.onLine) {
+                  target.style.display = 'none';
+                  const msg = document.createElement('div');
+                  msg.style.cssText = 'padding: 40px; text-align: center; background: #fff3cd; border-radius: 8px; color: #856404;';
+                  msg.innerHTML = `<h3>📡 ${isArabic ? 'غير متصل' : 'Offline'}</h3><p>${isArabic ? 'هذا الفيديو غير متاح دون اتصال. قم بتنزيل الدورة أولاً.' : 'This video is not available offline. Download the course first using the download button on the course page.'}</p>`;
+                  target.parentElement?.appendChild(msg);
+                }
+              }}
+            />
           ) : (
-            <video controls src={`${API_BASE_URL}${module.video_url}`} style={{ width: '100%', maxHeight: '500px' }} />
+            <video 
+              controls 
+              src={`${API_BASE_URL}${module.video_url}`} 
+              style={{ width: '100%', maxHeight: '500px' }}
+              onError={(e) => {
+                const target = e.target as HTMLVideoElement;
+                if (!navigator.onLine) {
+                  target.style.display = 'none';
+                  const msg = document.createElement('div');
+                  msg.style.cssText = 'padding: 40px; text-align: center; background: #fff3cd; border-radius: 8px; color: #856404;';
+                  msg.innerHTML = `<h3>📡 ${isArabic ? 'غير متصل' : 'Offline'}</h3><p>${isArabic ? 'هذا الفيديو غير متاح دون اتصال. قم بتنزيل الدورة أولاً من صفحة الدورة.' : 'This video is not available offline. Download the course first using the download button on the course page.'}</p>`;
+                  target.parentElement?.appendChild(msg);
+                }
+              }}
+            />
           )
         ) : (
-          <p>{isArabic ? "لا يوجد فيديو متاح" : "No video available"}</p>
+          <div style={{ padding: '40px', textAlign: 'center', background: '#f5f5f5', borderRadius: '8px' }}>
+            <p>{isArabic ? "لا يوجد فيديو متاح" : "No video available"}</p>
+          </div>
         )}
       </div>
 

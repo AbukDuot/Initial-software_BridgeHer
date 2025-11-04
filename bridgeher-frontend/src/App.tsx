@@ -36,6 +36,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import CookieBanner from "./components/CookieBanner";
 import ErrorBoundary from "./components/ErrorBoundary";
+import OfflineIndicator from "./components/OfflineIndicator";
 const OfflineBanner: React.FC = () => {
   const { isOnline } = useAppContext();
   if (isOnline) return null;
@@ -63,6 +64,7 @@ function App() {
           <UserProvider>
             <Router>
             <Navbar />
+            <OfflineIndicator />
             <OfflineBanner />
             <CookieBanner language="English" />
 

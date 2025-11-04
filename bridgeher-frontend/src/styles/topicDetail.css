@@ -69,7 +69,8 @@
 
 .topic-actions {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
   align-items: center;
   padding: 15px 20px;
   background: white;
@@ -259,6 +260,7 @@
   font-size: 14px;
   font-weight: 600;
   transition: all 0.3s;
+  white-space: nowrap;
 }
 
 .report-btn:hover {
@@ -533,7 +535,12 @@
   }
 
   .topic-actions {
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
     gap: 10px;
+  }
+
+  .topic-actions button {
+    width: 100%;
   }
 }
