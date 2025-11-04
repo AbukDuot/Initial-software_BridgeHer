@@ -1,0 +1,373 @@
+/* ========================================
+   COMPREHENSIVE RESPONSIVE FIXES
+   Ensures 100% responsiveness across all devices
+   ======================================== */
+
+/* Base - Prevent horizontal scroll */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* ========================================
+   MOBILE (375px - 767px) - CRITICAL FIXES
+   ======================================== */
+@media (max-width: 767px) {
+  /* Force all containers to fit screen */
+  .container,
+  .page-container,
+  .dashboard-container,
+  .community-container,
+  .course-container,
+  .learner-dashboard,
+  .mentor-dashboard,
+  .admin-dashboard {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 10px !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Navbar mobile fix */
+  .navbar {
+    padding: 10px 15px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .logo {
+    font-size: 16px !important;
+  }
+
+  .nav-actions {
+    gap: 5px !important;
+  }
+
+  .nav-actions button,
+  .nav-actions select {
+    font-size: 11px !important;
+    padding: 5px 8px !important;
+  }
+
+  /* Dashboard sidebar - stack vertically */
+  .sidebar,
+  .dashboard-sidebar {
+    width: 100% !important;
+    position: static !important;
+    padding: 15px !important;
+  }
+
+  .dashboard-main {
+    width: 100% !important;
+    padding: 15px !important;
+  }
+
+  /* Stats cards - stack */
+  .stats-section {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+
+  .stat-card {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Charts - full width */
+  .charts-grid {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+
+  .chart-card {
+    width: 100% !important;
+  }
+
+  /* Course grid - single column */
+  .courses-grid {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+
+  .course-card {
+    width: 100% !important;
+    margin: 0 0 15px 0 !important;
+  }
+
+  /* Forms - full width */
+  .auth-form,
+  .contact-form,
+  form {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 15px !important;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    width: 100% !important;
+    font-size: 16px !important; /* Prevents iOS zoom */
+    padding: 12px !important;
+    margin: 5px 0 !important;
+  }
+
+  /* Tables - horizontal scroll */
+  .table-container,
+  table {
+    width: 100% !important;
+    overflow-x: auto !important;
+    display: block !important;
+  }
+
+  /* Video player - responsive */
+  .video-container,
+  .video-player,
+  iframe {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+  }
+
+  /* Community layout */
+  .community-container {
+    flex-direction: column !important;
+  }
+
+  .community-sidebar {
+    width: 100% !important;
+    margin-bottom: 20px !important;
+  }
+
+  .community-main {
+    width: 100% !important;
+  }
+
+  /* Filters - stack */
+  .filters-container,
+  .filter-group {
+    flex-direction: column !important;
+  }
+
+  .filter-select {
+    width: 100% !important;
+    margin: 5px 0 !important;
+  }
+
+  /* Search bar */
+  .search-bar,
+  .search-container {
+    width: 100% !important;
+  }
+
+  .search-input {
+    width: 100% !important;
+  }
+
+  /* Buttons */
+  .btn,
+  .primary-btn,
+  .secondary-btn {
+    width: 100% !important;
+    padding: 12px !important;
+    margin: 5px 0 !important;
+  }
+
+  /* Hero section */
+  .hero-content {
+    padding: 15px !important;
+  }
+
+  .hero-content h1 {
+    font-size: 1.8rem !important;
+  }
+
+  .hero-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  /* Footer */
+  .footer-container {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+
+  .footer-col {
+    width: 100% !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Modals */
+  .modal-content {
+    width: 95% !important;
+    max-width: 95vw !important;
+    margin: 10px !important;
+  }
+
+  /* Help/FAQ */
+  .faq-list,
+  .contact-form {
+    width: 100% !important;
+  }
+
+  /* Mentorship cards */
+  .mentors-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .mentor-card {
+    width: 100% !important;
+  }
+
+  /* Typography mobile */
+  h1 { font-size: 24px !important; }
+  h2 { font-size: 20px !important; }
+  h3 { font-size: 18px !important; }
+  p { font-size: 14px !important; }
+}
+
+/* ========================================
+   TABLET (768px - 1023px)
+   ======================================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container,
+  .page-container {
+    max-width: 720px !important;
+    padding: 20px !important;
+  }
+
+  /* Grid - 2 columns */
+  .courses-grid,
+  .mentors-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  /* Dashboard */
+  .sidebar {
+    width: 220px !important;
+  }
+
+  .dashboard-main {
+    width: calc(100% - 240px) !important;
+  }
+
+  /* Stats - 2 columns */
+  .stats-section {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px !important;
+  }
+
+  /* Charts */
+  .charts-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ========================================
+   DESKTOP (1024px - 1439px)
+   ======================================== */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .container,
+  .page-container {
+    max-width: 1200px !important;
+  }
+
+  .courses-grid,
+  .mentors-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .stats-section {
+    display: flex !important;
+    gap: 20px !important;
+  }
+}
+
+/* ========================================
+   LARGE DESKTOP (1440px+)
+   ======================================== */
+@media (min-width: 1440px) {
+  .container,
+  .page-container {
+    max-width: 1400px !important;
+  }
+
+  .courses-grid,
+  .mentors-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* ========================================
+   LANDSCAPE MOBILE FIX
+   ======================================== */
+@media (max-width: 767px) and (orientation: landscape) {
+  .hero {
+    height: auto !important;
+    min-height: 100vh !important;
+  }
+
+  .navbar {
+    position: sticky !important;
+    top: 0 !important;
+  }
+}
+
+/* ========================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ======================================== */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  button,
+  a,
+  .btn,
+  .nav-item {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 12px !important;
+  }
+}
+
+/* ========================================
+   RTL (Arabic) RESPONSIVE
+   ======================================== */
+@media (max-width: 767px) {
+  [dir="rtl"] .sidebar,
+  .rtl .sidebar {
+    width: 100% !important;
+  }
+
+  [dir="rtl"] .dashboard-main,
+  .rtl .dashboard-main {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+@media print {
+  .navbar,
+  .sidebar,
+  .footer,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  .dashboard-main,
+  .main-content {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+}
