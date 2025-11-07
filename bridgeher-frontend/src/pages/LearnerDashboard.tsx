@@ -483,7 +483,7 @@ const LearnerDashboard: React.FC = () => {
                     playUiSound(sound, 'success');
                   } catch (err) {
                     console.error('Notification error:', err);
-                    alert('Notification failed: ' + err.message);
+                    alert('Notification failed: ' + (err as Error).message);
                   }
                 } else if (Notification.permission === 'denied') {
                   alert(isAr ? 'التنبيهات محظورة. يرجى تفعيلها من إعدادات المتصفح' : 'Notifications blocked. Please enable in browser settings');
@@ -499,14 +499,14 @@ const LearnerDashboard: React.FC = () => {
                         playUiSound(sound, 'success');
                       } catch (err) {
                         console.error('Notification error:', err);
-                        alert('Notification failed: ' + err.message);
+                        alert('Notification failed: ' + (err as Error).message);
                       }
                     } else {
                       alert(isAr ? 'تم رفض التنبيهات' : 'Notification permission denied');
                     }
                   }).catch(err => {
                     console.error('Permission error:', err);
-                    alert('Error: ' + err.message);
+                    alert('Error: ' + (err as Error).message);
                   });
                 }
               }}

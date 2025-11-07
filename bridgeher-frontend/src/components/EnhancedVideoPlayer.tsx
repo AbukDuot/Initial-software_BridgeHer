@@ -218,7 +218,7 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
     }
   };
   
-  const handleQualityChange = (quality: string, url: string) => {
+  const handleQualityChange = (_quality: string, url: string) => {
     const currentTime = videoRef.current?.currentTime || 0;
     setCurrentVideoUrl(url);
     
