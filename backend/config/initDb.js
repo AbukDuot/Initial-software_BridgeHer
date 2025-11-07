@@ -312,8 +312,8 @@ const initDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
       CREATE INDEX IF NOT EXISTS idx_modules_course ON modules(course_id);
       CREATE INDEX IF NOT EXISTS idx_assignments_module ON assignments(module_id);
-      CREATE INDEX IF NOT EXISTS idx_mentorship_requester ON mentorship_requests(requester_id);
-      CREATE INDEX IF NOT EXISTS idx_mentorship_mentor ON mentorship_requests(mentor_id);
+      -- CREATE INDEX IF NOT EXISTS idx_mentorship_requester ON mentorship_requests(requester_id);
+      -- CREATE INDEX IF NOT EXISTS idx_mentorship_mentor ON mentorship_requests(mentor_id);
     `);
 
     console.log('Database tables created successfully');

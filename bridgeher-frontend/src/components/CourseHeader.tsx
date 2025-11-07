@@ -27,7 +27,7 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({
   descriptionAr,
   category,
   level,
-  duration,
+  duration: _duration,
   weeks = 4,
   hoursPerWeek = 3,
   estimatedHours,

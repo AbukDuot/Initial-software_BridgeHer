@@ -71,7 +71,7 @@ function App() {
             <CookieBanner language="English" />
 
             <main className="flex-grow-1">
-              {process.env.NODE_ENV === 'development' && <FeatureTest />}
+              {import.meta.env.DEV && <FeatureTest />}
               <Suspense fallback={<div style={{textAlign: 'center', padding: '50px'}}>Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Home />} />

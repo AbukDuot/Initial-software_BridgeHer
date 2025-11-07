@@ -30,7 +30,7 @@ const Courses: React.FC = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
-  const [enrolling, setEnrolling] = useState<number | null>(null);
+  const [, setEnrolling] = useState<number | null>(null);
   const [previewCourse, setPreviewCourse] = useState<number | null>(null);
 
   const t = coursesTranslations[language];
