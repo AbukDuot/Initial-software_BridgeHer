@@ -1,0 +1,70 @@
+.course-recommendations {
+  margin-top: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.course-recommendations h3 {
+  color: var(--purple-light);
+  margin-bottom: var(--space-lg);
+}
+
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+
+.recommendation-card {
+  background: var(--bg-primary);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.recommendation-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.recommendation-card h4 {
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.recommendation-card p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: var(--space-md);
+}
+
+.course-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.view-btn {
+  width: 100%;
+  padding: 8px;
+  background: var(--purple-light);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-normal);
+}
+
+.view-btn:hover {
+  background: var(--gold-dark);
+  color: var(--purple-light);
+}
+
+.course-recommendations.rtl {
+  direction: rtl;
+}

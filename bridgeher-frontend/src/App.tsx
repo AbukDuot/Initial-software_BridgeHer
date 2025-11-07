@@ -28,6 +28,7 @@ const TopicDetail = lazy(() => import("./pages/TopicDetail"));
 const AdminReports = lazy(() => import("./pages/AdminReports"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const Bookmarks = lazy(() => import("./pages/Bookmarks"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 
 import { UserProvider } from "./context/UserContext";
 import { LanguageProvider } from "./context/LanguageContext";
@@ -37,6 +38,7 @@ import Footer from "./components/Footer";
 import CookieBanner from "./components/CookieBanner";
 import ErrorBoundary from "./components/ErrorBoundary";
 import OfflineIndicator from "./components/OfflineIndicator";
+import FeatureTest from "./components/FeatureTest";
 const OfflineBanner: React.FC = () => {
   const { isOnline } = useAppContext();
   if (isOnline) return null;
@@ -69,6 +71,7 @@ function App() {
             <CookieBanner language="English" />
 
             <main className="flex-grow-1">
+              {process.env.NODE_ENV === 'development' && <FeatureTest />}
               <Suspense fallback={<div style={{textAlign: 'center', padding: '50px'}}>Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -108,6 +111,7 @@ function App() {
                 <Route path="/admin-reports" element={<AdminReports />} />
                 <Route path="/user/:userId" element={<UserProfile />} />
                 <Route path="/bookmarks" element={<Bookmarks />} />
+                <Route path="/change-password" element={<ChangePassword />} />
               </Routes>
               </Suspense>
             </main>

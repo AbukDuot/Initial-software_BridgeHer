@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import ModuleQuizSimple from "../components/ModuleQuizSimple";
 import "../styles/moduleDetail.css";
 
 interface Module {
@@ -37,6 +38,7 @@ const ModuleDetail: React.FC = () => {
   const [submissionText, setSubmissionText] = useState("");
   const [submissionFile, setSubmissionFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showQuiz, setShowQuiz] = useState(false);
 
   useEffect(() => {
     loadModule();
@@ -96,22 +98,32 @@ const ModuleDetail: React.FC = () => {
 
   const markModuleComplete = async () => {
     if (!module) return;
+    setShowQuiz(true);
+  };
+
+  const handleQuizComplete = async (passed: boolean) => {
+    if (!module) return;
     
-    try {
-      const token = localStorage.getItem("token");
-      await fetch(`${API_BASE_URL}/api/modules/${module.id}/complete`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ completed: true }),
-      });
-      
-      alert(isArabic ? "تم إكمال الوحدة!" : "Module completed!");
-      handleNextModule();
-    } catch (err) {
-      console.error("Failed to mark complete", err);
+    if (passed) {
+      try {
+        const token = localStorage.getItem("token");
+        await fetch(`${API_BASE_URL}/api/modules/${module.id}/complete`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ completed: true }),
+        });
+        
+        alert(isArabic ? "تم إكمال الوحدة!" : "Module completed!");
+        setShowQuiz(false);
+        handleNextModule();
+      } catch (err) {
+        console.error("Failed to mark complete", err);
+      }
+    } else {
+      alert(isArabic ? "يجب اجتياز الاختبار لإكمال الوحدة" : "You must pass the quiz to complete the module");
     }
   };
 
@@ -185,6 +197,9 @@ const ModuleDetail: React.FC = () => {
       <div className="module-header">
         <h2>{module.title}</h2>
         <p>{module.description}</p>
+        <div style={{background: '#FFD700', color: '#4A148C', padding: '10px', borderRadius: '5px', margin: '10px 0', fontWeight: 'bold', textAlign: 'center'}}>
+          🎯 {isArabic ? 'الاختبار متاح في نهاية هذه الصفحة!' : 'Quiz available at the bottom of this page!'}
+        </div>
       </div>
 
       {/* Video Player */}
@@ -198,34 +213,25 @@ const ModuleDetail: React.FC = () => {
               allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
-          ) : module.video_url.startsWith('http') ? (
-            <video 
-              controls 
-              src={module.video_url} 
-              style={{ width: '100%', maxHeight: '500px' }}
-              onError={(e) => {
-                const target = e.target as HTMLVideoElement;
-                if (!navigator.onLine) {
-                  target.style.display = 'none';
-                  const msg = document.createElement('div');
-                  msg.style.cssText = 'padding: 40px; text-align: center; background: #fff3cd; border-radius: 8px; color: #856404;';
-                  msg.innerHTML = `<h3>📡 ${isArabic ? 'غير متصل' : 'Offline'}</h3><p>${isArabic ? 'هذا الفيديو غير متاح دون اتصال. قم بتنزيل الدورة أولاً.' : 'This video is not available offline. Download the course first using the download button on the course page.'}</p>`;
-                  target.parentElement?.appendChild(msg);
-                }
-              }}
-            />
           ) : (
             <video 
               controls 
-              src={`${API_BASE_URL}${module.video_url}`} 
+              src={module.video_url.startsWith('http') ? module.video_url : `${API_BASE_URL}${module.video_url}`}
               style={{ width: '100%', maxHeight: '500px' }}
               onError={(e) => {
+                console.error('Video load error:', module.video_url);
                 const target = e.target as HTMLVideoElement;
                 if (!navigator.onLine) {
                   target.style.display = 'none';
                   const msg = document.createElement('div');
                   msg.style.cssText = 'padding: 40px; text-align: center; background: #fff3cd; border-radius: 8px; color: #856404;';
-                  msg.innerHTML = `<h3>📡 ${isArabic ? 'غير متصل' : 'Offline'}</h3><p>${isArabic ? 'هذا الفيديو غير متاح دون اتصال. قم بتنزيل الدورة أولاً من صفحة الدورة.' : 'This video is not available offline. Download the course first using the download button on the course page.'}</p>`;
+                  msg.innerHTML = `<h3>📡 ${isArabic ? 'غير متصل' : 'Offline'}</h3><p>${isArabic ? 'هذا الفيديو غير متاح دون اتصال. قم بتنزيل الدورة أولاً.' : 'This video is not available offline. Download the course first.'}</p>`;
+                  target.parentElement?.appendChild(msg);
+                } else {
+                  target.style.display = 'none';
+                  const msg = document.createElement('div');
+                  msg.style.cssText = 'padding: 40px; text-align: center; background: #ffebee; border-radius: 8px; color: #c62828;';
+                  msg.innerHTML = `<h3>❌ ${isArabic ? 'خطأ في تحميل الفيديو' : 'Video Load Error'}</h3><p>${isArabic ? 'تعذر تحميل الفيديو. يرجى المحاولة لاحقاً.' : 'Failed to load video. Please try again later.'}</p>`;
                   target.parentElement?.appendChild(msg);
                 }
               }}
@@ -291,15 +297,29 @@ const ModuleDetail: React.FC = () => {
           {showNotes ? (isArabic ? "إخفاء المحتوى" : "Hide Content") : (isArabic ? "عرض المحتوى" : "View Content")}
         </button>
 
-        {canProceed ? (
+        <button 
+          onClick={() => setShowQuiz(true)}
+          style={{
+            background: '#FFD700',
+            color: '#4A148C',
+            border: '3px solid #4A148C',
+            padding: '15px 25px',
+            borderRadius: '8px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+            margin: '10px 0'
+          }}
+        >
+          📝 {isArabic ? "اختبار الوحدة" : "MODULE QUIZ"}
+        </button>
+        
+        {canProceed && (
           <button className="btn next-btn" onClick={markModuleComplete}>
             {allModules.findIndex(m => m.id === module.id) + 1 < allModules.length
               ? (isArabic ? "الوحدة التالية" : "Next Module")
               : (isArabic ? "إنهاء الدورة" : "Finish Course")}
-          </button>
-        ) : (
-          <button className="btn disabled" disabled>
-            🔒 {isArabic ? "أكمل الواجب أولاً" : "Complete Assignment First"}
           </button>
         )}
       </div>
@@ -318,6 +338,17 @@ const ModuleDetail: React.FC = () => {
         </div>
         <p>{allModules.filter(m => m.completed).length} / {allModules.length} {isArabic ? "مكتمل" : "completed"}</p>
       </div>
+
+      {/* Quiz Modal */}
+      {showQuiz && (
+        <ModuleQuizSimple
+          moduleId={module.id}
+          moduleTitle={module.title}
+          onQuizComplete={handleQuizComplete}
+          onClose={() => setShowQuiz(false)}
+          isArabic={isArabic}
+        />
+      )}
     </section>
   );
 };

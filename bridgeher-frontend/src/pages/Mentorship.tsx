@@ -234,24 +234,38 @@ const Mentorship: React.FC = () => {
   const confirmRequest = async () => {
     if (!modalMentor) return;
     
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please login first");
+      return;
+    }
+    
+    const requestData = {
+      mentor_id: modalMentor.id,
+      topic: modalMentor.role,
+      message: message || "Mentorship request"
+    };
+    
+    if (!navigator.onLine) {
+      const { queueOfflineAction } = await import("../utils/offline");
+      queueOfflineAction({
+        type: 'MENTORSHIP_REQUEST',
+        data: { ...requestData, mentorName: modalMentor.name },
+        timestamp: new Date().toISOString()
+      });
+      alert(lang === "ar" ? "📱 تم حفظ الطلب. سيتم إرساله عند الاتصال بالإنترنت." : "📱 Request queued. Will send when online.");
+      setModalMentor(null);
+      return;
+    }
+    
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please login first");
-        return;
-      }
-      
       const res = await fetch(`${API_BASE_URL}/api/mentorship`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({
-          mentor_id: modalMentor.id,
-          topic: modalMentor.role,
-          message: message || "Mentorship request"
-        })
+        body: JSON.stringify(requestData)
       });
       
       if (res.ok) {

@@ -17,6 +17,7 @@ const STORAGE_KEYS = {
   USER_PROGRESS: 'bridgeher_user_progress',
   QUIZ_ATTEMPTS: 'bridgeher_quiz_attempts',
   CERTIFICATES: 'bridgeher_certificates',
+  OFFLINE_QUEUE: 'bridgeher_offline_queue',
 };
 
 export const saveCourseOffline = (courseId: number, courseData: CourseData) => {
@@ -27,6 +28,7 @@ export const saveCourseOffline = (courseId: number, courseData: CourseData) => {
       downloadedAt: new Date().toISOString(),
     };
     localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(courses));
+    console.log(`✅ Course ${courseId} saved offline:`, courses[courseId]);
     return true;
   } catch (error) {
     console.error('Error saving course offline:', error);
@@ -150,7 +152,9 @@ export const getCertificates = () => {
 
 export const isCourseOffline = (courseId: number) => {
   const courses = getOfflineCourses();
-  return !!courses[courseId];
+  const isOffline = !!courses[courseId];
+  console.log(`📱 Course ${courseId} offline status:`, isOffline);
+  return isOffline;
 };
 
 
@@ -202,6 +206,39 @@ export const clearOfflineData = () => {
     return true;
   } catch (error) {
     console.error('Error clearing offline data:', error);
+    return false;
+  }
+};
+
+
+// Queue offline actions
+export const queueOfflineAction = (action: { type: string; data: any; timestamp: string }) => {
+  try {
+    const queue = JSON.parse(localStorage.getItem(STORAGE_KEYS.OFFLINE_QUEUE) || '[]');
+    queue.push(action);
+    localStorage.setItem(STORAGE_KEYS.OFFLINE_QUEUE, JSON.stringify(queue));
+    return true;
+  } catch (error) {
+    console.error('Error queuing action:', error);
+    return false;
+  }
+};
+
+export const getOfflineQueue = () => {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.OFFLINE_QUEUE) || '[]');
+  } catch (error) {
+    console.error('Error getting queue:', error);
+    return [];
+  }
+};
+
+export const clearOfflineQueue = () => {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.OFFLINE_QUEUE);
+    return true;
+  } catch (error) {
+    console.error('Error clearing queue:', error);
     return false;
   }
 };

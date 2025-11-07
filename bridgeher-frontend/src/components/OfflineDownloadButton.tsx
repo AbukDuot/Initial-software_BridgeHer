@@ -15,25 +15,29 @@ const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({ courseId,
     setDownloading(true);
     setProgress(0);
 
-    // Listen for progress updates
+    // Listen for progress updates from Service Worker
     const handleMessage = (event: MessageEvent) => {
       const { data } = event;
-      if (data.type === 'DOWNLOAD_PROGRESS' && data.courseId === courseId) {
+      if (data.type === 'DOWNLOAD_PROGRESS' && String(data.courseId) === String(courseId)) {
         setProgress(data.progress);
       }
-      if (data.type === 'DOWNLOAD_COMPLETE' && data.courseId === courseId) {
+      if (data.type === 'DOWNLOAD_COMPLETE' && String(data.courseId) === String(courseId)) {
         setDownloading(false);
         if (data.success) {
           setDownloaded(true);
-          alert(`✅ ${courseName} downloaded for offline use!`);
+          alert(`✅ ${courseName} is now available offline!\n\n📱 You can now:\n• Turn off your internet\n• Access this course anytime\n• Watch videos offline\n\nJust visit this course page when offline!`);
         } else {
           alert(`❌ Download failed: ${data.message}`);
         }
-        window.removeEventListener('message', handleMessage);
+        navigator.serviceWorker.removeEventListener('message', handleMessage);
+      }
+      // Handle token request from SW
+      if (data.type === 'GET_TOKEN') {
+        event.ports[0].postMessage({ token: localStorage.getItem('token') });
       }
     };
 
-    window.addEventListener('message', handleMessage);
+    navigator.serviceWorker.addEventListener('message', handleMessage);
 
     try {
       await downloadCourseForOffline(courseId);
@@ -41,26 +45,34 @@ const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({ courseId,
       console.error('Download error:', error);
       setDownloading(false);
       alert('❌ Download failed. Please try again.');
-      window.removeEventListener('message', handleMessage);
+      navigator.serviceWorker.removeEventListener('message', handleMessage);
     }
   };
 
   if (downloaded) {
     return (
-      <button 
-        style={{
-          background: '#2E7D32',
-          color: 'white',
-          padding: '10px 20px',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'default',
-          fontWeight: '600'
-        }}
-        disabled
-      >
-        ✓ Available Offline
-      </button>
+      <div style={{ textAlign: 'center' }}>
+        <button 
+          style={{
+            background: '#2E7D32',
+            color: 'white',
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'default',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+          disabled
+        >
+          ✓ Available Offline
+        </button>
+        <small style={{ color: '#2E7D32', marginTop: '5px', display: 'block', fontSize: '12px' }}>
+          📱 Access anytime, even without internet
+        </small>
+      </div>
     );
   }
 

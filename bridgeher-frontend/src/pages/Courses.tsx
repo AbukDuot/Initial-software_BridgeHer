@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { useToast } from "../hooks/useToast";
 import Toast from "../components/Toast";
+import CoursePreview from "../components/CoursePreview";
+import EnhancedSearch from "../components/EnhancedSearch";
 import LoadingSpinner from "../components/LoadingSpinner";
+import EnhancedCourseCard from "../components/EnhancedCourseCard";
 import coursesTranslations from "../i18n/coursesTranslations";
 import { API_BASE_URL } from "../config/api";
 import "../styles/courses.css";
@@ -29,6 +31,7 @@ const Courses: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<Course[]>([]);
   const [enrolling, setEnrolling] = useState<number | null>(null);
+  const [previewCourse, setPreviewCourse] = useState<number | null>(null);
 
   const t = coursesTranslations[language];
 
@@ -87,47 +90,18 @@ const Courses: React.FC = () => {
   };
 
   const filteredCourses = useMemo(() => {
-    let filtered = courses.filter(
-      (course) => {
-        // Category filter
-        let matchesCategory = category === "All";
-        if (!matchesCategory) {
-          const categoryMap: Record<string, string> = {
-            "Finance": language === "Arabic" ? "المالية" : "Finance",
-            "Business": language === "Arabic" ? "الأعمال" : "Business",
-            "Tech": language === "Arabic" ? "التكنولوجيا" : "Technology",
-            "Leadership": language === "Arabic" ? "القيادة" : "Leadership"
-          };
-          matchesCategory = course.category === categoryMap[category];
-        }
-        
-        // Level filter
-        let matchesLevel = level === "All";
-        if (!matchesLevel) {
-          const levelMap: Record<string, string> = {
-            "Beginner": language === "Arabic" ? "مبتدئ" : "Beginner",
-            "Intermediate": language === "Arabic" ? "متوسط" : "Intermediate",
-            "Advanced": language === "Arabic" ? "متقدم" : "Advanced"
-          };
-          matchesLevel = course.level === levelMap[level];
-        }
-        
-        // Search filter
-        const matchesSearch = search === "" || 
-          course.title.toLowerCase().includes(search.toLowerCase()) ||
-          course.description.toLowerCase().includes(search.toLowerCase()) ||
-          course.mentor.toLowerCase().includes(search.toLowerCase());
-          
-        return matchesCategory && matchesLevel && matchesSearch;
-      }
-    );
+    let filtered = courses.filter((course) => {
+      const matchesCategory = category === "All" || course.category === category;
+      const matchesLevel = level === "All" || course.level === level;
+      const matchesSearch = search === "" || 
+        course.title.toLowerCase().includes(search.toLowerCase()) ||
+        course.description.toLowerCase().includes(search.toLowerCase()) ||
+        course.mentor.toLowerCase().includes(search.toLowerCase());
+      return matchesCategory && matchesLevel && matchesSearch;
+    });
 
-  
     if (sortBy === "newest") {
       filtered = [...filtered].reverse();
-    } else if (sortBy === "popular") {
-      
-      filtered = [...filtered];
     } else if (sortBy === "title") {
       filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
     }
@@ -139,8 +113,8 @@ const Courses: React.FC = () => {
     <section className="courses-page">
       <div className="courses-header">
         <h2>{t.pageTitle}</h2>
+        <p>{t.intro}</p>
       </div>
-      <p>{t.intro}</p>
 
       {toasts.map((toast) => (
         <Toast
@@ -151,18 +125,11 @@ const Courses: React.FC = () => {
         />
       ))}
 
-      {/* Enhanced Filters */}
       <div className="filters-container">
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder={t.searchPlaceholder}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="search-input"
-          />
-          <span className="search-icon">🔍</span>
-        </div>
+        <EnhancedSearch
+          onSearch={setSearch}
+          placeholder={t.searchPlaceholder}
+        />
         
         <div className="filter-group">
           <select value={category} onChange={(e) => setCategory(e.target.value)} className="filter-select">
@@ -194,7 +161,6 @@ const Courses: React.FC = () => {
         </div>
       </div>
 
-      {/* Course Grid */}
       {loading ? (
         <LoadingSpinner size="large" message={language === "Arabic" ? "جارٍ تحميل الدورات..." : "Loading courses..."} />
       ) : filteredCourses.length === 0 ? (
@@ -202,32 +168,35 @@ const Courses: React.FC = () => {
           <p>{language === "Arabic" ? "لا توجد دورات متاحة" : "No courses found"}</p>
         </div>
       ) : (
-        <div className={`courses-grid ${language === "Arabic" ? "rtl" : ""}`}>
-        {filteredCourses.map((course) => (
-          <div key={course.id} className="course-card">
-            <h3>{course.title}</h3>
-            <p className="category">{course.category}</p>
-            <p>{course.description}</p>
-            <p><strong> {course.mentor}</strong></p>
-            <p><strong> {course.level}</strong> |  {course.duration}</p>
-            {course.enrolled ? (
-              <Link to={`/course-player/${course.id}`} className="details-btn">
-                {t.viewCourse}
-              </Link>
-            ) : (
-              <button 
-                onClick={() => handleEnroll(course.id)} 
-                className="details-btn"
-                disabled={enrolling === course.id}
-              >
-                {enrolling === course.id 
-                  ? (language === "Arabic" ? "جارٍ التسجيل..." : "Enrolling...") 
-                  : (language === "Arabic" ? "التسجيل" : "Enroll")}
-              </button>
-            )}
-          </div>
-        ))}
+        <div className="courses-grid" style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '24px', padding: '20px 0'}}>
+          {filteredCourses.map((course) => (
+            <EnhancedCourseCard
+              key={course.id}
+              id={course.id}
+              title={course.title}
+              description={course.description}
+              category={course.category}
+              level={course.level}
+              duration={course.duration}
+              instructor={course.mentor}
+              enrolled={course.enrolled}
+              language={language}
+              onEnroll={handleEnroll}
+              onPreview={setPreviewCourse}
+            />
+          ))}
         </div>
+      )}
+      
+      {previewCourse && (
+        <CoursePreview
+          courseId={previewCourse.toString()}
+          onEnroll={() => {
+            handleEnroll(previewCourse);
+            setPreviewCourse(null);
+          }}
+          onClose={() => setPreviewCourse(null)}
+        />
       )}
     </section>
   );

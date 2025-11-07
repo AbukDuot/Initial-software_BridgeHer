@@ -48,6 +48,44 @@ h2 {
   box-shadow: 0 4px 12px rgba(255,215,0,0.3);
 }
 
+.preview-btn {
+  background: transparent;
+  color: #4a148c;
+  border: 2px solid #4a148c;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.preview-btn:hover {
+  background: #4a148c;
+  color: white;
+}
+
+.certificate-preview-section {
+  margin: 20px 0;
+}
+
+.certificate-preview-btn {
+  background: transparent;
+  color: #4a148c;
+  border: 2px solid #4a148c;
+  padding: 10px 25px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.certificate-preview-btn:hover {
+  background: #4a148c;
+  color: white;
+}
+
 .enroll-btn:hover {
   background: #4a148c;
   color: #ffd700;
@@ -129,6 +167,47 @@ h2 {
 .rtl {
   direction: rtl;
   text-align: right;
+}
+
+.course-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+  font-size: 16px;
+}
+
+.course-rating .stars {
+  color: #FFD700;
+  font-size: 20px;
+}
+
+.instructor-info {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.instructor-info h3 {
+  color: #4a148c;
+  margin-bottom: 10px;
+}
+
+.instructor-info p {
+  margin: 5px 0;
+}
+
+.learning-objectives {
+  background: #f0f4ff;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.learning-objectives h3 {
+  color: #4a148c;
+  margin-bottom: 10px;
 }
 
 .loading, .error {

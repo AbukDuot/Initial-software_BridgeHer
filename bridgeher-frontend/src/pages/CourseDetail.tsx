@@ -3,6 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
 import OfflineDownloadButton from "../components/OfflineDownloadButton";
+import CourseReviews from "../components/CourseReviews";
+import CoursePreview from "../components/CoursePreview";
+import CourseRecommendations from "../components/CourseRecommendations";
+import CertificatePreview from "../components/CertificatePreview";
 import "../styles/courseDetail.css";
 
 interface Module {
@@ -21,6 +25,15 @@ interface CourseData {
   descriptionEn: string;
   descriptionAr: string;
   modules: Module[];
+  instructor_name?: string;
+  instructor_bio?: string;
+  instructor_credentials?: string;
+  instructor_expertise?: string;
+  average_rating?: number;
+  total_reviews?: number;
+  estimated_hours?: number;
+  prerequisites?: string;
+  learning_objectives?: string;
 }
 
 const CourseDetail: React.FC = () => {
@@ -33,6 +46,9 @@ const CourseDetail: React.FC = () => {
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [enrolled, setEnrolled] = useState(false);
+  const [isOfflineAvailable, setIsOfflineAvailable] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
   
   const allCourses: CourseData[] = [
     {
@@ -149,7 +165,14 @@ const CourseDetail: React.FC = () => {
 
   useEffect(() => {
     loadCourse();
+    checkOfflineAvailability();
   }, [id]);
+
+  const checkOfflineAvailability = async () => {
+    if (!id) return;
+    const { isCourseOffline } = await import('../utils/offline');
+    setIsOfflineAvailable(isCourseOffline(Number(id)));
+  };
 
   const loadCourse = async () => {
     try {
@@ -240,6 +263,7 @@ const CourseDetail: React.FC = () => {
     enroll: isAr ? "التسجيل في الدورة" : "Enroll in Course",
     enrolled: isAr ? "مسجل" : "Enrolled",
     startLearning: isAr ? "ابدأ التعلم" : "Start Learning",
+    previewCertificate: isAr ? "معاينة الشهادة" : "Preview Certificate",
   };
 
   return (
@@ -251,23 +275,75 @@ const CourseDetail: React.FC = () => {
 
         <h2>{isAr ? course.titleAr : course.titleEn}</h2>
         <p className="desc">{isAr ? course.descriptionAr : course.descriptionEn}</p>
+        
+        {course.average_rating && (
+          <div className="course-rating">
+            <span className="stars">{'⭐'.repeat(Math.round(course.average_rating))}</span>
+            <span>{course.average_rating.toFixed(1)} ({course.total_reviews} reviews)</span>
+          </div>
+        )}
+        
+        {course.instructor_name && (
+          <div className="instructor-info">
+            <h3>Instructor</h3>
+            <p><strong>{course.instructor_name}</strong></p>
+            {course.instructor_bio && <p>{course.instructor_bio}</p>}
+            {course.instructor_credentials && <p><em>{course.instructor_credentials}</em></p>}
+          </div>
+        )}
+        
+        {course.learning_objectives && (
+          <div className="learning-objectives">
+            <h3>What You'll Learn</h3>
+            <p>{course.learning_objectives}</p>
+          </div>
+        )}
+        
+        <div className="certificate-preview-section">
+          <button 
+            className="certificate-preview-btn"
+            onClick={() => setShowCertificate(true)}
+          >
+            🏆 {t.previewCertificate}
+          </button>
+        </div>
 
-        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '20px', alignItems: 'center' }}>
           {!enrolled ? (
-            <button className="enroll-btn" onClick={handleEnroll}>
-              {t.enroll}
-            </button>
+            <>
+              <button className="preview-btn" onClick={() => setShowPreview(true)}>
+                👁️ {isAr ? 'معاينة الدورة' : 'Preview Course'}
+              </button>
+              <button className="enroll-btn" onClick={handleEnroll}>
+                {t.enroll}
+              </button>
+            </>
           ) : (
             <div className="enrolled-badge">
               ✓ {t.enrolled}
             </div>
           )}
           
-          {enrolled && (
+          {enrolled && !isOfflineAvailable && (
             <OfflineDownloadButton 
               courseId={id || ''} 
               courseName={isAr ? course.titleAr : course.titleEn} 
             />
+          )}
+          
+          {isOfflineAvailable && (
+            <div style={{
+              background: '#2E7D32',
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              📱 {isAr ? 'متاح دون اتصال' : 'Available Offline'}
+            </div>
           )}
         </div>
 
@@ -296,9 +372,10 @@ const CourseDetail: React.FC = () => {
                     </button>
                     <button
                       className="btn outline"
-                      onClick={() => navigate(`/quiz/${course.id}?module=${m.id}`)}
+                      onClick={() => navigate(`/course/${course.id}/module/${m.id}`)}
+                      style={{background: '#FFD700', color: '#4A148C', fontWeight: 'bold'}}
                     >
-                      {t.startQuiz}
+                      📝 {t.startQuiz}
                     </button>
                   </>
                 ) : (
@@ -310,6 +387,29 @@ const CourseDetail: React.FC = () => {
             </div>
           ))}
         </div>
+        
+        <CourseReviews courseId={Number(id)} isEnrolled={enrolled} />
+        
+        <CourseRecommendations courseId={id || ''} />
+        
+        {showPreview && (
+          <CoursePreview 
+            courseId={id || ''}
+            onEnroll={() => {
+              handleEnroll();
+              setShowPreview(false);
+            }}
+            onClose={() => setShowPreview(false)}
+          />
+        )}
+        
+        {showCertificate && (
+          <CertificatePreview
+            courseName={isAr ? course.titleAr : course.titleEn}
+            userName="Your Name"
+            onClose={() => setShowCertificate(false)}
+          />
+        )}
       </div>
     </section>
   );

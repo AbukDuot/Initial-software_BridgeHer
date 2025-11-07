@@ -1,0 +1,206 @@
+.course-preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.course-preview-modal {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.preview-header h2 {
+  margin: 0;
+  color: var(--purple-light);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 5px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: var(--gray-light);
+}
+
+.preview-content {
+  padding: var(--space-lg);
+}
+
+.preview-content h3 {
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+}
+
+.course-description {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-lg);
+  line-height: 1.6;
+}
+
+.preview-video {
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.course-details {
+  display: grid;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.detail-item strong {
+  color: var(--text-primary);
+  min-width: 80px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.learning-objectives,
+.prerequisites,
+.syllabus {
+  margin-bottom: var(--space-lg);
+}
+
+.learning-objectives h4,
+.prerequisites h4,
+.syllabus h4 {
+  color: var(--purple-light);
+  margin-bottom: var(--space-sm);
+  font-size: 16px;
+}
+
+.syllabus-content {
+  background: var(--bg-secondary);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  white-space: pre-line;
+}
+
+.preview-actions {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-top: 1px solid var(--border-light);
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  border: none;
+}
+
+.btn.primary {
+  background: var(--purple-light);
+  color: white;
+}
+
+.btn.primary:hover {
+  background: var(--gold-dark);
+  color: var(--purple-light);
+}
+
+.btn.secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
+}
+
+.btn.secondary:hover {
+  background: var(--gray-light);
+}
+
+.preview-loading,
+.preview-error {
+  padding: var(--space-xl);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* RTL Support */
+.course-preview-modal.rtl {
+  direction: rtl;
+}
+
+.course-preview-modal.rtl .preview-header {
+  flex-direction: row-reverse;
+}
+
+.course-preview-modal.rtl .detail-item {
+  flex-direction: row-reverse;
+}
+
+.course-preview-modal.rtl .preview-actions {
+  justify-content: flex-start;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .course-preview-overlay {
+    padding: 10px;
+  }
+  
+  .course-preview-modal {
+    max-height: 95vh;
+  }
+  
+  .preview-header,
+  .preview-content,
+  .preview-actions {
+    padding: var(--space-md);
+  }
+  
+  .preview-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}

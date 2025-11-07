@@ -7,6 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import adminDashboardTranslations from "../i18n/adminDashboardTranslations";
 import { toArabicNumerals } from "../utils/numberUtils";
 import { API_BASE_URL } from "../config/api";
+import ModuleVideoManager from "../components/ModuleVideoManager";
 import "../styles/adminDashboard.css";
 
 const playUiSound = (enabled: boolean) => {
@@ -77,6 +78,7 @@ const AdminDashboard: React.FC = () => {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [userForm, setUserForm] = useState({ name: "", email: "", role: "Learner", status: "Active" });
   const [courseForm, setCourseForm] = useState({ title: "", enrollments: 0, status: "Active" });
+  const [showVideoManager, setShowVideoManager] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -380,6 +382,9 @@ const AdminDashboard: React.FC = () => {
             <button className="btn primary" onClick={() => navigate('/admin-course-upload')}>
               📹 {isArabic ? 'رفع دورة بالفيديو' : 'Upload Course with Videos'}
             </button>
+            <button className="btn primary" onClick={() => setShowVideoManager(true)}>
+              🎬 {isArabic ? 'إدارة فيديوهات الوحدات' : 'Manage Module Videos'}
+            </button>
             <button className="btn primary" onClick={handleAddCourse}>{t.addCourse}</button>
           </div>
         </div>
@@ -474,6 +479,18 @@ const AdminDashboard: React.FC = () => {
             <button className="btn primary" onClick={handleSaveCourse}>{isArabic ? "حفظ" : "Save"}</button>
             <button className="btn" onClick={() => setShowCourseModal(false)}>{isArabic ? "إلغاء" : "Cancel"}</button>
           </div>
+        </div>
+      </div>
+    )}
+    
+    {showVideoManager && (
+      <div className="modal-overlay" onClick={() => setShowVideoManager(false)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10000, padding: '20px'}}>
+        <div className="modal" onClick={(e) => e.stopPropagation()} style={{width: '90%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto', background: 'white', borderRadius: '12px'}}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', borderBottom: '1px solid #eee'}}>
+            <h3 style={{margin: 0}}>{isArabic ? 'إدارة فيديوهات الوحدات' : 'Module Video Manager'}</h3>
+            <button onClick={() => setShowVideoManager(false)} style={{background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer'}}>×</button>
+          </div>
+          <ModuleVideoManager />
         </div>
       </div>
     )}

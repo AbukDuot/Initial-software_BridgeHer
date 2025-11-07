@@ -68,17 +68,31 @@ const Login: React.FC = () => {
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+
       setLoading(false);
-      showToast(
-        isArabic
-          ? `تم إرسال رابط إعادة تعيين كلمة المرور إلى ${resetEmail}`
-          : `A reset link has been sent to ${resetEmail}`,
-        "success"
-      );
-      setShowReset(false);
-      setResetEmail("");
-    }, 2000);
+      if (response.ok) {
+        showToast(
+          isArabic
+            ? `تم إرسال رابط إعادة تعيين كلمة المرور إلى ${resetEmail}`
+            : `Reset link sent to ${resetEmail}. Check your email!`,
+          "success"
+        );
+        setShowReset(false);
+        setResetEmail("");
+      } else {
+        const data = await response.json();
+        showToast(data.message || (isArabic ? "فشل الإرسال" : "Failed to send"), "error");
+      }
+    } catch {
+      setLoading(false);
+      showToast(isArabic ? "خطأ في الاتصال" : "Connection error", "error");
+    }
   };
 
   return (

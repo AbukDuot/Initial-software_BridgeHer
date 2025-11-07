@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { getOfflineCourse, isCourseOffline } from "../utils/offline";
 import { API_BASE_URL } from "../config/api";
+import VideoNotes from "../components/VideoNotes";
+import VideoBookmarks from "../components/VideoBookmarks";
+import EnhancedVideoPlayer from "../components/EnhancedVideoPlayer";
+import DatabaseQuiz from "../components/DatabaseQuiz";
 import "../styles/courseplayer.css";
 
 interface Module {
@@ -32,27 +36,49 @@ const CoursePlayer: React.FC = () => {
   const [submissionText, setSubmissionText] = useState("");
   const [submissionFile, setSubmissionFile] = useState<File | null>(null);
   const [offlineMode, setOfflineMode] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [videoCompleted, setVideoCompleted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    loadCourse();
     checkOfflineStatus();
+    loadCourse();
   }, [courseId]);
 
   const checkOfflineStatus = () => {
     if (courseId && isCourseOffline(Number(courseId))) {
+      console.log('📱 Course is available offline!');
       setOfflineMode(true);
       const offlineData = getOfflineCourse(Number(courseId));
+      console.log('Offline data:', offlineData);
       if (offlineData?.modules) {
         setModules(offlineData.modules);
         if (offlineData.modules.length > 0) {
           setCurrentModule(offlineData.modules[0]);
         }
       }
+    } else {
+      console.log('❌ Course not available offline');
     }
   };
 
   const loadCourse = async () => {
+    // Check if offline first
+    if (!navigator.onLine && courseId && isCourseOffline(Number(courseId))) {
+      console.log('📡 Loading from offline storage...');
+      const offlineData = getOfflineCourse(Number(courseId));
+      if (offlineData?.modules) {
+        setModules(offlineData.modules);
+        if (offlineData.modules.length > 0) {
+          setCurrentModule(offlineData.modules[0]);
+        }
+        setOfflineMode(true);
+      }
+      return;
+    }
+    
     try {
       const token = localStorage.getItem("token");
       const modulesRes = await fetch(`${API_BASE_URL}/api/courses/${courseId}/modules`, {
@@ -69,6 +95,18 @@ const CoursePlayer: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to load course", err);
+      // Try offline as fallback
+      if (courseId && isCourseOffline(Number(courseId))) {
+        console.log('⚠️ Network failed, loading from offline storage...');
+        const offlineData = getOfflineCourse(Number(courseId));
+        if (offlineData?.modules) {
+          setModules(offlineData.modules);
+          if (offlineData.modules.length > 0) {
+            setCurrentModule(offlineData.modules[0]);
+          }
+          setOfflineMode(true);
+        }
+      }
     }
   };
 
@@ -93,55 +131,87 @@ const CoursePlayer: React.FC = () => {
 
   const markComplete = async () => {
     if (!currentModule || !courseId) return;
+    setShowQuiz(true);
+  };
+  
+  const handleQuizComplete = async (passed: boolean) => {
+    if (!currentModule || !courseId) return;
     
-    try {
-      const token = localStorage.getItem("token");
-      await fetch(`${API_BASE_URL}/api/modules/${currentModule.id}/progress`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ completed: true, time_spent: Math.floor(videoRef.current?.currentTime || 0) }),
-      });
-      
-      const completedCount = modules.filter(m => m.id <= currentModule.id).length;
-      const progressPercent = Math.floor((completedCount / modules.length) * 100);
-      
-      const { saveProgress } = await import("../utils/offline");
-      saveProgress(Number(courseId), progressPercent, completedCount);
-      
-      alert("Module marked as complete!");
-      
-      const nextModule = modules.find(m => m.order_index === currentModule.order_index + 1);
-      if (nextModule) selectModule(nextModule);
-    } catch (err) {
-      console.error("Failed to mark complete", err);
+    if (passed) {
+      try {
+        const token = localStorage.getItem("token");
+        await fetch(`${API_BASE_URL}/api/modules/${currentModule.id}/progress`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ completed: true, time_spent: Math.floor(videoRef.current?.currentTime || 0) }),
+        });
+        
+        const completedCount = modules.filter(m => m.id <= currentModule.id).length;
+        const progressPercent = Math.floor((completedCount / modules.length) * 100);
+        
+        const { saveProgress } = await import("../utils/offline");
+        saveProgress(Number(courseId), progressPercent, completedCount);
+        
+        alert("Module completed successfully!");
+        setShowQuiz(false);
+        
+        const nextModule = modules.find(m => m.order_index === currentModule.order_index + 1);
+        if (nextModule) selectModule(nextModule);
+      } catch (err) {
+        console.error("Failed to mark complete", err);
+      }
+    } else {
+      alert("You must pass the quiz to complete this module. Try again!");
     }
   };
 
   const downloadForOffline = async () => {
-    if (!currentModule || !courseId) return;
+    if (!courseId) return;
     
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE_URL}/api/offline/course/${courseId}`, {
+      
+      // Fetch all course data
+      const modulesRes = await fetch(`${API_BASE_URL}/api/courses/${courseId}/modules`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
       
+      if (!modulesRes.ok) throw new Error('Failed to fetch modules');
+      const modulesData = await modulesRes.json();
+      
+      // Save course data to localStorage
       const { saveCourseOffline } = await import("../utils/offline");
-      saveCourseOffline(Number(courseId), data);
-      
-      await fetch(`${API_BASE_URL}/api/offline/download/${courseId}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+      const saved = saveCourseOffline(Number(courseId), {
+        modules: modulesData,
+        downloadedAt: new Date().toISOString()
       });
       
-      alert("Course downloaded for offline access!");
+      if (!saved) throw new Error('Failed to save offline');
+      
+      console.log('✅ Saved to localStorage:', {
+        courseId,
+        moduleCount: modulesData.length,
+        storage: localStorage.getItem('bridgeher_offline_courses')
+      });
+      
+      // Track download on backend
+      try {
+        await fetch(`${API_BASE_URL}/api/offline/download/${courseId}`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (e) {
+        console.log('Backend tracking failed, but offline save succeeded');
+      }
+      
+      alert("✅ Course downloaded successfully!\n\n📱 To test offline mode:\n1. Open DevTools (F12)\n2. Go to Network tab\n3. Check 'Offline' checkbox\n4. Refresh this page\n\nThe course will load from cache!");
       setOfflineMode(true);
     } catch (err) {
       console.error("Failed to download", err);
+      alert("❌ Download failed: " + (err as Error).message);
     }
   };
 
@@ -172,6 +242,25 @@ const CoursePlayer: React.FC = () => {
     if (videoRef.current) {
       const percent = (videoRef.current.currentTime / videoRef.current.duration) * 100;
       setProgress(Math.floor(percent));
+      setCurrentTime(videoRef.current.currentTime);
+      
+      // Show quiz when video is 90% complete
+      if (percent >= 90 && !videoCompleted) {
+        setVideoCompleted(true);
+      }
+    }
+  };
+
+  const handleSeek = (time: number) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+    }
+  };
+
+  const handleSpeedChange = (speed: number) => {
+    setPlaybackSpeed(speed);
+    if (videoRef.current) {
+      videoRef.current.playbackRate = speed;
     }
   };
 
@@ -197,38 +286,28 @@ const CoursePlayer: React.FC = () => {
             <div className="video-section">
               <h1>{currentModule.title}</h1>
               
-              {!offlineMode && currentModule.video_url ? (
+              {currentModule.video_url ? (
                 currentModule.video_url.includes('youtube.com') || currentModule.video_url.includes('youtu.be') ? (
                   <iframe
                     width="100%"
                     height="500"
-                    src={currentModule.video_url.replace('watch?v=', 'embed/')}
+                    src={currentModule.video_url.includes('embed') ? currentModule.video_url : currentModule.video_url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
                     title={currentModule.title}
                     frameBorder="0"
                     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   />
-                ) : currentModule.video_url.startsWith('http') ? (
-                  <video
-                    ref={videoRef}
-                    controls
-                    onTimeUpdate={handleVideoProgress}
-                    src={currentModule.video_url}
-                    style={{ width: '100%', maxHeight: '500px' }}
-                  />
                 ) : (
                   <video
                     ref={videoRef}
+                    width="100%"
+                    height="500"
                     controls
                     onTimeUpdate={handleVideoProgress}
-                    src={`${API_BASE_URL}${currentModule.video_url}`}
-                    style={{ width: '100%', maxHeight: '500px' }}
+                    onEnded={() => setVideoCompleted(true)}
+                    src={currentModule.video_url.startsWith('http') ? currentModule.video_url : `${API_BASE_URL}${currentModule.video_url}`}
                   />
                 )
-              ) : offlineMode ? (
-                <div className="offline-content">
-                  <p>Video not available offline</p>
-                </div>
               ) : (
                 <div className="no-video">
                   <p>No video available</p>
@@ -240,10 +319,48 @@ const CoursePlayer: React.FC = () => {
               </div>
               <p>Progress: {progress}%</p>
 
+              <div className="video-controls">
+                <label>Playback Speed: </label>
+                <select value={playbackSpeed} onChange={(e) => handleSpeedChange(Number(e.target.value))}>
+                  <option value={0.5}>0.5x</option>
+                  <option value={0.75}>0.75x</option>
+                  <option value={1}>1x</option>
+                  <option value={1.25}>1.25x</option>
+                  <option value={1.5}>1.5x</option>
+                  <option value={2}>2x</option>
+                </select>
+              </div>
+
               <div className="actions">
-                <button onClick={markComplete} className="complete-btn">Mark Complete</button>
+                {videoCompleted && (
+                  <div style={{background: '#E8F5E8', padding: '15px', borderRadius: '8px', margin: '10px 0', textAlign: 'center'}}>
+                    <p style={{color: '#2E7D32', fontWeight: 'bold', margin: '0 0 10px 0'}}>🎉 Video Complete! Take the quiz to finish this module.</p>
+                  </div>
+                )}
+                
+                <button 
+                  onClick={() => setShowQuiz(true)}
+                  style={{
+                    background: '#FFD700',
+                    color: '#4A148C',
+                    border: '3px solid #4A148C',
+                    padding: '15px 25px',
+                    borderRadius: '8px',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                    margin: '10px'
+                  }}
+                >
+                  📝 TAKE QUIZ
+                </button>
+                
+                <button onClick={markComplete} className="complete-btn">Complete Module (Quiz Required)</button>
                 <button onClick={downloadForOffline} className="download-btn">Download for Offline</button>
               </div>
+              
+
             </div>
 
             <div className="content-section">
@@ -256,13 +373,37 @@ const CoursePlayer: React.FC = () => {
               {currentModule.pdf_url && (
                 <div className="pdf-section">
                   <h2>📄 Course Materials</h2>
-                  <a 
-                    href={`${API_BASE_URL}/api/modules/${currentModule.id}/pdf`}
-                    download
+                  <button 
+                    onClick={async () => {
+                      try {
+                        const token = localStorage.getItem('token');
+                        const res = await fetch(`${API_BASE_URL}/api/modules/${currentModule.id}/pdf`, {
+                          headers: { Authorization: `Bearer ${token}` }
+                        });
+                        if (res.ok) {
+                          const contentType = res.headers.get('content-type');
+                          if (contentType && contentType.includes('application/json')) {
+                            const data = await res.json();
+                            if (data.url) {
+                              window.open(data.url, '_blank');
+                            }
+                          } else {
+                            const blob = await res.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${currentModule.title}.pdf`;
+                            a.click();
+                          }
+                        }
+                      } catch (err) {
+                        alert('Failed to download PDF');
+                      }
+                    }}
                     className="pdf-download-btn"
                   >
                     Download PDF
-                  </a>
+                  </button>
                 </div>
               )}
             </div>
@@ -293,6 +434,15 @@ const CoursePlayer: React.FC = () => {
               ))}
             </div>
           </>
+        )}
+        
+        {/* Quiz Modal */}
+        {showQuiz && currentModule && (
+          <DatabaseQuiz
+            moduleId={currentModule.id}
+            onQuizComplete={handleQuizComplete}
+            onClose={() => setShowQuiz(false)}
+          />
         )}
       </div>
     </div>

@@ -1,0 +1,72 @@
+.video-bookmarks {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.video-bookmarks h4 {
+  margin-bottom: 15px;
+}
+
+.add-bookmark {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.add-bookmark input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.add-bookmark button {
+  background: #4A148C;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.bookmarks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bookmark-item {
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bookmark-time {
+  color: #4A148C;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 50px;
+}
+
+.bookmark-time:hover {
+  text-decoration: underline;
+}
+
+.bookmark-title {
+  flex: 1;
+}
+
+.bookmark-item button {
+  background: #E53935;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}

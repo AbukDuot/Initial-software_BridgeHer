@@ -1,0 +1,84 @@
+.learning-outcomes {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin: 30px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.outcome-section {
+  margin-bottom: 32px;
+}
+
+.outcome-section:last-child {
+  margin-bottom: 0;
+}
+
+.outcome-section h3 {
+  font-size: 20px;
+  margin: 0 0 16px 0;
+  color: #4A148C;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.outcome-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.outcome-section li {
+  padding: 12px 0 12px 32px;
+  position: relative;
+  line-height: 1.6;
+  color: #333;
+}
+
+.outcome-section li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #2E7D32;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.skill-tag {
+  background: #f0e6ff;
+  color: #4A148C;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.prerequisites {
+  background: #fff8e1;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #FFD700;
+}
+
+.prerequisites p {
+  margin: 0;
+  color: #666;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .learning-outcomes {
+    padding: 20px;
+  }
+  
+  .outcome-section h3 {
+    font-size: 18px;
+  }
+}

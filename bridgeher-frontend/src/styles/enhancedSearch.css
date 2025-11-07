@@ -1,0 +1,132 @@
+.enhanced-search {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+}
+
+.search-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: var(--transition-normal);
+}
+
+.search-input-container:focus-within {
+  border-color: var(--purple-light);
+  box-shadow: 0 0 0 3px rgba(74, 20, 140, 0.1);
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.search-button {
+  padding: 12px 16px;
+  background: var(--purple-light);
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  transition: var(--transition-normal);
+}
+
+.search-button:hover {
+  background: var(--gold-dark);
+}
+
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.selected {
+  background: var(--bg-secondary);
+}
+
+.suggestion-icon {
+  font-size: 18px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.suggestion-content {
+  flex: 1;
+}
+
+.suggestion-title {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.suggestion-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* RTL Support */
+.enhanced-search.rtl .suggestion-icon {
+  margin-right: 0;
+  margin-left: 12px;
+}
+
+.enhanced-search.rtl .search-input {
+  text-align: right;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .enhanced-search {
+    max-width: 100%;
+  }
+  
+  .search-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .suggestions-dropdown {
+    max-height: 250px;
+  }
+  
+  .suggestion-item {
+    padding: 10px 12px;
+  }
+}

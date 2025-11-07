@@ -101,6 +101,26 @@
   transition: width 0.3s;
 }
 
+.video-controls {
+  margin: var(--space-md) 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.video-controls label {
+  font-weight: 600;
+  color: var(--purple-light);
+}
+
+.video-controls select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: white;
+  cursor: pointer;
+}
+
 .actions {
   display: flex;
   gap: var(--space-md);
