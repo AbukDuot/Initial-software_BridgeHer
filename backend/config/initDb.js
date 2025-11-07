@@ -96,16 +96,21 @@ const initDatabase = async () => {
         issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
-      CREATE TABLE IF NOT EXISTS mentorship_requests (
-        id SERIAL PRIMARY KEY,
-        requester_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        mentor_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        topic VARCHAR(255),
-        status VARCHAR(50) DEFAULT 'pending',
-        message TEXT,
-        scheduled_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT FROM pg_tables WHERE tablename = 'mentorship_requests') THEN
+          CREATE TABLE mentorship_requests (
+            id SERIAL PRIMARY KEY,
+            requester_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            mentor_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            topic VARCHAR(255),
+            status VARCHAR(50) DEFAULT 'pending',
+            message TEXT,
+            scheduled_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          );
+        END IF;
+      END $$;
 
       CREATE TABLE IF NOT EXISTS mentorship_feedback (
         id SERIAL PRIMARY KEY,
