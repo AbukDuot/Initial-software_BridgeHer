@@ -40,7 +40,7 @@ router.get("/:id/preview", async (req, res) => {
               c.estimated_hours, c.prerequisites, c.learning_objectives,
               c.average_rating, c.total_reviews, c.category, c.level, c.duration,
               u.name as instructor_name, u.bio as instructor_bio, 
-              u.credentials as instructor_credentials, u.expertise as instructor_expertise
+              u.expertise as instructor_expertise
        FROM courses c
        LEFT JOIN users u ON c.instructor_id = u.id
        WHERE c.id = $1`,
@@ -125,7 +125,7 @@ router.get("/:id", async (req, res) => {
     const { rows } = await pool.query(
       `SELECT c.*, 
               u.name as instructor_name, u.bio as instructor_bio, u.avatar_url as instructor_avatar,
-              u.credentials as instructor_credentials, u.expertise as instructor_expertise,
+              u.expertise as instructor_expertise,
               (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as enrolled_count
        FROM courses c
        LEFT JOIN users u ON c.instructor_id = u.id
