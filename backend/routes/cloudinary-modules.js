@@ -22,7 +22,13 @@ router.post("/", requireAuth, requireRole(["Admin"]), upload.fields([{ name: "vi
     if (req.files?.video?.[0]) {
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "bridgeher-videos", resource_type: "video" },
+          { 
+            folder: "bridgeher-videos", 
+            resource_type: "video",
+            transformation: [
+              { quality: "auto:low", fetch_format: "mp4" }
+            ]
+          },
           (error, result) => {
             if (error) reject(error);
             else resolve(result);

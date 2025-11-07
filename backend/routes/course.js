@@ -31,7 +31,119 @@ const upload = multer({ storage });
 
 
 router.get("/", listCourses);
-router.get("/:id", getCourse);
+// Course preview endpoint
+router.get("/:id/preview", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT c.id, c.title, c.description, c.preview_video_url, c.syllabus, 
+              c.estimated_hours, c.prerequisites, c.learning_objectives,
+              c.average_rating, c.total_reviews, c.category, c.level, c.duration,
+              u.name as instructor_name, u.bio as instructor_bio, 
+              u.credentials as instructor_credentials, u.expertise as instructor_expertise
+       FROM courses c
+       LEFT JOIN users u ON c.instructor_id = u.id
+       WHERE c.id = $1`,
+      [id]
+    );
+    
+    if (!rows[0]) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+    
+    // If no preview data exists, return basic course info
+    const course = rows[0];
+    const preview = {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      preview_video_url: course.preview_video_url || null,
+      syllabus: course.syllabus || 'Course syllabus will be available soon.',
+      estimated_hours: course.estimated_hours || 10,
+      prerequisites: course.prerequisites || 'No prerequisites required.',
+      learning_objectives: course.learning_objectives || 'Learn essential skills and knowledge in this subject area.',
+      average_rating: course.average_rating || 4.5,
+      total_reviews: course.total_reviews || 0,
+      category: course.category,
+      level: course.level,
+      duration: course.duration,
+      instructor_name: course.instructor_name || 'BridgeHer Instructor',
+      instructor_bio: course.instructor_bio || 'Experienced educator and industry professional.',
+      instructor_credentials: course.instructor_credentials || 'Certified Professional',
+      instructor_expertise: course.instructor_expertise || course.category
+    };
+    
+    res.json(preview);
+  } catch (err) {
+    console.error('Course preview error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+// Course recommendations endpoint
+router.get("/:id/recommendations", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Try to get recommendations from database
+    let { rows } = await pool.query(
+      `SELECT c.*, cr.similarity_score 
+       FROM course_recommendations cr
+       JOIN courses c ON c.id = cr.recommended_course_id
+       WHERE cr.course_id = $1
+       ORDER BY cr.similarity_score DESC
+       LIMIT 4`,
+      [id]
+    );
+    
+    // If no recommendations exist, get similar courses by category
+    if (rows.length === 0) {
+      const { rows: courseRows } = await pool.query(
+        'SELECT category FROM courses WHERE id = $1',
+        [id]
+      );
+      
+      if (courseRows[0]) {
+        const { rows: similarRows } = await pool.query(
+          `SELECT *, 0.8 as similarity_score FROM courses 
+           WHERE category = $1 AND id != $2 
+           ORDER BY created_at DESC LIMIT 4`,
+          [courseRows[0].category, id]
+        );
+        rows = similarRows;
+      }
+    }
+    
+    res.json(rows);
+  } catch (err) {
+    console.error('Course recommendations error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT c.*, 
+              u.name as instructor_name, u.bio as instructor_bio, u.avatar_url as instructor_avatar,
+              u.credentials as instructor_credentials, u.expertise as instructor_expertise,
+              (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as enrolled_count
+       FROM courses c
+       LEFT JOIN users u ON c.instructor_id = u.id
+       WHERE c.id = $1`,
+      [id]
+    );
+    if (!rows[0]) return res.status(404).json({ error: "Course not found" });
+    
+    const { rows: resources } = await pool.query(
+      "SELECT * FROM course_resources WHERE course_id = $1",
+      [id]
+    );
+    
+    res.json({ ...rows[0], resources: resources || [] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 router.post("/", requireAuth, requireRole(["Admin"]), upload.single("image"), createCourse);
 
@@ -244,6 +356,77 @@ router.get("/certificate/:id", requireAuth, async (req, res) => {
     );
     if (!rows[0]) return res.status(404).json({ error: "Certificate not found" });
     res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Course discussions
+router.get("/:id/discussions", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT cd.*, u.name as author_name
+       FROM course_discussions cd
+       JOIN users u ON u.id = cd.user_id
+       WHERE cd.course_id = $1
+       ORDER BY cd.created_at DESC`,
+      [id]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/:id/discussions", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content } = req.body;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `INSERT INTO course_discussions (course_id, user_id, title, content)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [id, userId, title, content]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Video playback settings
+router.put("/:courseId/modules/:moduleId/playback", requireAuth, async (req, res) => {
+  try {
+    const { moduleId } = req.params;
+    const { playbackSpeed, lastPosition } = req.body;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `INSERT INTO video_playback_settings (user_id, module_id, playback_speed, last_position)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id, module_id) 
+       DO UPDATE SET playback_speed = $3, last_position = $4, updated_at = NOW()
+       RETURNING *`,
+      [userId, moduleId, playbackSpeed, lastPosition]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/:courseId/modules/:moduleId/playback", requireAuth, async (req, res) => {
+  try {
+    const { moduleId } = req.params;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      "SELECT * FROM video_playback_settings WHERE user_id = $1 AND module_id = $2",
+      [userId, moduleId]
+    );
+    res.json(rows[0] || { playback_speed: 1.0, last_position: 0 });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

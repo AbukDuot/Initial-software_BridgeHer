@@ -22,21 +22,29 @@ import assignmentRoutes from "./routes/assignments.js";
 import adminMentorshipRoutes from "./routes/admin-mentorship.js";
 import adminRoutes from "./routes/admin.js";
 import quizRoutes from "./routes/quiz.js";
+import setupQuizzesRoutes from "./routes/setupQuizzes.js";
 import gamificationRoutes from "./routes/gamification.js";
 import offlineRoutes from "./routes/offline.js";
 import supportRoutes from "./routes/support.js";
 import notificationsRoutes from "./routes/notifications.js";
 import profileRoutes from "./routes/profile.js";
 import remindersRoutes from "./routes/reminders.js";
+import courseReviewsRoutes from "./routes/courseReviews.js";
+import videoNotesRoutes from "./routes/videoNotes.js";
+import videoBookmarksRoutes from "./routes/videoBookmarks.js";
+import searchRoutes from "./routes/search.js";
+import moduleVideosRoutes from "./routes/moduleVideos.js";
+import setupTechCourseRoutes from "./routes/setupTechCourse.js";
+import testQuizRoutes from "./routes/testQuiz.js";
 
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://bridgeher.vercel.app'],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://bridgeher.vercel.app'],
   credentials: true
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(generalLimiter);
 
 
@@ -61,13 +69,21 @@ app.use("/api/cloudinary-modules", cloudinaryModulesRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/admin/mentorship", adminMentorshipRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/quizzes", quizRoutes);
+app.use("/api/quiz", quizRoutes);
+app.use("/api/setup-quizzes", setupQuizzesRoutes);
 app.use("/api/gamification", gamificationRoutes);
 app.use("/api/offline", offlineRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/reminders", remindersRoutes);
+app.use("/api/course-reviews", courseReviewsRoutes);
+app.use("/api/video-notes", videoNotesRoutes);
+app.use("/api/video-bookmarks", videoBookmarksRoutes);
+app.use("/api/search", searchRoutes);
+app.use("/api/module-videos", moduleVideosRoutes);
+app.use("/api/setup", setupTechCourseRoutes);
+app.use("/api/test", testQuizRoutes);
 
 
 app.use((_req, res) => {

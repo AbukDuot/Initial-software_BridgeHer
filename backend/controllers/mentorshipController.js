@@ -71,7 +71,6 @@ export async function createRequest(req, res, next) {
         ).catch(err => console.error("Mentor SMS failed:", err.message));
       }
       
-      
       sendMentorshipConfirmationEmail(
         rows[0].learner_email,
         rows[0].learner_name,

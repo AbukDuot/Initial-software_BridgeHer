@@ -289,6 +289,10 @@ router.get("/:id/pdf", requireAuth, async (req, res) => {
       return res.status(404).json({ error: "PDF not found" });
     }
     
+    if (rows[0].pdf_url.startsWith('http')) {
+      return res.json({ url: rows[0].pdf_url, title: rows[0].title });
+    }
+    
     const pdfPath = path.join(process.cwd(), rows[0].pdf_url);
     
     if (!fs.existsSync(pdfPath)) {

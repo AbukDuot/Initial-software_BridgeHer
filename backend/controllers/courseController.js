@@ -69,6 +69,41 @@ export async function listCourses(req, res, next) {
   }
 }
 
+export async function getCourseRecommendations(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT c.*, cr.similarity_score 
+       FROM course_recommendations cr
+       JOIN courses c ON c.id = cr.recommended_course_id
+       WHERE cr.course_id = $1
+       ORDER BY cr.similarity_score DESC
+       LIMIT 4`,
+      [id]
+    );
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getCoursePreview(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT id, title, description, preview_video_url, syllabus, 
+              estimated_hours, prerequisites, learning_objectives,
+              average_rating, total_reviews, instructor_id
+       FROM courses WHERE id = $1`,
+      [id]
+    );
+    if (!rows[0]) return res.status(404).json({ error: "Course not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+}
+
 
 export async function getCourse(req, res, next) {
   try {
