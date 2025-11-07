@@ -60,7 +60,7 @@ const DatabaseQuiz: React.FC<DatabaseQuizProps> = ({ moduleId, onQuizComplete, o
       } else {
         setError('No quiz found for this module');
       }
-    } catch (error) {
+    } catch {
       setError('Failed to load quiz');
     } finally {
       setLoading(false);

@@ -18,6 +18,13 @@ interface Quiz {
   questions: Question[];
 }
 
+interface QuizResult {
+  passed: boolean;
+  percentage: number;
+  score: number;
+  totalPoints: number;
+}
+
 interface ModuleQuizProps {
   moduleId: number;
   onQuizComplete: (passed: boolean) => void;
@@ -29,7 +36,7 @@ const ModuleQuiz: React.FC<ModuleQuizProps> = ({ moduleId, onQuizComplete, onClo
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [timeLeft, setTimeLeft] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<QuizResult | null>(null);
 
   useEffect(() => {
     fetchQuiz();

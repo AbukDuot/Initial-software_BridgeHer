@@ -201,7 +201,7 @@ const CoursePlayer: React.FC = () => {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });
-      } catch (e) {
+      } catch {
         console.log('Backend tracking failed, but offline save succeeded');
       }
       
@@ -347,7 +347,7 @@ const CoursePlayer: React.FC = () => {
                     margin: '10px'
                   }}
                 >
-                  📝 TAKE QUIZ
+                  TAKE QUIZ
                 </button>
                 
                 <button onClick={markComplete} className="complete-btn">Complete Module (Quiz Required)</button>
@@ -366,7 +366,7 @@ const CoursePlayer: React.FC = () => {
               
               {currentModule.pdf_url && (
                 <div className="pdf-section">
-                  <h2>📄 Course Materials</h2>
+                  <h2> Course Materials</h2>
                   <button 
                     onClick={async () => {
                       try {
@@ -390,7 +390,7 @@ const CoursePlayer: React.FC = () => {
                             a.click();
                           }
                         }
-                      } catch (err) {
+                      } catch {
                         alert('Failed to download PDF');
                       }
                     }}
