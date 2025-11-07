@@ -304,7 +304,7 @@ const CourseDetail: React.FC = () => {
             className="certificate-preview-btn"
             onClick={() => setShowCertificate(true)}
           >
-            🏆 {t.previewCertificate}
+             {t.previewCertificate}
           </button>
         </div>
 
@@ -312,7 +312,7 @@ const CourseDetail: React.FC = () => {
           {!enrolled ? (
             <>
               <button className="preview-btn" onClick={() => setShowPreview(true)}>
-                👁️ {isAr ? 'معاينة الدورة' : 'Preview Course'}
+                 {isAr ? 'معاينة الدورة' : 'Preview Course'}
               </button>
               <button className="enroll-btn" onClick={handleEnroll}>
                 {t.enroll}

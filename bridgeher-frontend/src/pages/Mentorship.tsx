@@ -67,7 +67,20 @@ const Mentorship: React.FC = () => {
   const { language } = useLanguage();
   const lang: Lang = language === "Arabic" ? "ar" : "en";
   const t = translations[lang];
-  const [mentors, setMentors] = useState<any[]>([]);
+  interface Mentor {
+    id: number;
+    name: string;
+    role: string;
+    expertise: string[];
+    location: string;
+    badges: string[];
+    avatar: string;
+    rating: number;
+    available: boolean;
+    calendar: string[];
+    videoIntro: string;
+  }
+  const [mentors, setMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
@@ -84,7 +97,7 @@ const Mentorship: React.FC = () => {
             "Kuir Juach": kuirImg,
             "Abraham Madol": abrahamImg
           };
-          const mapped = data.map((m: any) => {
+          const mapped = data.map((m: { id: number; name: string; video_intro?: string; expertise?: string; expertise_ar?: string; location?: string; badges?: string; avatar_url?: string; rating?: number }) => {
             let videoUrl = m.video_intro || "";
             if (videoUrl.includes("youtu.be/")) {
               const videoId = videoUrl.split("youtu.be/")[1]?.split("?")[0];
@@ -154,7 +167,7 @@ const Mentorship: React.FC = () => {
   const [requests, setRequests] = useState<
     { id: number; mentor: string; mentor_id: number; date: string; session: string; status: string }[]
   >([]);
-  const [feedbackModal, setFeedbackModal] = useState<any>(null);
+  const [feedbackModal, setFeedbackModal] = useState<{ id: number; mentor: string; mentor_id: number; date: string; session: string; status: string } | null>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
@@ -168,7 +181,7 @@ const Mentorship: React.FC = () => {
         });
         if (res.ok) {
           const data = await res.json();
-          const mapped = data.map((r: any) => ({
+          const mapped = data.map((r: { id: number; mentor_name?: string; mentor_id: number; created_at: string; scheduled_at?: string; status: string }) => ({
             id: r.id,
             mentor: r.mentor_name || 'Mentor',
             mentor_id: r.mentor_id,
@@ -198,7 +211,7 @@ const Mentorship: React.FC = () => {
     return byName && byTag;
   });
 
-  const openFeedbackModal = (req: any) => {
+  const openFeedbackModal = (req: { id: number; mentor: string; mentor_id: number; date: string; session: string; status: string }) => {
     setFeedbackModal(req);
     setRating(5);
     setComment("");
@@ -226,7 +239,7 @@ const Mentorship: React.FC = () => {
       } else {
         alert(lang === "ar" ? "فشل الإرسال" : "Failed to submit");
       }
-    } catch (err) {
+    } catch {
       alert(lang === "ar" ? "خطأ في الاتصال" : "Connection error");
     }
   };
@@ -253,7 +266,7 @@ const Mentorship: React.FC = () => {
         data: { ...requestData, mentorName: modalMentor.name },
         timestamp: new Date().toISOString()
       });
-      alert(lang === "ar" ? "📱 تم حفظ الطلب. سيتم إرساله عند الاتصال بالإنترنت." : "📱 Request queued. Will send when online.");
+      alert(lang === "ar" ? " تم حفظ الطلب. سيتم إرساله عند الاتصال بالإنترنت." : " Request queued. Will send when online.");
       setModalMentor(null);
       return;
     }

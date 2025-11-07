@@ -4,7 +4,6 @@ const initDatabase = async () => {
   try {
     console.log(' Checking database tables...');
     
-    // Always try to create tables (IF NOT EXISTS will skip existing ones)
     console.log('Ensuring all database tables exist...');
 
     console.log('Creating database tables...');

@@ -7,9 +7,9 @@ const FeatureTest: React.FC = () => {
   const testFeature = async (name: string, testFn: () => Promise<boolean>) => {
     try {
       const success = await testFn();
-      setResults(prev => ({ ...prev, [name]: success ? '✅ Working' : '❌ Failed' }));
+      setResults(prev => ({ ...prev, [name]: success ? ' Working' : ' Failed' }));
     } catch (error) {
-      setResults(prev => ({ ...prev, [name]: '❌ Error: ' + (error as Error).message }));
+      setResults(prev => ({ ...prev, [name]: ' Error: ' + (error as Error).message }));
     }
   };
 

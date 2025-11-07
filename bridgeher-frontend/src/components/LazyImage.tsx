@@ -52,7 +52,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
     setIsLoaded(true);
   };
 
-  // Convert to WebP if supported
+  
   const getOptimizedSrc = () => {
     if (webpSrc && supportsWebP()) {
       return webpSrc;

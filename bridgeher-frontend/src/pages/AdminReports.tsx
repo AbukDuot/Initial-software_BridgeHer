@@ -109,7 +109,7 @@ const AdminReports: React.FC = () => {
               <div key={report.id} className="report-card">
                 <div className="report-header">
                   <span className="report-type">
-                    {report.content_type === "topic" ? "📝" : "💬"} {report.content_type}
+                    {report.content_type === "topic" ? "" : ""} {report.content_type}
                   </span>
                   <span className="report-date">
                     {new Date(report.created_at).toLocaleDateString()}

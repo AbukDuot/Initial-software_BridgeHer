@@ -118,7 +118,7 @@ export async function updateRequest(req, res, next) {
         console.log("   Status:", fields.status || "scheduled");
         console.log("   Scheduled:", fields.scheduled_at || rows[0].scheduled_at || "Not scheduled");
         
-        // Notify learner
+        
         sendMentorshipNotification(rows[0].learner_email, rows[0].learner_name, rows[0].mentor_name).catch(err => {
           console.error(" Learner email failed:", err.message);
         });
@@ -128,7 +128,7 @@ export async function updateRequest(req, res, next) {
           });
         }
         
-        // Notify mentor
+       
         sendMentorshipNotification(rows[0].mentor_email, rows[0].mentor_name, rows[0].learner_name).catch(err => {
           console.error(" Mentor email failed:", err.message);
         });

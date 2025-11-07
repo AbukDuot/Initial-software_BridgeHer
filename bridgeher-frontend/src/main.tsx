@@ -13,8 +13,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   </React.StrictMode>
 );
 
-// Register service worker for offline support
+
 serviceWorker.register({
-  onSuccess: () => console.log('✅ Offline mode enabled'),
-  onUpdate: () => console.log('🔄 New version available')
+  onSuccess: () => console.log('Offline mode enabled'),
+  onUpdate: () => console.log('New version available')
 });

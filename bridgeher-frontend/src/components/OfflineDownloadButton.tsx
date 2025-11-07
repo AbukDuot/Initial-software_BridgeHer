@@ -15,7 +15,7 @@ const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({ courseId,
     setDownloading(true);
     setProgress(0);
 
-    // Listen for progress updates from Service Worker
+    
     const handleMessage = (event: MessageEvent) => {
       const { data } = event;
       if (data.type === 'DOWNLOAD_PROGRESS' && String(data.courseId) === String(courseId)) {
@@ -25,13 +25,13 @@ const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({ courseId,
         setDownloading(false);
         if (data.success) {
           setDownloaded(true);
-          alert(`✅ ${courseName} is now available offline!\n\n📱 You can now:\n• Turn off your internet\n• Access this course anytime\n• Watch videos offline\n\nJust visit this course page when offline!`);
+          alert(` ${courseName} is now available offline!\n\n📱 You can now:\n• Turn off your internet\n• Access this course anytime\n• Watch videos offline\n\nJust visit this course page when offline!`);
         } else {
-          alert(`❌ Download failed: ${data.message}`);
+          alert(` Download failed: ${data.message}`);
         }
         navigator.serviceWorker.removeEventListener('message', handleMessage);
       }
-      // Handle token request from SW
+     
       if (data.type === 'GET_TOKEN') {
         event.ports[0].postMessage({ token: localStorage.getItem('token') });
       }
@@ -44,7 +44,7 @@ const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({ courseId,
     } catch (error) {
       console.error('Download error:', error);
       setDownloading(false);
-      alert('❌ Download failed. Please try again.');
+      alert(' Download failed. Please try again.');
       navigator.serviceWorker.removeEventListener('message', handleMessage);
     }
   };
@@ -70,7 +70,7 @@ const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({ courseId,
           ✓ Available Offline
         </button>
         <small style={{ color: '#2E7D32', marginTop: '5px', display: 'block', fontSize: '12px' }}>
-          📱 Access anytime, even without internet
+            Access anytime, even without internet
         </small>
       </div>
     );

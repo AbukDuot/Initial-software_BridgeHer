@@ -31,14 +31,14 @@ const InstructorProfile: React.FC<InstructorProfileProps> = ({
           {avatar ? (
             <img src={avatar} alt={name} className="instructor-avatar" />
           ) : (
-            <div className="instructor-avatar-placeholder">👨🏫</div>
+            <div className="instructor-avatar-placeholder"></div>
           )}
         </div>
         
         <div className="instructor-details">
           <h4>{name}</h4>
           {credentials && <p className="instructor-credentials">{credentials}</p>}
-          {expertise && <p className="instructor-expertise">🎯 {expertise}</p>}
+          {expertise && <p className="instructor-expertise"> {expertise}</p>}
           {bio && <p className="instructor-bio">{bio}</p>}
         </div>
       </div>

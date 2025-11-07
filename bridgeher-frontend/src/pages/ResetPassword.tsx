@@ -65,17 +65,23 @@ const ResetPassword: React.FC = () => {
         <h2>Reset Password</h2>
         <form onSubmit={handleSubmit}>
           <input
+            id="newPassword"
+            name="newPassword"
             type="password"
             placeholder="New Password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
             required
           />
           <input
+            id="confirmPassword"
+            name="confirmPassword"
             type="password"
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
             required
           />
           <button type="submit" disabled={loading}>

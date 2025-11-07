@@ -127,8 +127,8 @@ const ModuleQuizSimple: React.FC<ModuleQuizSimpleProps> = ({
           </div>
           <p style={{fontSize: '18px', marginBottom: '20px'}}>
             {score >= 70 
-              ? (isArabic ? '🎉 تهانينا! لقد نجحت!' : '🎉 Congratulations! You passed!')
-              : (isArabic ? '❌ تحتاج إلى 70% للنجاح' : '❌ You need 70% to pass')
+              ? (isArabic ? ' تهانينا! لقد نجحت!' : ' Congratulations! You passed!')
+              : (isArabic ? ' تحتاج إلى 70% للنجاح' : 'You need 70% to pass')
             }
           </p>
           <button 
@@ -161,7 +161,7 @@ const ModuleQuizSimple: React.FC<ModuleQuizSimpleProps> = ({
             {isArabic ? `اختبار: ${moduleTitle}` : `Quiz: ${moduleTitle}`}
           </h2>
           <div style={{background: '#FFD700', color: '#4A148C', padding: '8px 15px', borderRadius: '20px', fontWeight: 'bold'}}>
-            ⏰ {formatTime(timeLeft)}
+             {formatTime(timeLeft)}
           </div>
         </div>
 

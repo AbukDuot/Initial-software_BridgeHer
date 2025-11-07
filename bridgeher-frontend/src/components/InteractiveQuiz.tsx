@@ -45,7 +45,7 @@ const InteractiveQuiz: React.FC<InteractiveQuizProps> = ({ moduleId, onComplete 
         const data = await res.json();
         setQuestions(data);
       } else {
-        // Mock quiz data
+       
         setQuestions([
           {
             id: 1,
@@ -108,7 +108,7 @@ const InteractiveQuiz: React.FC<InteractiveQuizProps> = ({ moduleId, onComplete 
       const userAnswer = answers[question.id];
       
       if (question.type === 'drag-drop') {
-        // Check drag-drop answers
+       
         const correctPairs = question.correctAnswer as string[];
         const userPairs = userAnswer as string[];
         if (userPairs && userPairs.length === correctPairs.length) {
@@ -150,7 +150,7 @@ const InteractiveQuiz: React.FC<InteractiveQuizProps> = ({ moduleId, onComplete 
     const newDropZones = { ...dropZones, [zone]: item };
     setDropZones(newDropZones);
     
-    // Update answer for drag-drop
+    
     const pairs = Object.entries(newDropZones).map(([zone, item]) => `${item}:${zone}`);
     handleAnswer(pairs);
   };
@@ -291,7 +291,7 @@ const InteractiveQuiz: React.FC<InteractiveQuizProps> = ({ moduleId, onComplete 
         {showFeedback && (
           <div className={`feedback ${isCorrect() ? 'correct' : 'incorrect'}`}>
             <div className="feedback-header">
-              <span className="feedback-icon">{isCorrect() ? '✅' : '❌'}</span>
+              <span className="feedback-icon">{isCorrect() ? '' : ''}</span>
               <span className="feedback-text">{isCorrect() ? t.correct : t.incorrect}</span>
             </div>
             {question.explanation && (

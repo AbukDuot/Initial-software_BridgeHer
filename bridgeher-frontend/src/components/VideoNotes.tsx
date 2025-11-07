@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import '../styles/videoNotes.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://bridgeher-backend.onrender.com';
 
 interface Note {
   id: number;

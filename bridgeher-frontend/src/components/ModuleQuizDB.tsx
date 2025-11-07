@@ -64,9 +64,9 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
       if (response.ok) {
         const data = await response.json();
         setQuiz(data);
-        setTimeLeft(data.time_limit * 60); // Convert to seconds
+        setTimeLeft(data.time_limit * 60); 
       } else {
-        // Fallback to hardcoded quiz if no database quiz exists
+        
         const fallbackQuiz = {
           id: 0,
           title: `${moduleTitle} Quiz`,
@@ -102,7 +102,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
       }
     } catch (error) {
       console.error('Error fetching quiz:', error);
-      // Use fallback quiz on error
+      
       const fallbackQuiz = {
         id: 0,
         title: `${moduleTitle} Quiz`,
@@ -167,7 +167,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
     setScore(percentage);
     setShowResult(true);
 
-    // Submit to database if quiz has ID
+    
     if (quiz.id > 0) {
       try {
         const token = localStorage.getItem('token');
@@ -241,8 +241,8 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
           </div>
           <p style={{fontSize: '18px', marginBottom: '20px'}}>
             {score >= quiz.passing_score 
-              ? (isArabic ? '🎉 تهانينا! لقد نجحت!' : '🎉 Congratulations! You passed!')
-              : (isArabic ? `❌ تحتاج إلى ${quiz.passing_score}% للنجاح` : `❌ You need ${quiz.passing_score}% to pass`)
+              ? (isArabic ? ' تهانينا! لقد نجحت!' : ' Congratulations! You passed!')
+              : (isArabic ? ` تحتاج إلى ${quiz.passing_score}% للنجاح` : ` You need ${quiz.passing_score}% to pass`)
             }
           </p>
           <button 
@@ -275,7 +275,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
             {quiz.title}
           </h2>
           <div style={{background: '#FFD700', color: '#4A148C', padding: '8px 15px', borderRadius: '20px', fontWeight: 'bold'}}>
-            ⏰ {formatTime(timeLeft)}
+             {formatTime(timeLeft)}
           </div>
         </div>
 

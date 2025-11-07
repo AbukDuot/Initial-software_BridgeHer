@@ -129,7 +129,7 @@ const DatabaseQuiz: React.FC<DatabaseQuizProps> = ({ moduleId, onQuizComplete, o
           <div style={{fontSize: '48px', fontWeight: 'bold', margin: '20px 0', color: score >= 70 ? '#2E7D32' : '#E53935'}}>
             {score}%
           </div>
-          <p>{score >= 70 ? '🎉 Congratulations! You passed!' : '❌ You need 70% to pass'}</p>
+          <p>{score >= 70 ? ' Congratulations! You passed!' : ' You need 70% to pass'}</p>
           <button onClick={onClose} style={{background: '#4A148C', color: 'white', border: 'none', padding: '12px 30px', borderRadius: '5px'}}>
             Continue
           </button>
@@ -155,7 +155,7 @@ const DatabaseQuiz: React.FC<DatabaseQuizProps> = ({ moduleId, onQuizComplete, o
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid #4A148C', paddingBottom: '15px'}}>
           <h2 style={{color: '#4A148C', margin: 0}}>{quiz.title}</h2>
           <div style={{background: '#FFD700', color: '#4A148C', padding: '8px 15px', borderRadius: '20px', fontWeight: 'bold'}}>
-            ⏰ {formatTime(timeLeft)}
+             {formatTime(timeLeft)}
           </div>
         </div>
 

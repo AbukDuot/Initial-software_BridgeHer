@@ -47,7 +47,7 @@ const CoursePlayer: React.FC = () => {
 
   const checkOfflineStatus = () => {
     if (courseId && isCourseOffline(Number(courseId))) {
-      console.log('📱 Course is available offline!');
+      console.log(' Course is available offline!');
       setOfflineMode(true);
       const offlineData = getOfflineCourse(Number(courseId));
       console.log('Offline data:', offlineData);
@@ -58,14 +58,14 @@ const CoursePlayer: React.FC = () => {
         }
       }
     } else {
-      console.log('❌ Course not available offline');
+      console.log(' Course not available offline');
     }
   };
 
   const loadCourse = async () => {
-    // Check if offline first
+    
     if (!navigator.onLine && courseId && isCourseOffline(Number(courseId))) {
-      console.log('📡 Loading from offline storage...');
+      console.log('Loading from offline storage...');
       const offlineData = getOfflineCourse(Number(courseId));
       if (offlineData?.modules) {
         setModules(offlineData.modules);
@@ -93,9 +93,9 @@ const CoursePlayer: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to load course", err);
-      // Try offline as fallback
+     
       if (courseId && isCourseOffline(Number(courseId))) {
-        console.log('⚠️ Network failed, loading from offline storage...');
+        console.log(' Network failed, loading from offline storage...');
         const offlineData = getOfflineCourse(Number(courseId));
         if (offlineData?.modules) {
           setModules(offlineData.modules);
@@ -172,7 +172,7 @@ const CoursePlayer: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       
-      // Fetch all course data
+  
       const modulesRes = await fetch(`${API_BASE_URL}/api/courses/${courseId}/modules`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -180,7 +180,7 @@ const CoursePlayer: React.FC = () => {
       if (!modulesRes.ok) throw new Error('Failed to fetch modules');
       const modulesData = await modulesRes.json();
       
-      // Save course data to localStorage
+     
       const { saveCourseOffline } = await import("../utils/offline");
       const saved = saveCourseOffline(Number(courseId), {
         modules: modulesData,
@@ -189,13 +189,13 @@ const CoursePlayer: React.FC = () => {
       
       if (!saved) throw new Error('Failed to save offline');
       
-      console.log('✅ Saved to localStorage:', {
+      console.log(' Saved to localStorage:', {
         courseId,
         moduleCount: modulesData.length,
         storage: localStorage.getItem('bridgeher_offline_courses')
       });
       
-      // Track download on backend
+      
       try {
         await fetch(`${API_BASE_URL}/api/offline/download/${courseId}`, {
           method: "POST",
@@ -205,11 +205,11 @@ const CoursePlayer: React.FC = () => {
         console.log('Backend tracking failed, but offline save succeeded');
       }
       
-      alert("✅ Course downloaded successfully!\n\n📱 To test offline mode:\n1. Open DevTools (F12)\n2. Go to Network tab\n3. Check 'Offline' checkbox\n4. Refresh this page\n\nThe course will load from cache!");
+      alert("Course downloaded successfully!\n\n  To test offline mode:\n1. Open DevTools (F12)\n2. Go to Network tab\n3. Check 'Offline' checkbox\n4. Refresh this page\n\nThe course will load from cache!");
       setOfflineMode(true);
     } catch (err) {
       console.error("Failed to download", err);
-      alert("❌ Download failed: " + (err as Error).message);
+      alert(" Download failed: " + (err as Error).message);
     }
   };
 
@@ -242,7 +242,7 @@ const CoursePlayer: React.FC = () => {
       setProgress(Math.floor(percent));
       setCurrentTime(videoRef.current.currentTime);
       
-      // Show quiz when video is 90% complete
+      
       if (percent >= 90 && !videoCompleted) {
         setVideoCompleted(true);
       }

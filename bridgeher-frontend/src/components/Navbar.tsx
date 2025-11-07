@@ -25,14 +25,15 @@ const Navbar: React.FC = () => {
       setIsLoggedIn(true);
       try {
         const userData = JSON.parse(user);
-        setUsername(userData.name || "");
+        setUsername(userData.name || "User");
         setUserRole(userData.role || "");
       } catch {
-        setUsername("");
+        setUsername("User");
         setUserRole("");
       }
     } else {
       setIsLoggedIn(false);
+      setUsername("");
     }
   }, [language]);
 

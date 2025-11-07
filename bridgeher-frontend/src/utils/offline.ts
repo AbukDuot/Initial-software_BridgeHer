@@ -28,7 +28,7 @@ export const saveCourseOffline = (courseId: number, courseData: CourseData) => {
       downloadedAt: new Date().toISOString(),
     };
     localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(courses));
-    console.log(`✅ Course ${courseId} saved offline:`, courses[courseId]);
+    console.log(` Course ${courseId} saved offline:`, courses[courseId]);
     return true;
   } catch (error) {
     console.error('Error saving course offline:', error);
@@ -153,7 +153,7 @@ export const getCertificates = () => {
 export const isCourseOffline = (courseId: number) => {
   const courses = getOfflineCourses();
   const isOffline = !!courses[courseId];
-  console.log(`📱 Course ${courseId} offline status:`, isOffline);
+  console.log(`Course ${courseId} offline status:`, isOffline);
   return isOffline;
 };
 
@@ -196,7 +196,7 @@ export const syncOfflineData = async (apiUrl: string, token: string) => {
   }
 };
 
-// Clear all offline data
+
 export const clearOfflineData = () => {
   try {
     localStorage.removeItem(STORAGE_KEYS.COURSES);
@@ -211,8 +211,8 @@ export const clearOfflineData = () => {
 };
 
 
-// Queue offline actions
-export const queueOfflineAction = (action: { type: string; data: any; timestamp: string }) => {
+
+export const queueOfflineAction = (action: { type: string; data: unknown; timestamp: string }) => {
   try {
     const queue = JSON.parse(localStorage.getItem(STORAGE_KEYS.OFFLINE_QUEUE) || '[]');
     queue.push(action);

@@ -20,7 +20,7 @@ interface Assignment {
   id: number;
   title: string;
   description: string;
-  questions: any;
+  questions: { question: string; options?: string[]; answer?: string }[];
   due_date: string;
   submitted?: boolean;
 }

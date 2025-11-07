@@ -44,11 +44,11 @@ const VideoQualitySelector: React.FC<VideoQualitySelectorProps> = ({
 
   const getQualityIcon = (quality: string) => {
     switch (quality) {
-      case '1080p': return '🔥';
-      case '720p': return '⚡';
-      case '480p': return '📱';
-      case '360p': return '💾';
-      default: return '📺';
+      case '1080p': return '';
+      case '720p': return '';
+      case '480p': return '';
+      case '360p': return '';
+      default: return '';
     }
   };
 

@@ -51,7 +51,7 @@ const EnhancedCourseCard: React.FC<CourseCardProps> = ({
       <div className="course-thumbnail" style={{ backgroundImage: thumbnail ? `url(${thumbnail})` : 'linear-gradient(135deg, #4A148C 0%, #FFD700 100%)' }}>
         <span className="category-badge">{category}</span>
         <span className="level-badge">{level}</span>
-        {!thumbnail && <span className="icon">📚</span>}
+        {!thumbnail && <span className="icon"></span>}
       </div>
 
       <div className="course-body">
@@ -60,15 +60,15 @@ const EnhancedCourseCard: React.FC<CourseCardProps> = ({
         {instructor && (
           <div className="instructor-info">
             {instructorAvatar && <img src={instructorAvatar} alt={instructor} className="instructor-avatar-sm" />}
-            <span>👨‍🏫 {instructor}</span>
+            <span> {instructor}</span>
           </div>
         )}
 
         <p className="course-description">{description.substring(0, 100)}...</p>
 
         <div className="course-meta">
-          <span>⏱️ {duration}</span>
-          <span>📊 {level}</span>
+          <span>⏱ {duration}</span>
+          <span> {level}</span>
           <span>⭐ {rating} ({totalReviews})</span>
         </div>
 
@@ -91,7 +91,7 @@ const EnhancedCourseCard: React.FC<CourseCardProps> = ({
       <div className="course-footer">
         <div className="course-price">
           {enrolled ? (
-            <span className="enrolled-badge">✅ {isArabic ? "مسجل" : "Enrolled"}</span>
+            <span className="enrolled-badge"> {isArabic ? "مسجل" : "Enrolled"}</span>
           ) : (
             <span className="price-tag">{isArabic ? "مجاني" : "Free"}</span>
           )}
@@ -100,7 +100,7 @@ const EnhancedCourseCard: React.FC<CourseCardProps> = ({
         <div className="course-actions">
           {!enrolled && onPreview && (
             <button onClick={() => onPreview(id)} className="preview-btn">
-              👁️ {isArabic ? "معاينة" : "Preview"}
+               {isArabic ? "معاينة" : "Preview"}
             </button>
           )}
           

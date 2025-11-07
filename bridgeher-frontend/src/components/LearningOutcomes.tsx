@@ -29,7 +29,7 @@ const LearningOutcomes: React.FC<LearningOutcomesProps> = ({
     <div className="learning-outcomes">
       {objectives && (
         <div className="outcome-section">
-          <h3>📚 {isArabic ? "ما ستتعلمه" : "What You'll Learn"}</h3>
+          <h3> {isArabic ? "ما ستتعلمه" : "What You'll Learn"}</h3>
           <ul>
             {parseList(objectives).map((item, idx) => (
               <li key={idx}>{item}</li>
@@ -40,7 +40,7 @@ const LearningOutcomes: React.FC<LearningOutcomesProps> = ({
 
       {skillsGained && (
         <div className="outcome-section">
-          <h3>🎯 {isArabic ? "المهارات المكتسبة" : "Skills You'll Gain"}</h3>
+          <h3> {isArabic ? "المهارات المكتسبة" : "Skills You'll Gain"}</h3>
           <div className="skills-tags">
             {parseList(skillsGained).map((skill, idx) => (
               <span key={idx} className="skill-tag">{skill}</span>
@@ -51,7 +51,7 @@ const LearningOutcomes: React.FC<LearningOutcomesProps> = ({
 
       {careerBenefits && (
         <div className="outcome-section">
-          <h3>💼 {isArabic ? "الفوائد المهنية" : "Career Benefits"}</h3>
+          <h3> {isArabic ? "الفوائد المهنية" : "Career Benefits"}</h3>
           <ul>
             {parseList(careerBenefits).map((benefit, idx) => (
               <li key={idx}>{benefit}</li>
@@ -62,7 +62,7 @@ const LearningOutcomes: React.FC<LearningOutcomesProps> = ({
 
       {realWorldApplications && (
         <div className="outcome-section">
-          <h3>🌍 {isArabic ? "التطبيقات العملية" : "Real-World Applications"}</h3>
+          <h3> {isArabic ? "التطبيقات العملية" : "Real-World Applications"}</h3>
           <ul>
             {parseList(realWorldApplications).map((app, idx) => (
               <li key={idx}>{app}</li>
@@ -73,7 +73,7 @@ const LearningOutcomes: React.FC<LearningOutcomesProps> = ({
 
       {prerequisites && (
         <div className="outcome-section prerequisites">
-          <h3>📋 {isArabic ? "المتطلبات الأساسية" : "Prerequisites"}</h3>
+          <h3> {isArabic ? "المتطلبات الأساسية" : "Prerequisites"}</h3>
           <p>{prerequisites}</p>
         </div>
       )}

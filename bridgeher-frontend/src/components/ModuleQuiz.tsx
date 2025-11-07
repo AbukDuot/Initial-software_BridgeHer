@@ -53,7 +53,7 @@ const ModuleQuiz: React.FC<ModuleQuizProps> = ({ moduleId, onQuizComplete, onClo
       if (response.ok) {
         const data = await response.json();
         setQuiz(data);
-        setTimeLeft(data.time_limit * 60); // Convert to seconds
+        setTimeLeft(data.time_limit * 60); 
       }
     } catch (error) {
       console.error('Error fetching quiz:', error);
@@ -118,7 +118,7 @@ const ModuleQuiz: React.FC<ModuleQuizProps> = ({ moduleId, onQuizComplete, onClo
             <div className={`score ${result.passed ? 'passed' : 'failed'}`}>
               {result.percentage}% ({result.score}/{result.totalPoints} points)
             </div>
-            <p>{result.passed ? '🎉 Congratulations! You passed!' : '❌ You need 70% to pass. Try again!'}</p>
+            <p>{result.passed ? 'Congratulations! You passed!' : 'You need 70% to pass. Try again!'}</p>
             <button onClick={onClose} className="close-btn">Continue</button>
           </div>
         </div>
@@ -131,7 +131,7 @@ const ModuleQuiz: React.FC<ModuleQuizProps> = ({ moduleId, onQuizComplete, onClo
       <div className="quiz-content">
         <div className="quiz-header">
           <h2>{quiz.title}</h2>
-          <div className="timer">⏰ {formatTime(timeLeft)}</div>
+          <div className="timer"> {formatTime(timeLeft)}</div>
         </div>
         
         <div className="quiz-body">

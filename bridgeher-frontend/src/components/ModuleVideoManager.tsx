@@ -53,11 +53,11 @@ const ModuleVideoManager: React.FC = () => {
       
       if (res.ok) {
         const result = await res.json();
-        alert(`✅ ${result.message}`);
-        loadModulesWithoutVideos(); // Refresh the list
+        alert(` ${result.message}`);
+        loadModulesWithoutVideos(); 
       }
     } catch (error) {
-      alert('❌ Failed to auto-assign videos');
+      alert(' Failed to auto-assign videos');
     } finally {
       setUpdating(false);
     }
@@ -78,11 +78,11 @@ const ModuleVideoManager: React.FC = () => {
       if (res.ok) {
         const result = await res.json();
         const totalModules = result.courses.reduce((sum: number, course: any) => sum + course.modulesAdded, 0);
-        alert(`✅ Computer courses setup complete! Added ${totalModules} modules to ${result.courses.length} courses.`);
-        loadModulesWithoutVideos(); // Refresh the list
+        alert(` Computer courses setup complete! Added ${totalModules} modules to ${result.courses.length} courses.`);
+        loadModulesWithoutVideos(); 
       }
     } catch (error) {
-      alert('❌ Failed to setup Computer courses');
+      alert(' Failed to setup Computer courses');
     } finally {
       setUpdating(false);
     }
@@ -104,18 +104,18 @@ const ModuleVideoManager: React.FC = () => {
       });
       
       if (res.ok) {
-        alert('✅ Video added successfully!');
-        loadModulesWithoutVideos(); // Refresh the list
+        alert(' Video added successfully!');
+        loadModulesWithoutVideos(); 
       }
     } catch (error) {
-      alert('❌ Failed to add video');
+      alert(' Failed to add video');
     }
   };
 
   const handleVideoUrlSubmit = (moduleId: number) => {
     const videoUrl = prompt('Enter YouTube video URL (e.g., https://www.youtube.com/watch?v=VIDEO_ID):');
     if (videoUrl) {
-      // Convert to embed URL if needed
+      
       let embedUrl = videoUrl;
       if (videoUrl.includes('watch?v=')) {
         const videoId = videoUrl.split('watch?v=')[1].split('&')[0];
@@ -155,14 +155,14 @@ const ModuleVideoManager: React.FC = () => {
             className="auto-assign-btn"
             style={{background: '#2196F3'}}
           >
-            {updating ? '⏳' : '💻'} {isAr ? 'إعداد دورات الحاسوب' : 'Setup Computer Courses'}
+            {updating ? '' : ''} {isAr ? 'إعداد دورات الحاسوب' : 'Setup Computer Courses'}
           </button>
           <button 
             onClick={autoAssignVideos}
             disabled={updating || modules.length === 0}
             className="auto-assign-btn"
           >
-            {updating ? '⏳' : '🤖'} {t.autoAssign}
+            {updating ? '' : ''} {t.autoAssign}
           </button>
         </div>
       </div>
@@ -173,7 +173,7 @@ const ModuleVideoManager: React.FC = () => {
 
       {modules.length === 0 ? (
         <div className="no-modules">
-          ✅ {t.noModules}
+           {t.noModules}
         </div>
       ) : (
         <div className="modules-grid">
@@ -187,7 +187,7 @@ const ModuleVideoManager: React.FC = () => {
                 onClick={() => handleVideoUrlSubmit(module.id)}
                 className="add-video-btn"
               >
-                📹 {t.addVideo}
+                 {t.addVideo}
               </button>
             </div>
           ))}
