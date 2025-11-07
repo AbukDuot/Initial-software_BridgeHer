@@ -27,7 +27,7 @@ const InteractiveQuiz: React.FC<InteractiveQuizProps> = ({ moduleId, onComplete 
   const [showFeedback, setShowFeedback] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [score, setScore] = useState(0);
-  const [dragItems, setDragItems] = useState<string[]>([]);
+  const [, ] = useState<string[]>([]);
   const [dropZones, setDropZones] = useState<Record<string, string>>({});
 
   useEffect(() => {

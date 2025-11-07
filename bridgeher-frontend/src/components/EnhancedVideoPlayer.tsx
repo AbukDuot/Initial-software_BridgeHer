@@ -28,15 +28,14 @@ interface EnhancedVideoPlayerProps {
   videoUrl: string;
   moduleId: number;
   courseId: string;
-  title: string;
+  title?: string;
   videoSources?: VideoSource[];
 }
 
 const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
   videoUrl,
   moduleId,
-  courseId,
-  title
+  courseId
 }) => {
   const { language } = useLanguage();
   const isAr = language === 'Arabic';

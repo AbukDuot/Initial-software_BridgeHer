@@ -59,10 +59,10 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({ onSearch, placeholder }
     } catch (error) {
       // Fallback to mock suggestions
       const mockSuggestions: SearchSuggestion[] = [
-        { id: 1, title: 'Financial Literacy Basics', type: 'course', category: 'Finance' },
-        { id: 2, title: 'Entrepreneurship for Women', type: 'course', category: 'Business' },
-        { id: 3, title: 'Digital Skills', type: 'course', category: 'Technology' },
-        { id: 4, title: 'Leadership & Communication', type: 'course', category: 'Leadership' }
+        { id: 1, title: 'Financial Literacy Basics', type: 'course' as const, category: 'Finance' },
+        { id: 2, title: 'Entrepreneurship for Women', type: 'course' as const, category: 'Business' },
+        { id: 3, title: 'Digital Skills', type: 'course' as const, category: 'Technology' },
+        { id: 4, title: 'Leadership & Communication', type: 'course' as const, category: 'Leadership' }
       ].filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
       setSuggestions(mockSuggestions);
       setShowSuggestions(mockSuggestions.length > 0);

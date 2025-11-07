@@ -77,7 +77,7 @@ const ModuleVideoManager: React.FC = () => {
       
       if (res.ok) {
         const result = await res.json();
-        const totalModules = result.courses.reduce((sum, course) => sum + course.modulesAdded, 0);
+        const totalModules = result.courses.reduce((sum: number, course: any) => sum + course.modulesAdded, 0);
         alert(`✅ Computer courses setup complete! Added ${totalModules} modules to ${result.courses.length} courses.`);
         loadModulesWithoutVideos(); // Refresh the list
       }

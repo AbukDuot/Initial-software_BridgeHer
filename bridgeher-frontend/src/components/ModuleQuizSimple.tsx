@@ -8,7 +8,7 @@ interface Question {
 }
 
 interface ModuleQuizSimpleProps {
-  moduleId: number;
+  moduleId?: number;
   moduleTitle: string;
   onQuizComplete: (passed: boolean) => void;
   onClose: () => void;
@@ -16,7 +16,6 @@ interface ModuleQuizSimpleProps {
 }
 
 const ModuleQuizSimple: React.FC<ModuleQuizSimpleProps> = ({ 
-  moduleId, 
   moduleTitle, 
   onQuizComplete, 
   onClose, 

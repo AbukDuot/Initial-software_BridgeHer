@@ -50,13 +50,13 @@ const UserProfile: React.FC = () => {
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
 
       const [userRes, topicsRes, statsRes, badgesRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/users/${userId}`, { headers }),
-        fetch(`${API_BASE_URL}/api/community/user/${userId}/topics`, { headers }),
-        fetch(`${API_BASE_URL}/api/community/user/${userId}/stats`, { headers }),
-        fetch(`${API_BASE_URL}/api/users/${userId}/badges`, { headers })
+        fetch(`${API_BASE_URL}/api/users/${userId}`, token ? { headers } : {}),
+        fetch(`${API_BASE_URL}/api/community/user/${userId}/topics`, token ? { headers } : {}),
+        fetch(`${API_BASE_URL}/api/community/user/${userId}/stats`, token ? { headers } : {}),
+        fetch(`${API_BASE_URL}/api/users/${userId}/badges`, token ? { headers } : {})
       ]);
 
       if (userRes.ok) {

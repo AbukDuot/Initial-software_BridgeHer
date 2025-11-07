@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { getOfflineCourse, isCourseOffline } from "../utils/offline";
 import { API_BASE_URL } from "../config/api";
-import VideoNotes from "../components/VideoNotes";
-import VideoBookmarks from "../components/VideoBookmarks";
-import EnhancedVideoPlayer from "../components/EnhancedVideoPlayer";
+
 import DatabaseQuiz from "../components/DatabaseQuiz";
 import "../styles/courseplayer.css";
 
@@ -35,8 +33,8 @@ const CoursePlayer: React.FC = () => {
   const [progress, setProgress] = useState(0);
   const [submissionText, setSubmissionText] = useState("");
   const [submissionFile, setSubmissionFile] = useState<File | null>(null);
-  const [offlineMode, setOfflineMode] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [, setOfflineMode] = useState(false);
+  const [, setCurrentTime] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showQuiz, setShowQuiz] = useState(false);
   const [videoCompleted, setVideoCompleted] = useState(false);
@@ -251,11 +249,7 @@ const CoursePlayer: React.FC = () => {
     }
   };
 
-  const handleSeek = (time: number) => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = time;
-    }
-  };
+
 
   const handleSpeedChange = (speed: number) => {
     setPlaybackSpeed(speed);
