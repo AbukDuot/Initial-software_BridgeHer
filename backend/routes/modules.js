@@ -360,6 +360,12 @@ router.post("/:id/complete", requireAuth, async (req, res) => {
       [userId, id]
     );
     
+    await pool.query(
+      `INSERT INTO user_points (user_id, total_points, level) VALUES ($1, 50, 1)
+       ON CONFLICT (user_id) DO UPDATE SET total_points = user_points.total_points + 50`,
+      [userId]
+    );
+    
     
     const { rows: moduleRows } = await pool.query(
       "SELECT course_id FROM modules WHERE id = $1",
