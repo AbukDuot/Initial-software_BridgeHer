@@ -22,7 +22,7 @@ Young women in South Sudan face multiple interconnected barriers preventing acce
 
 **3. Infrastructure Challenges**
 - Internet access is costly and unreliable, especially in rural areas
-- Creates significant urban-rural digital divide
+- Creates a significant urban-rural digital divide
 
 **4. Mentorship Gap**
 - Follow-up mentorship is rare or non-existent
@@ -366,6 +366,8 @@ BridgeHer is fully responsive and supports **Right-to-Left (RTL)** layout for Ar
 
 ## Figma Mockups & Screenshots
 
+[https://www.figma.com/design/iS3wKbP5lqfIoS6bSvknjS/My-project?node-id=0-1&p=f&t=rsxfsnxxvFDKnriI-0](https://www.figma.com/design/iS3wKbP5lqfIoS6bSvknjS/My-project?node-id=0-1&p=f&t=rsxfsnxxvFDKnriI-0)
+
 ![BridgeHer Design](https://github.com/AbukDuot/Initial-software_BridgeHer/blob/main/bridgeher-frontend/src/assets/images/Figma%20design.png)
 
 ## Analysis
@@ -462,7 +464,7 @@ BridgeHer successfully delivered on its core objectives:
 
 1. **Multilingual Implementation**: Successfully implemented RTL support for Arabic with dynamic language switching
 2. **Video Playback**: Resolved issues with Cloudinary video URLs and multiple video source types
-3. **Community Features**: Built comprehensive forum with advanced features (search, moderation, notifications)
+3. **Community Features**: Built a comprehensive forum with advanced features (search, moderation, notifications)
 4. **Database Optimization**: Optimized queries for sorting and filtering large datasets
 5. **Deployment**: Configured production environment with proper CORS, SSL, and environment variables
 
