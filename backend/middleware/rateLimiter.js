@@ -6,6 +6,9 @@ export const authLimiter = rateLimit({
   message: 'Too many login attempts, please try again after 15 minutes',
   standardHeaders: true,
   legacyHeaders: false,
+  skipFailedRequests: false,
+  skipSuccessfulRequests: false,
+  validate: { trustProxy: false },
 });
 
 export const generalLimiter = rateLimit({
@@ -14,4 +17,7 @@ export const generalLimiter = rateLimit({
   message: 'Too many requests, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
+  skipFailedRequests: false,
+  skipSuccessfulRequests: false,
+  validate: { trustProxy: false },
 });
