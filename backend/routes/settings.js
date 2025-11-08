@@ -24,19 +24,17 @@ router.get("/", requireAuth, async (req, res) => {
     }
     
     const settingsResult = await pool.query(
-      "SELECT settings FROM user_settings WHERE user_id = $1",
+      "SELECT language, notifications_enabled FROM user_settings WHERE user_id = $1",
       [userId]
     );
     
-    const settingsData = settingsResult.rows[0]?.settings || {};
+    const settingsData = settingsResult.rows[0] || {};
     
     res.json({
       user: userRows[0] || {},
       settings: {
-        theme: settingsData.theme || 'light',
-        font_size: settingsData.font_size || 'medium',
-        accent_color: settingsData.accent_color || '#4A148C',
-        account_privacy: settingsData.account_privacy || 'public'
+        language: settingsData.language || 'en',
+        notifications_enabled: settingsData.notifications_enabled !== false
       }
     });
   } catch (err) {
@@ -74,21 +72,15 @@ router.put("/", requireAuth, async (req, res) => {
       }
     }
     
-    const settingsData = {
-      theme: theme || 'light',
-      font_size: fontSize || 'medium',
-      accent_color: accent || '#4A148C',
-      account_privacy: accountPrivacy || 'public'
-    };
-    
     await pool.query(
-      `INSERT INTO user_settings (user_id, settings, updated_at)
-       VALUES ($1, $2, NOW())
+      `INSERT INTO user_settings (user_id, language, notifications_enabled, updated_at)
+       VALUES ($1, $2, $3, NOW())
        ON CONFLICT (user_id) 
        DO UPDATE SET 
-         settings = $2,
+         language = COALESCE($2, user_settings.language),
+         notifications_enabled = COALESCE($3, user_settings.notifications_enabled),
          updated_at = NOW()`,
-      [userId, JSON.stringify(settingsData)]
+      [userId, req.body.language, req.body.notifications_enabled]
     );
     
     res.json({ success: true, message: "Settings updated successfully" });
