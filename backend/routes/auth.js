@@ -5,13 +5,12 @@ import pool from "../config/db.js";
 import { sendWelcomeEmail } from "../services/emailService.js";
 import { sendWelcomeSMS } from "../services/smsService.js";
 import { body, validationResult } from "express-validator";
-import { authLimiter } from "../middleware/rateLimiter.js";
 import dotenv from "dotenv";
 
 dotenv.config();
 const router = express.Router();
 
-router.post("/register", authLimiter, [
+router.post("/register", [
   body("name").trim().notEmpty().withMessage("Name is required"),
   body("email").isEmail().withMessage("Valid email is required"),
   body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
@@ -77,7 +76,7 @@ router.post("/register", authLimiter, [
 });
 
 
-router.post("/login", authLimiter, [
+router.post("/login", [
   body("email").isEmail().withMessage("Valid email is required"),
   body("password").notEmpty().withMessage("Password is required")
 ], async (req, res) => {
