@@ -38,6 +38,7 @@ const CoursePlayer: React.FC = () => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [showQuiz, setShowQuiz] = useState(false);
   const [videoCompleted, setVideoCompleted] = useState(false);
+  const [notesExpanded, setNotesExpanded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -361,8 +362,43 @@ const CoursePlayer: React.FC = () => {
               <h2>Description</h2>
               <p>{currentModule.description}</p>
               
-              <h2>Content</h2>
-              <div className="text-content">{currentModule.content}</div>
+              <div style={{margin: '20px 0'}}>
+                <button 
+                  onClick={() => setNotesExpanded(!notesExpanded)}
+                  style={{
+                    background: '#4A148C',
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    width: '100%',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <span>📝 Module Notes</span>
+                  <span>{notesExpanded ? '▼' : '▶'}</span>
+                </button>
+                
+                {notesExpanded && (
+                  <div style={{
+                    background: '#f9f9f9',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    marginTop: '10px',
+                    border: '2px solid #4A148C',
+                    whiteSpace: 'pre-line',
+                    lineHeight: '1.8'
+                  }}>
+                    {currentModule.content}
+                  </div>
+                )}
+              </div>
               
               {currentModule.pdf_url && (
                 <div className="pdf-section">
