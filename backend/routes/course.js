@@ -38,7 +38,7 @@ router.get("/:id/preview", async (req, res) => {
     const { rows } = await pool.query(
       `SELECT c.id, c.title, c.description, c.preview_video_url, c.syllabus, 
               c.estimated_hours, c.prerequisites, c.learning_objectives,
-              c.average_rating, c.total_reviews, c.category, c.level, c.duration,
+              c.average_rating, c.total_reviews, c.category, c.level, c.duration, c.mentor,
               u.name as instructor_name, u.bio as instructor_bio, 
               u.expertise as instructor_expertise
        FROM courses c
@@ -51,7 +51,6 @@ router.get("/:id/preview", async (req, res) => {
       return res.status(404).json({ error: "Course not found" });
     }
     
-    // If no preview data exists, return basic course info
     const course = rows[0];
     const preview = {
       id: course.id,
@@ -62,14 +61,14 @@ router.get("/:id/preview", async (req, res) => {
       estimated_hours: course.estimated_hours || 10,
       prerequisites: course.prerequisites || 'No prerequisites required.',
       learning_objectives: course.learning_objectives || 'Learn essential skills and knowledge in this subject area.',
-      average_rating: course.average_rating || 4.5,
+      average_rating: parseFloat(course.average_rating) || 4.5,
       total_reviews: course.total_reviews || 0,
       category: course.category,
       level: course.level,
       duration: course.duration,
-      instructor_name: course.instructor_name || 'BridgeHer Instructor',
+      instructor_name: course.instructor_name || course.mentor || 'BridgeHer Instructor',
       instructor_bio: course.instructor_bio || 'Experienced educator and industry professional.',
-      instructor_credentials: course.instructor_credentials || 'Certified Professional',
+      instructor_credentials: 'Certified Professional',
       instructor_expertise: course.instructor_expertise || course.category
     };
     
