@@ -189,7 +189,16 @@ const CourseDetail: React.FC = () => {
           titleAr: data.title,
           descriptionEn: data.description,
           descriptionAr: data.description,
-          modules: []
+          modules: [],
+          instructor_name: data.instructor_name || data.mentor,
+          instructor_bio: data.instructor_bio,
+          instructor_credentials: data.instructor_credentials,
+          instructor_expertise: data.instructor_expertise,
+          average_rating: data.average_rating,
+          total_reviews: data.total_reviews,
+          estimated_hours: data.estimated_hours,
+          prerequisites: data.prerequisites,
+          learning_objectives: data.learning_objectives
         });
         
         const modulesRes = await fetch(`${API_BASE_URL}/api/courses/${id}/modules`, {
@@ -292,9 +301,16 @@ const CourseDetail: React.FC = () => {
           </div>
         )}
         
+        {course.prerequisites && (
+          <div className="prerequisites">
+            <h3>{isAr ? 'المتطلبات المسبقة' : 'Prerequisites'}</h3>
+            <p>{course.prerequisites}</p>
+          </div>
+        )}
+        
         {course.learning_objectives && (
           <div className="learning-objectives">
-            <h3>What You'll Learn</h3>
+            <h3>{isAr ? 'ما ستتعلمه' : "What You'll Learn"}</h3>
             <p>{course.learning_objectives}</p>
           </div>
         )}
