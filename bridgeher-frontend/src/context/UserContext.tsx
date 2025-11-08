@@ -30,8 +30,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
       if (typeof window === "undefined") return null;
+      const token = localStorage.getItem("token");
       const stored = localStorage.getItem("user");
-      return stored ? (JSON.parse(stored) as User) : null;
+      if (token && stored) {
+        return JSON.parse(stored) as User;
+      }
+      return null;
     } catch {
       return null;
     }
