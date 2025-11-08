@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config/api";
+import "../styles/auth.css";
 
 const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -27,7 +29,7 @@ const ResetPassword: React.FC = () => {
     setLoading(true);
     
     try {
-      const res = await fetch("${API_BASE_URL}/api/auth/reset-password", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword }),
@@ -50,45 +52,41 @@ const ResetPassword: React.FC = () => {
 
   if (!token) {
     return (
-      <div style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5'}}>
-        <div style={{background: 'white', padding: '2rem', borderRadius: '10px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', maxWidth: '400px', width: '100%'}}>
+      <div className="auth-page">
+        <div className="auth-card">
           <h2>Invalid Reset Link</h2>
-          <p>Please request a new password reset link.</p>
+          <p>Please request a new password reset link from the login page.</p>
+          <button className="btn primary-btn" onClick={() => navigate('/login')}>Go to Login</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5'}}>
-      <div style={{background: 'white', padding: '2rem', borderRadius: '10px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', maxWidth: '400px', width: '100%'}}>
+    <div className="auth-page">
+      <div className="auth-card">
         <h2>Reset Password</h2>
-        <form onSubmit={handleSubmit}>
+        <p>Enter your new password below</p>
+        <form onSubmit={handleSubmit} className="auth-form">
           <input
-            id="newPassword"
-            name="newPassword"
             type="password"
             placeholder="New Password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            autoComplete="new-password"
             required
           />
           <input
-            id="confirmPassword"
-            name="confirmPassword"
             type="password"
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            autoComplete="new-password"
             required
           />
-          <button type="submit" disabled={loading}>
+          <button type="submit" className="btn primary-btn" disabled={loading}>
             {loading ? "Resetting..." : "Reset Password"}
           </button>
         </form>
-        {message && <p className="message">{message}</p>}
+        {message && <p style={{marginTop: '1rem', color: message.includes('successful') ? '#2E7D32' : '#E53935'}}>{message}</p>}
       </div>
     </div>
   );
