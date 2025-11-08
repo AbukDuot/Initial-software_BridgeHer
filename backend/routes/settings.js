@@ -7,6 +7,7 @@ const router = express.Router();
 router.get("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
+    console.log('Settings GET for user:', userId);
     
     let userRows = [];
     try {
