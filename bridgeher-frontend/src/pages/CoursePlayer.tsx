@@ -444,4 +444,3 @@ const CoursePlayer: React.FC = () => {
 };
 
 export default CoursePlayer;
-  

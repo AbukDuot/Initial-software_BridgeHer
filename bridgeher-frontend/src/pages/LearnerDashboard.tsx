@@ -245,7 +245,8 @@ const LearnerDashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, [reminders, sound]);
 
-  const { user = { name: "User" }, stats = {}, completion = { completed: 0, remaining: 100 }, dailyQuote = { en: "", ar: "" } } = dashboardData || {};
+  const { user, stats = {}, completion = { completed: 0, remaining: 100 }, dailyQuote = { en: "", ar: "" } } = dashboardData || {};
+  const userName = user?.name || "User";
   const { streak = 0, xp = 0, level = 1 } = stats;
 
   const chartTextColor = theme === "dark" ? "#FFFFFF" : "#333333";
@@ -382,7 +383,7 @@ const LearnerDashboard: React.FC = () => {
             }}
           />
           <div>
-            <h3>{user.name}</h3>
+            <h3>{userName}</h3>
             <p>{isAr ? "متعلمة متميزة" : "Star Learner"}</p>
           </div>
         </div>
@@ -409,7 +410,7 @@ const LearnerDashboard: React.FC = () => {
         <header className="dashboard-header">
           <div>
             <h1>
-              {t.header.welcome} <span className="highlight">{user.name}</span>
+              {t.header.welcome} <span className="highlight">{userName}</span>
             </h1>
             <p>{t.header.sub}</p>
           </div>
