@@ -375,12 +375,12 @@ const CourseDetail: React.FC = () => {
                       onClick={() => navigate(`/course/${course.id}/module/${m.id}`)}
                       style={{background: '#FFD700', color: '#4A148C', fontWeight: 'bold'}}
                     >
-                      📝 {t.startQuiz}
+                       {t.startQuiz}
                     </button>
                   </>
                 ) : (
                   <button className="btn disabled" disabled>
-                    🔒 {isAr ? 'سجل أولاً' : 'Enroll First'}
+                     {isAr ? 'سجل أولاً' : 'Enroll First'}
                   </button>
                 )}
               </div>

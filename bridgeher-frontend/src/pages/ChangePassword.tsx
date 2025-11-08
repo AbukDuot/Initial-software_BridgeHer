@@ -48,7 +48,7 @@ const ChangePassword: React.FC = () => {
         const data = await res.json();
         setError(data.message || (isArabic ? "فشل تغيير كلمة المرور" : "Failed to change password"));
       }
-    } catch (err) {
+    } catch {
       setError(isArabic ? "خطأ في الاتصال" : "Connection error");
     }
   };

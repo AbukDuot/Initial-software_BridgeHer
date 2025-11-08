@@ -328,7 +328,7 @@ const CoursePlayer: React.FC = () => {
               <div className="actions">
                 {videoCompleted && (
                   <div style={{background: '#E8F5E8', padding: '15px', borderRadius: '8px', margin: '10px 0', textAlign: 'center'}}>
-                    <p style={{color: '#2E7D32', fontWeight: 'bold', margin: '0 0 10px 0'}}>🎉 Video Complete! Take the quiz to finish this module.</p>
+                    <p style={{color: '#2E7D32', fontWeight: 'bold', margin: '0 0 10px 0'}}> Video Complete! Take the quiz to finish this module.</p>
                   </div>
                 )}
                 

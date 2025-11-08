@@ -74,6 +74,8 @@ const DatabaseQuiz: React.FC<DatabaseQuizProps> = ({ moduleId, onQuizComplete, o
       const token = localStorage.getItem('token');
       const timeSpent = (quiz.time_limit * 60) - timeLeft;
       
+      console.log('Submitting quiz:', { quizId: quiz.id, answers, timeSpent });
+      
       const response = await fetch(`${API_BASE_URL}/api/quiz/${quiz.id}/submit`, {
         method: 'POST',
         headers: {
@@ -83,17 +85,25 @@ const DatabaseQuiz: React.FC<DatabaseQuizProps> = ({ moduleId, onQuizComplete, o
         body: JSON.stringify({ answers, timeSpent })
       });
 
+      console.log('Submit response status:', response.status);
+      
       if (response.ok) {
         const result = await response.json();
+        console.log('Quiz result:', result);
         setScore(result.percentage);
         setShowResult(true);
         
         setTimeout(() => {
           onQuizComplete(result.passed);
         }, 2000);
+      } else {
+        const errorData = await response.json();
+        console.error('Submit error:', errorData);
+        alert('Failed to submit quiz: ' + (errorData.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error submitting quiz:', error);
+      alert('Error submitting quiz: ' + (error as Error).message);
     }
   };
 
