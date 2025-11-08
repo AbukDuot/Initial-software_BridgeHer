@@ -31,7 +31,8 @@ const upload = multer({ storage });
 
 
 router.get("/", listCourses);
-// Course preview endpoint
+
+// Course preview endpoint - returns detailed preview with prerequisites, objectives, syllabus
 router.get("/:id/preview", async (req, res) => {
   try {
     const { id } = req.params;
