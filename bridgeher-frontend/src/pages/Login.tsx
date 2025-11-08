@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
+import { useUser } from "../hooks/useUser";
 import { useToast } from "../hooks/useToast";
 import Toast from "../components/Toast";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -9,6 +10,7 @@ import "../styles/auth.css";
 
 const Login: React.FC = () => {
   const { language } = useLanguage();
+  const { setUser } = useUser();
   const isArabic = language === "Arabic";
   const navigate = useNavigate();
   const { toasts, showToast, removeToast } = useToast();
@@ -46,10 +48,11 @@ const Login: React.FC = () => {
       if (response.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
         showToast(isArabic ? "تم تسجيل الدخول بنجاح 🎉" : "Login successful!", "success");
         
         const role = data.user.role.toLowerCase();
-        const redirectPath = role === "mentor" ? "/mentor-dashboard" : "/learner-dashboard";
+        const redirectPath = role === "admin" ? "/admin-dashboard" : role === "mentor" ? "/mentor-dashboard" : "/learner-dashboard";
         setTimeout(() => navigate(redirectPath), 1000);
       } else {
         showToast(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`, "error");

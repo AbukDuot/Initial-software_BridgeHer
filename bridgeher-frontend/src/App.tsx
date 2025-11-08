@@ -39,6 +39,7 @@ import CookieBanner from "./components/CookieBanner";
 import ErrorBoundary from "./components/ErrorBoundary";
 import OfflineIndicator from "./components/OfflineIndicator";
 import FeatureTest from "./components/FeatureTest";
+import ProtectedRoute from "./components/ProtectedRoute";
 const OfflineBanner: React.FC = () => {
   const { isOnline } = useAppContext();
   if (isOnline) return null;
@@ -92,11 +93,36 @@ function App() {
                 <Route path="/quiz/:id" element={<Quiz />} />
                 <Route
                   path="/learner-dashboard"
-                  element={<LearnerDashboard />}
+                  element={
+                    <ProtectedRoute allowedRoles={["Learner"]}>
+                      <LearnerDashboard />
+                    </ProtectedRoute>
+                  }
                 />
-                <Route path="/mentor-dashboard" element={<MentorDashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/admin-course-upload" element={<AdminCourseUpload />} />
+                <Route 
+                  path="/mentor-dashboard" 
+                  element={
+                    <ProtectedRoute allowedRoles={["Mentor"]}>
+                      <MentorDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin-dashboard" 
+                  element={
+                    <ProtectedRoute allowedRoles={["Admin"]}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin-course-upload" 
+                  element={
+                    <ProtectedRoute allowedRoles={["Admin"]}>
+                      <AdminCourseUpload />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/course-player/:courseId" element={<CoursePlayer />} />
                 <Route path="/mentorship" element={<Mentorship />} />
                 <Route path="/settings" element={<Settings />} />
@@ -108,7 +134,14 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/help" element={<HelpFAQ />} />
                 <Route path="/analytics" element={<AnalyticsDashboard />} />
-                <Route path="/admin-reports" element={<AdminReports />} />
+                <Route 
+                  path="/admin-reports" 
+                  element={
+                    <ProtectedRoute allowedRoles={["Admin"]}>
+                      <AdminReports />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/user/:userId" element={<UserProfile />} />
                 <Route path="/bookmarks" element={<Bookmarks />} />
                 <Route path="/change-password" element={<ChangePassword />} />

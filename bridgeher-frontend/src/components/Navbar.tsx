@@ -1,47 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
+import { useUser } from "../hooks/useUser";
 import navbarTranslations from "../i18n/navbarTranslations";
 import NotificationBell from "./NotificationBell";
 import "../styles/navbar.css";
 
 const Navbar: React.FC = () => {
   const { language, toggleLanguage } = useLanguage();
+  const { user } = useUser();
   const t = navbarTranslations[language];
   const navigate = useNavigate();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
-  const [, setUserRole] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const isLoggedIn = !!user;
+  const username = user?.name || "";
+  const userRole = user?.role || "";
 
   useEffect(() => {
     document.documentElement.setAttribute("dir", language === "Arabic" ? "rtl" : "ltr");
-
-    const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
-
-    if (token && user) {
-      setIsLoggedIn(true);
-      try {
-        const userData = JSON.parse(user);
-        setUsername(userData.name || "User");
-        setUserRole(userData.role || "");
-      } catch {
-        setUsername("User");
-        setUserRole("");
-      }
-    } else {
-      setIsLoggedIn(false);
-      setUsername("");
-    }
   }, [language]);
+
+  useEffect(() => {
+    console.log('🔍 Navbar - User:', user);
+    console.log('🔍 Navbar - Role:', userRole);
+  }, [user, userRole]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    setIsLoggedIn(false);
     navigate("/login");
+    window.location.reload();
   };
 
 
@@ -66,9 +56,9 @@ const Navbar: React.FC = () => {
         {/* Navigation Links */}
         <ul className={`nav-links ${menuOpen ? "active" : ""}`}>
           <li><Link to="/" onClick={toggleMenu}>{t.home}</Link></li>
-          <li><Link to="/learner-dashboard" onClick={toggleMenu}>{t.learnerDashboard}</Link></li>
-          <li><Link to="/mentor-dashboard" onClick={toggleMenu}>{t.mentorDashboard}</Link></li>
-          <li><Link to="/admin-dashboard" onClick={toggleMenu}>{t.adminDashboard}</Link></li>
+          {userRole === "Learner" && <li><Link to="/learner-dashboard" onClick={toggleMenu}>{t.learnerDashboard}</Link></li>}
+          {userRole === "Mentor" && <li><Link to="/mentor-dashboard" onClick={toggleMenu}>{t.mentorDashboard}</Link></li>}
+          {userRole === "Admin" && <li><Link to="/admin-dashboard" onClick={toggleMenu}>{t.adminDashboard}</Link></li>}
           {isLoggedIn && <li><Link to="/bookmarks" onClick={toggleMenu}>{language === "Arabic" ? "المفضلة" : "Bookmarks"}</Link></li>}
         </ul>
 
