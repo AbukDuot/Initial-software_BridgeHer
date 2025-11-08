@@ -52,7 +52,7 @@ app.use(generalLimiter);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.get("/", (_req, res) => {
-  res.send("BridgeHer Backend API is running");
+  res.send("BridgeHer Backend API v2 is running");
 });
 
 
