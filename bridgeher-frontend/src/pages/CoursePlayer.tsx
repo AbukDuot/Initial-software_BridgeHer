@@ -138,13 +138,13 @@ const CoursePlayer: React.FC = () => {
     if (passed) {
       try {
         const token = localStorage.getItem("token");
-        await fetch(`${API_BASE_URL}/api/modules/${currentModule.id}/progress`, {
+        await fetch(`${API_BASE_URL}/api/modules/${currentModule.id}/complete`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ completed: true, time_spent: Math.floor(videoRef.current?.currentTime || 0) }),
+          body: JSON.stringify({}),
         });
         
         const completedCount = modules.filter(m => m.id <= currentModule.id).length;
