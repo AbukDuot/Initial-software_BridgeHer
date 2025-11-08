@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
+import { useUser } from "../hooks/useUser";
 import { useToast } from "../hooks/useToast";
 import Toast from "../components/Toast";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -10,6 +11,8 @@ import "../styles/auth.css";
 
 const Register: React.FC = () => {
   const { language } = useLanguage();
+  const { setUser } = useUser();
+  const navigate = useNavigate();
   const isArabic = language === "Arabic";
   const { toasts, showToast, removeToast } = useToast();
 
@@ -66,7 +69,11 @@ const Register: React.FC = () => {
       if (response.ok) {
         showToast(isArabic ? "تم التسجيل بنجاح!" : "Registration successful!", "success");
         localStorage.setItem("token", data.token);
-        setTimeout(() => window.location.href = "/login", 1500);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
+        const role = data.user.role.toLowerCase();
+        const redirectPath = role === "admin" ? "/admin-dashboard" : role === "mentor" ? "/mentor-dashboard" : "/learner-dashboard";
+        setTimeout(() => navigate(redirectPath), 1500);
       } else {
         showToast(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`, "error");
       }
