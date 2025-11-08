@@ -46,13 +46,16 @@ const Login: React.FC = () => {
       setLoading(false);
 
       if (response.ok) {
+        console.log('🔑 Login response:', data);
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         setUser(data.user);
         showToast(isArabic ? "تم تسجيل الدخول بنجاح 🎉" : "Login successful!", "success");
         
-        const role = data.user.role.toLowerCase();
+        const role = (data.user.role || '').toLowerCase();
+        console.log('🔑 User role:', role);
         const redirectPath = role === "admin" ? "/admin-dashboard" : role === "mentor" ? "/mentor-dashboard" : "/learner-dashboard";
+        console.log('🔑 Redirecting to:', redirectPath);
         setTimeout(() => navigate(redirectPath), 1000);
       } else {
         showToast(isArabic ? `خطأ: ${data.message}` : `Error: ${data.message}`, "error");
