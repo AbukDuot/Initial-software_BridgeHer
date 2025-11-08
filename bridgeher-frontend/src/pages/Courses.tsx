@@ -18,6 +18,7 @@ interface Course {
   level: string;
   duration: string;
   mentor: string;
+  image?: string;
   enrolled?: boolean;
 }
 
@@ -179,6 +180,7 @@ const Courses: React.FC = () => {
               level={course.level}
               duration={course.duration}
               instructor={course.mentor}
+              thumbnail={course.image}
               enrolled={course.enrolled}
               language={language}
               onEnroll={handleEnroll}
