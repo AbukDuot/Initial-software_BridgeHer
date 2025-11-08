@@ -260,6 +260,7 @@ const CourseDetail: React.FC = () => {
     }
   };
 
+  // Loading state
   if (loading) return <p className="loading">Loading course details...</p>;
   if (!course)
     return <p className="error">Course not found. Please return to dashboard.</p>;
