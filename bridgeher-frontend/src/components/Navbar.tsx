@@ -56,6 +56,10 @@ const Navbar: React.FC = () => {
         {/* Navigation Links */}
         <ul className={`nav-links ${menuOpen ? "active" : ""}`}>
           <li><Link to="/" onClick={toggleMenu}>{t.home}</Link></li>
+          <li><Link to="/courses" onClick={toggleMenu}>{language === "Arabic" ? "الدورات" : "Courses"}</Link></li>
+          <li><Link to="/community" onClick={toggleMenu}>{language === "Arabic" ? "المجتمع" : "Community"}</Link></li>
+          <li><Link to="/about" onClick={toggleMenu}>{language === "Arabic" ? "من نحن" : "About"}</Link></li>
+          <li><Link to="/mentorship" onClick={toggleMenu}>{language === "Arabic" ? "الإرشاد" : "Mentorship"}</Link></li>
           {userRole === "Learner" && <li><Link to="/learner-dashboard" onClick={toggleMenu}>{t.learnerDashboard}</Link></li>}
           {userRole === "Mentor" && <li><Link to="/mentor-dashboard" onClick={toggleMenu}>{t.mentorDashboard}</Link></li>}
           {userRole === "Admin" && <li><Link to="/admin-dashboard" onClick={toggleMenu}>{t.adminDashboard}</Link></li>}
