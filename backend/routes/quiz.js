@@ -19,22 +19,27 @@ router.get('/module/:moduleId', requireAuth, async (req, res) => {
     }
     
     const quiz = quizRows[0];
-    const questions = quiz.questions || [];
+    let questions = [];
+    
+    if (quiz.questions && Array.isArray(quiz.questions)) {
+      questions = quiz.questions.map((q, idx) => ({
+        id: idx + 1,
+        question: q.question,
+        options: q.options,
+        correct_answer: q.options[q.correctAnswer],
+        points: 10
+      }));
+    }
     
     res.json({ 
       id: quiz.id,
       title: quiz.title,
       time_limit: 30,
       passing_score: quiz.passing_score || 70,
-      questions: questions.map((q, idx) => ({
-        id: idx + 1,
-        question: q.question,
-        options: q.options,
-        correct_answer: q.options[q.correctAnswer],
-        points: 10
-      }))
+      questions
     });
   } catch (error) {
+    console.error('Quiz fetch error:', error);
     res.status(500).json({ error: error.message });
   }
 });
