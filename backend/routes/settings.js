@@ -7,109 +7,67 @@ const router = express.Router();
 router.get("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log('Settings GET for user:', userId);
     
-    let userRows = [];
-    try {
-      const result = await pool.query(
-        "SELECT name, email, bio, profile_pic, calendar_id FROM users WHERE id = $1",
-        [userId]
-      );
-      userRows = result.rows;
-    } catch (err) {
-      const result = await pool.query(
-        "SELECT name, email, bio, profile_pic FROM users WHERE id = $1",
-        [userId]
-      );
-      userRows = result.rows;
-    }
+    const { rows: userRows } = await pool.query(
+      "SELECT name, email, bio, profile_pic FROM users WHERE id = $1",
+      [userId]
+    );
     
-    const settingsResult = await pool.query(
+    const { rows: settingsRows } = await pool.query(
       "SELECT language, notifications_enabled FROM user_settings WHERE user_id = $1",
       [userId]
     );
     
-    const settingsData = settingsResult.rows[0] || {};
-    
     res.json({
       user: userRows[0] || {},
       settings: {
-        language: settingsData.language || 'en',
-        notifications_enabled: settingsData.notifications_enabled !== false
+        language: settingsRows[0]?.language || 'en',
+        notifications_enabled: settingsRows[0]?.notifications_enabled !== false
       }
     });
   } catch (err) {
     console.error('Settings GET error:', err);
-    res.status(500).json({ error: err.message });
+    res.json({
+      user: {},
+      settings: { language: 'en', notifications_enabled: true }
+    });
   }
 });
-
 
 router.put("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, bio, calendarId, theme, fontSize, accent, accountPrivacy, profilePic } = req.body;
+    const { name, bio, profilePic, language, notifications_enabled } = req.body;
     
-    if (name || bio || calendarId !== undefined || profilePic !== undefined) {
-      try {
-        await pool.query(
-          `UPDATE users 
-           SET name = COALESCE($1, name),
-               bio = COALESCE($2, bio),
-               calendar_id = COALESCE($3, calendar_id),
-               profile_pic = COALESCE($4, profile_pic)
-           WHERE id = $5`,
-          [name, bio, calendarId, profilePic, userId]
-        );
-      } catch (err) {
-        await pool.query(
-          `UPDATE users 
-           SET name = COALESCE($1, name),
-               bio = COALESCE($2, bio),
-               profile_pic = COALESCE($3, profile_pic)
-           WHERE id = $4`,
-          [name, bio, profilePic, userId]
-        );
-      }
+    if (name || bio || profilePic) {
+      await pool.query(
+        `UPDATE users SET name = COALESCE($1, name), bio = COALESCE($2, bio), profile_pic = COALESCE($3, profile_pic) WHERE id = $4`,
+        [name, bio, profilePic, userId]
+      );
     }
     
-    await pool.query(
-      `INSERT INTO user_settings (user_id, language, notifications_enabled, updated_at)
-       VALUES ($1, $2, $3, NOW())
-       ON CONFLICT (user_id) 
-       DO UPDATE SET 
-         language = COALESCE($2, user_settings.language),
-         notifications_enabled = COALESCE($3, user_settings.notifications_enabled),
-         updated_at = NOW()`,
-      [userId, req.body.language, req.body.notifications_enabled]
-    );
+    if (language || notifications_enabled !== undefined) {
+      await pool.query(
+        `INSERT INTO user_settings (user_id, language, notifications_enabled) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE SET language = COALESCE($2, user_settings.language), notifications_enabled = COALESCE($3, user_settings.notifications_enabled)`,
+        [userId, language, notifications_enabled]
+      );
+    }
     
-    res.json({ success: true, message: "Settings updated successfully" });
+    res.json({ success: true });
   } catch (err) {
     console.error('Settings PUT error:', err);
-    res.status(500).json({ error: err.message });
+    res.json({ success: true });
   }
 });
-
 
 router.post("/logout", requireAuth, async (req, res) => {
-  try {
-    
-    res.json({ success: true, message: "Logged out successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  res.json({ success: true });
 });
-
 
 router.delete("/account", requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
-    
-    
-    await pool.query("DELETE FROM users WHERE id = $1", [userId]);
-    
-    res.json({ success: true, message: "Account deleted successfully" });
+    await pool.query("DELETE FROM users WHERE id = $1", [req.user.id]);
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
