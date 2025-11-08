@@ -34,6 +34,7 @@ interface CourseData {
   estimated_hours?: number;
   prerequisites?: string;
   learning_objectives?: string;
+  syllabus?: string;
 }
 
 const CourseDetail: React.FC = () => {
@@ -198,7 +199,8 @@ const CourseDetail: React.FC = () => {
           total_reviews: data.total_reviews,
           estimated_hours: data.estimated_hours,
           prerequisites: data.prerequisites,
-          learning_objectives: data.learning_objectives
+          learning_objectives: data.learning_objectives,
+          syllabus: data.syllabus
         });
         
         const modulesRes = await fetch(`${API_BASE_URL}/api/courses/${id}/modules`, {
@@ -313,6 +315,13 @@ const CourseDetail: React.FC = () => {
           <div className="learning-objectives">
             <h3>{isAr ? 'ما ستتعلمه' : "What You'll Learn"}</h3>
             <p>{course.learning_objectives}</p>
+          </div>
+        )}
+        
+        {course.syllabus && (
+          <div className="syllabus">
+            <h3>{isAr ? 'المنهج الدراسي' : 'Course Syllabus'}</h3>
+            <p style={{whiteSpace: 'pre-line'}}>{course.syllabus}</p>
           </div>
         )}
         
