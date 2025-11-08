@@ -19,13 +19,21 @@ router.get('/module/:moduleId', requireAuth, async (req, res) => {
     }
     
     const quiz = quizRows[0];
+    const questions = quiz.questions || [];
     
-    const { rows: questions } = await pool.query(
-      'SELECT id, question, question_type, options, points, order_index FROM quiz_questions WHERE quiz_id = $1 ORDER BY order_index',
-      [quiz.id]
-    );
-    
-    res.json({ ...quiz, questions });
+    res.json({ 
+      id: quiz.id,
+      title: quiz.title,
+      time_limit: 30,
+      passing_score: quiz.passing_score || 70,
+      questions: questions.map((q, idx) => ({
+        id: idx + 1,
+        question: q.question,
+        options: q.options,
+        correct_answer: q.options[q.correctAnswer],
+        points: 10
+      }))
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -38,32 +46,28 @@ router.post('/:quizId/submit', requireAuth, async (req, res) => {
     const { answers, timeSpent } = req.body;
     const userId = req.user.id;
     
-    // Get quiz and questions
     const { rows: quizRows } = await pool.query('SELECT * FROM quizzes WHERE id = $1', [quizId]);
     if (!quizRows[0]) return res.status(404).json({ error: 'Quiz not found' });
     
-    const { rows: questions } = await pool.query(
-      'SELECT * FROM quiz_questions WHERE quiz_id = $1 ORDER BY order_index',
-      [quizId]
-    );
+    const quiz = quizRows[0];
+    const questions = quiz.questions || [];
     
-    // Calculate score
     let score = 0;
-    let totalPoints = 0;
+    const totalPoints = questions.length * 10;
     
-    questions.forEach(question => {
-      totalPoints += question.points;
-      const userAnswer = answers[question.id];
+    questions.forEach((question, idx) => {
+      const questionId = idx + 1;
+      const userAnswer = answers[questionId];
+      const correctAnswer = question.options[question.correctAnswer];
       
-      if (userAnswer && userAnswer.toLowerCase().trim() === question.correct_answer.toLowerCase().trim()) {
-        score += question.points;
+      if (userAnswer && userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim()) {
+        score += 10;
       }
     });
     
     const percentage = totalPoints > 0 ? (score / totalPoints) * 100 : 0;
-    const passed = percentage >= quizRows[0].passing_score;
+    const passed = percentage >= (quiz.passing_score || 70);
     
-    // Save attempt
     const { rows: attemptRows } = await pool.query(
       `INSERT INTO quiz_attempts (user_id, quiz_id, score, total_points, percentage, passed, answers, time_taken)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
