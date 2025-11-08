@@ -45,6 +45,7 @@ const Courses: React.FC = () => {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE_URL}/api/courses`);
       const data = await res.json();
+      console.log('Fetched courses:', data.map((c: Course) => ({ id: c.id, title: c.title, image: c.image })));
       
       if (token) {
         const enrolledRes = await fetch(`${API_BASE_URL}/api/courses/my/enrolled`, {
