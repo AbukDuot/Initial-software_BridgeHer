@@ -237,11 +237,11 @@ router.get("/topics/:id", async (req, res) => {
     }
     
     const { rows: topicRows } = await pool.query(
-      `SELECT t.*, u.name as author_name, u.avatar_url,
+      `SELECT t.*, COALESCE(u.name, 'Anonymous') as author_name, u.avatar_url,
        (SELECT COUNT(*) FROM topic_likes WHERE topic_id = t.id) as likes,
        ${userId ? `(SELECT COUNT(*) > 0 FROM topic_likes WHERE topic_id = t.id AND user_id = $2) as user_liked` : 'false as user_liked'}
        FROM community_topics t
-       JOIN users u ON u.id = t.user_id
+       LEFT JOIN users u ON u.id = t.user_id
        WHERE t.id = $1`,
       userId ? [id, userId] : [id]
     );
