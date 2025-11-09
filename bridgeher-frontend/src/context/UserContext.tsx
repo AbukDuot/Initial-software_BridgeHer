@@ -29,14 +29,18 @@ export const UserContext = createContext<UserContextType | null>(null);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
     try {
-      if (typeof window === "undefined") return null;
+      if (typeof window === "undefined" || !window.localStorage) return null;
       const token = localStorage.getItem("token");
       const stored = localStorage.getItem("user");
       if (token && stored) {
-        return JSON.parse(stored) as User;
+        const parsed = JSON.parse(stored);
+        console.log('👤 UserContext initialized with:', parsed);
+        return parsed as User;
       }
+      console.log('👤 UserContext: No user found in localStorage');
       return null;
-    } catch {
+    } catch (err) {
+      console.error('👤 UserContext initialization error:', err);
       return null;
     }
   });
