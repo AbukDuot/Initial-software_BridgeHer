@@ -199,6 +199,11 @@ const MentorDashboard: React.FC = () => {
   const [sessions, setSessions] = useState<SessionItem[]>([]);
 
   useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setMentorUser(JSON.parse(userData));
+    }
+    
     const fetchDashboard = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -267,6 +272,7 @@ const MentorDashboard: React.FC = () => {
   const [modalSession, setModalSession] = useState<SessionItem | null>(null);
   const [modalDate, setModalDate] = useState("");
   const [modalTime, setModalTime] = useState("");
+  const [mentorUser, setMentorUser] = useState<any>(null);
 
   const chartColors = useMemo(
     () => ({
@@ -429,9 +435,24 @@ const MentorDashboard: React.FC = () => {
   return (
     <div className={`mentor-dashboard ${theme}`}>
       <header className="dashboard-header">
-        <div className="header-left">
-          <h1 className="app-title">{t.title}</h1>
-          <p className="welcome">{t.welcome("Mentor")}</p>
+        <div className="header-left" style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+          {mentorUser && (
+            <img 
+              src={mentorUser.profile_pic || "/default-profile.png"} 
+              alt="Profile" 
+              style={{
+                width: '60px',
+                height: '60px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '3px solid #FFD700'
+              }}
+            />
+          )}
+          <div>
+            <h1 className="app-title">{t.title}</h1>
+            <p className="welcome">{t.welcome(mentorUser?.name || "Mentor")}</p>
+          </div>
         </div>
         <div className="header-controls">
           <button className="toggle-btn" onClick={() => setSoundEnabled(!soundEnabled)}>

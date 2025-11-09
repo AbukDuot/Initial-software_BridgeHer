@@ -79,9 +79,14 @@ const AdminDashboard: React.FC = () => {
   const [userForm, setUserForm] = useState({ name: "", email: "", role: "Learner", status: "Active" });
   const [courseForm, setCourseForm] = useState({ title: "", enrollments: 0, status: "Active" });
   const [showVideoManager, setShowVideoManager] = useState(false);
+  const [adminUser, setAdminUser] = useState<any>(null);
 
   useEffect(() => {
     fetchData();
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setAdminUser(JSON.parse(userData));
+    }
   }, []);
 
   const fetchData = async () => {
@@ -291,7 +296,25 @@ const AdminDashboard: React.FC = () => {
     ))}
     <div className={`admin-dashboard ${isArabic ? "rtl" : ""}`}>
       <header className="admin-header">
-        <h1>{t.title}</h1>
+        <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
+          {adminUser && (
+            <img 
+              src={adminUser.profile_pic || "/default-profile.png"} 
+              alt="Profile" 
+              style={{
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '3px solid #FFD700'
+              }}
+            />
+          )}
+          <div>
+            <h1 style={{margin: 0}}>{t.title}</h1>
+            {adminUser && <p style={{margin: 0, fontSize: '0.9rem', color: '#666'}}>{adminUser.name}</p>}
+          </div>
+        </div>
         <button 
           onClick={() => navigate('/admin-reports')} 
           className="btn" 
