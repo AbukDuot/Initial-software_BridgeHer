@@ -20,6 +20,9 @@ interface Topic {
   status: string;
   locked: boolean;
   created_at: string;
+  image_url?: string;
+  video_url?: string;
+  media_type?: string;
 }
 
 interface Reply {
@@ -425,6 +428,26 @@ const TopicDetail: React.FC = () => {
         <div className="topic-body">
           <p className="topic-description">{topic.description}</p>
           {topic.content && <div className="topic-content" dangerouslySetInnerHTML={{ __html: topic.content }} />}
+          
+          {/* Media Display */}
+          {topic.media_type === 'image' && topic.image_url && (
+            <div className="topic-media">
+              <img 
+                src={topic.image_url.startsWith('http') ? topic.image_url : `${API_BASE_URL}${topic.image_url}`} 
+                alt={topic.title} 
+                style={{maxWidth: '100%', borderRadius: '8px', marginTop: '15px'}} 
+              />
+            </div>
+          )}
+          {topic.media_type === 'video' && topic.video_url && (
+            <div className="topic-media">
+              <video 
+                src={topic.video_url.startsWith('http') ? topic.video_url : `${API_BASE_URL}${topic.video_url}`} 
+                controls 
+                style={{maxWidth: '100%', borderRadius: '8px', marginTop: '15px'}} 
+              />
+            </div>
+          )}
         </div>
 
         {/* Topic Stats & Actions */}

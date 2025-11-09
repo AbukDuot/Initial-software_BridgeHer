@@ -146,7 +146,7 @@ router.get("/activity", async (req, res) => {
 
 router.post("/topics", requireAuth, async (req, res) => {
   try {
-    const { title, category, description, tags } = req.body;
+    const { title, category, description, tags, image_url, video_url, media_type } = req.body;
     const userId = req.user.id;
     
     if (!title || title.trim() === '') {
@@ -154,15 +154,16 @@ router.post("/topics", requireAuth, async (req, res) => {
     }
     
     const { rows } = await pool.query(
-      `INSERT INTO community_topics (user_id, title, category, description, tags)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [userId, title, category || null, description || '', tags || []]
+      `INSERT INTO community_topics (user_id, title, category, description, tags, image_url, video_url, media_type)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [userId, title, category || null, description || '', tags || [], image_url || null, video_url || null, media_type || 'none']
     );
     
     checkAndAwardBadges(userId);
     
     res.status(201).json(rows[0]);
   } catch (err) {
+    console.error('❌ Create topic error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
