@@ -79,7 +79,7 @@ const AdminDashboard: React.FC = () => {
   const [userForm, setUserForm] = useState({ name: "", email: "", role: "Learner", status: "Active" });
   const [courseForm, setCourseForm] = useState({ title: "", enrollments: 0, status: "Active" });
   const [showVideoManager, setShowVideoManager] = useState(false);
-  const [adminUser, setAdminUser] = useState<any>(null);
+  const [adminUser, setAdminUser] = useState<{id: number; name: string; email: string; role: string; profile_pic?: string} | null>(null);
 
   useEffect(() => {
     fetchData();

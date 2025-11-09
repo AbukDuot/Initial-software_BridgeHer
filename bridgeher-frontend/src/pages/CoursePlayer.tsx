@@ -381,8 +381,8 @@ const CoursePlayer: React.FC = () => {
                     justifyContent: 'space-between'
                   }}
                 >
-                  <span>📝 Module Notes</span>
-                  <span>{notesExpanded ? '▼' : '▶'}</span>
+                  <span>Module Notes</span>
+                  <span>{notesExpanded ? '' : ''}</span>
                 </button>
                 
                 {notesExpanded && (

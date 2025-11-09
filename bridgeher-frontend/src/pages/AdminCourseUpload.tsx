@@ -240,7 +240,7 @@ const AdminCourseUpload: React.FC = () => {
 
         {showAssignment && (
           <div className="assignment-form">
-            <h3>📝 Assignment Details</h3>
+            <h3> Assignment Details</h3>
             <input 
               placeholder="Assignment Title" 
               value={currentAssignment.title}
@@ -274,7 +274,7 @@ const AdminCourseUpload: React.FC = () => {
           <div key={idx} className="module-item">
             <div>
               <span>{idx + 1}. {mod.title}</span>
-              {mod.assignment && <span className="has-assignment"> 📝 Assignment</span>}
+              {mod.assignment && <span className="has-assignment"> Assignment</span>}
             </div>
             <button onClick={() => removeModule(idx)}>Remove</button>
           </div>

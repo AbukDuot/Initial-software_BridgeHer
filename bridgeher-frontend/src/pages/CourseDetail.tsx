@@ -290,7 +290,7 @@ const CourseDetail: React.FC = () => {
         
         {course.average_rating && (
           <div className="course-rating">
-            <span className="stars">{'⭐'.repeat(Math.round(course.average_rating))}</span>
+            <span className="stars">{''.repeat(Math.round(course.average_rating))}</span>
             <span>{course.average_rating.toFixed(1)} ({course.total_reviews} reviews)</span>
           </div>
         )}

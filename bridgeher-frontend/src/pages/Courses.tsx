@@ -52,7 +52,7 @@ const Courses: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         const enrolled = await enrolledRes.json();
-        const enrolledIds = enrolled.map((c: any) => c.id);
+        const enrolledIds = enrolled.map((c: Course) => c.id);
         setCourses(data.map((c: Course) => ({ ...c, enrolled: enrolledIds.includes(c.id) })));
       } else {
         setCourses(data);
@@ -84,7 +84,7 @@ const Courses: React.FC = () => {
       } else {
         alert(language === "Arabic" ? "فشل التسجيل" : "Enrollment failed");
       }
-    } catch (err) {
+    } catch {
       alert(language === "Arabic" ? "خطأ في الاتصال" : "Connection error");
     } finally {
       setEnrolling(null);

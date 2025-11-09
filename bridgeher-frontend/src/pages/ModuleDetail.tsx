@@ -160,7 +160,7 @@ const ModuleDetail: React.FC = () => {
     if (nextModule) {
       navigate(`/course/${id}/module/${nextModule.id}`);
     } else {
-      // All modules complete, go to final quiz
+    
       navigate(`/quiz/${id}`);
     }
   };
@@ -198,7 +198,7 @@ const ModuleDetail: React.FC = () => {
         <h2>{module.title}</h2>
         <p>{module.description}</p>
         <div style={{background: '#FFD700', color: '#4A148C', padding: '10px', borderRadius: '5px', margin: '10px 0', fontWeight: 'bold', textAlign: 'center'}}>
-          🎯 {isArabic ? 'الاختبار متاح في نهاية هذه الصفحة!' : 'Quiz available at the bottom of this page!'}
+           {isArabic ? 'الاختبار متاح في نهاية هذه الصفحة!' : 'Quiz available at the bottom of this page!'}
         </div>
       </div>
 
@@ -231,7 +231,7 @@ const ModuleDetail: React.FC = () => {
                   target.style.display = 'none';
                   const msg = document.createElement('div');
                   msg.style.cssText = 'padding: 40px; text-align: center; background: #ffebee; border-radius: 8px; color: #c62828;';
-                  msg.innerHTML = `<h3>❌ ${isArabic ? 'خطأ في تحميل الفيديو' : 'Video Load Error'}</h3><p>${isArabic ? 'تعذر تحميل الفيديو. يرجى المحاولة لاحقاً.' : 'Failed to load video. Please try again later.'}</p>`;
+                  msg.innerHTML = `<h3> ${isArabic ? 'خطأ في تحميل الفيديو' : 'Video Load Error'}</h3><p>${isArabic ? 'تعذر تحميل الفيديو. يرجى المحاولة لاحقاً.' : 'Failed to load video. Please try again later.'}</p>`;
                   target.parentElement?.appendChild(msg);
                 }
               }}
@@ -256,7 +256,7 @@ const ModuleDetail: React.FC = () => {
       {module.pdf_url && (
         <div className="pdf-section">
           <button className="btn download-btn" onClick={downloadPDF}>
-            📄 {isArabic ? "تحميل ملف PDF" : "Download PDF Notes"}
+             {isArabic ? "تحميل ملف PDF" : "Download PDF Notes"}
           </button>
         </div>
       )}
@@ -264,7 +264,7 @@ const ModuleDetail: React.FC = () => {
       {/* Assignment Section */}
       {assignment && (
         <div className="assignment-section">
-          <h3>📝 {assignment.title}</h3>
+          <h3> {assignment.title}</h3>
           <p>{assignment.description}</p>
           
           {!assignment.submitted ? (
@@ -285,7 +285,7 @@ const ModuleDetail: React.FC = () => {
             </>
           ) : (
             <div className="submitted-badge">
-              ✅ {isArabic ? "تم التقديم" : "Submitted"}
+               {isArabic ? "تم التقديم" : "Submitted"}
             </div>
           )}
         </div>
@@ -312,7 +312,7 @@ const ModuleDetail: React.FC = () => {
             margin: '10px 0'
           }}
         >
-          📝 {isArabic ? "اختبار الوحدة" : "MODULE QUIZ"}
+           {isArabic ? "اختبار الوحدة" : "MODULE QUIZ"}
         </button>
         
         {canProceed && (

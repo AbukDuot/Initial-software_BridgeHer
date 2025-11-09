@@ -18,9 +18,9 @@ const CommunityCreate: React.FC = () => {
     poll_question: "",
     poll_options: ["", ""]
   });
-  const [templates, setTemplates] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<{type: string; name: string; template: string}[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
-  const [drafts, setDrafts] = useState<any[]>([]);
+  const [drafts, setDrafts] = useState<{id: number; title: string; category: string; description: string; tags?: string[]; poll_question?: string; poll_options?: string}[]>([]);
   const [showDrafts, setShowDrafts] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string>("");
@@ -93,7 +93,7 @@ const CommunityCreate: React.FC = () => {
     }
   };
 
-  const handleLoadDraft = (draft: any) => {
+  const handleLoadDraft = (draft: {id: number; title: string; category: string; description: string; tags?: string[]; poll_question?: string; poll_options?: string}) => {
     setForm({
       title: draft.title,
       category: draft.category,
@@ -215,7 +215,7 @@ const CommunityCreate: React.FC = () => {
           <h1>{isArabic ? "إنشاء موضوع جديد" : "Create New Topic"}</h1>
           <div>
             <button type="button" className="btn-secondary" onClick={() => setShowDrafts(!showDrafts)} style={{marginRight: '10px'}}>
-              📝 {isArabic ? "المسودات" : "Drafts"} ({drafts.length})
+               {isArabic ? "المسودات" : "Drafts"} ({drafts.length})
             </button>
             <button className="btn-back" onClick={() => navigate("/community")}>
               {isArabic ? "← العودة" : "← Back"}
