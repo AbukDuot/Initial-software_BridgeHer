@@ -56,7 +56,27 @@ const TopicDetail: React.FC = () => {
   useEffect(() => {
     fetchTopic();
     fetchCurrentUser();
+    checkBookmarkStatus();
   }, [id]);
+
+  const checkBookmarkStatus = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/bookmarks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        const bookmarks = await res.json();
+        const isBookmarked = bookmarks.some((b: any) => b.id === Number(id));
+        setIsBookmarked(isBookmarked);
+      }
+    } catch (err) {
+      console.error("Failed to check bookmark status", err);
+    }
+  };
 
   const fetchCurrentUser = () => {
     const user = localStorage.getItem("user");
@@ -292,9 +312,13 @@ const TopicDetail: React.FC = () => {
           ? (isArabic ? "تم الحفظ في المفضلة" : "Bookmarked!")
           : (isArabic ? "تم الإزالة من المفضلة" : "Bookmark removed")
         );
+      } else {
+        const error = await res.json();
+        alert(error.error || (isArabic ? "فشل في الحفظ" : "Failed to bookmark"));
       }
     } catch (err) {
       console.error("Failed to bookmark", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
     }
   };
 
@@ -393,11 +417,10 @@ const TopicDetail: React.FC = () => {
                 placeholder={isArabic ? "الوصف" : "Description"}
                 rows={2}
               />
-              <textarea
+              <RichTextEditor
                 value={editTopicData.content}
-                onChange={(e) => setEditTopicData({ ...editTopicData, content: e.target.value })}
+                onChange={(content) => setEditTopicData({ ...editTopicData, content })}
                 placeholder={isArabic ? "المحتوى" : "Content"}
-                rows={6}
               />
               <div className="edit-actions">
                 <button onClick={handleEditTopic} className="btn-save">{isArabic ? "حفظ" : "Save"}</button>
@@ -534,10 +557,10 @@ const TopicDetail: React.FC = () => {
                   <div className="reply-content" dangerouslySetInnerHTML={{ __html: reply.content }} />
                   {editingReply === reply.id ? (
                     <div className="edit-reply-form">
-                      <textarea
+                      <RichTextEditor
                         value={editReplyText}
-                        onChange={(e) => setEditReplyText(e.target.value)}
-                        rows={3}
+                        onChange={setEditReplyText}
+                        placeholder={isArabic ? "تعديل الرد" : "Edit reply"}
                       />
                       <div className="edit-actions">
                         <button onClick={() => handleEditReply(reply.id)} className="btn-save">{isArabic ? "حفظ" : "Save"}</button>
