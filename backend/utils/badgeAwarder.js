@@ -10,6 +10,8 @@ const BADGE_CRITERIA = {
 
 export const checkAndAwardBadges = async (userId) => {
   try {
+    // Force connection refresh
+    await pool.query('SELECT 1');
     const { rows: stats } = await pool.query(`
       SELECT 
         (SELECT COUNT(*) FROM community_topics WHERE user_id = $1) as topics,
@@ -37,8 +39,8 @@ export const checkAndAwardBadges = async (userId) => {
 
       if (existing.length === 0) {
         await pool.query(
-          `INSERT INTO user_badges (user_id, badge_name, badge_icon) VALUES ($1, $2, $3)`,
-          [userId, badge.name, badge.icon]
+          `INSERT INTO user_badges (user_id, badge_name, badge_description, badge_icon) VALUES ($1, $2, $3, $4)`,
+          [userId, badge.name, `Earned for ${badge.name}`, badge.icon]
         );
 
         await pool.query(
