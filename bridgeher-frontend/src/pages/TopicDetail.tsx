@@ -32,6 +32,9 @@ interface Reply {
   likes: number;
   user_liked: boolean;
   created_at: string;
+  parent_reply_id?: number;
+  best_answer?: boolean;
+  user_id: number;
 }
 
 const TopicDetail: React.FC = () => {
@@ -52,11 +55,25 @@ const TopicDetail: React.FC = () => {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportData, setReportData] = useState({ type: "", id: 0, reason: "" });
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [reactions, setReactions] = useState<any[]>([]);
+  const [replyReactions, setReplyReactions] = useState<{[key: number]: any[]}>({});
+  const [showEmojiPicker, setShowEmojiPicker] = useState<{type: string, id: number} | null>(null);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [nestedReplyText, setNestedReplyText] = useState("");
+  const [pollResults, setPollResults] = useState<any[]>([]);
+  const [userVote, setUserVote] = useState<number | null>(null);
+  const [attachments, setAttachments] = useState<any[]>([]);
+  const [reputation, setReputation] = useState(0);
 
   useEffect(() => {
     fetchTopic();
     fetchCurrentUser();
     checkBookmarkStatus();
+    checkSubscriptionStatus();
+    fetchReactions();
+    fetchPollResults();
+    fetchAttachments();
   }, [id]);
 
   const checkBookmarkStatus = async () => {
@@ -75,6 +92,61 @@ const TopicDetail: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to check bookmark status", err);
+    }
+  };
+
+  const checkSubscriptionStatus = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/subscriptions`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        const subs = await res.json();
+        const isSub = subs.some((s: any) => s.id === Number(id));
+        setIsSubscribed(isSub);
+      }
+    } catch (err) {
+      console.error("Failed to check subscription", err);
+    }
+  };
+
+  const fetchReactions = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/reactions`);
+      if (res.ok) {
+        const data = await res.json();
+        setReactions(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch reactions", err);
+    }
+  };
+
+  const fetchPollResults = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/poll-results`);
+      if (res.ok) {
+        const data = await res.json();
+        setPollResults(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch poll results", err);
+    }
+  };
+
+  const fetchAttachments = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/community/attachments/topic/${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAttachments(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch attachments", err);
     }
   };
 
@@ -391,6 +463,155 @@ const TopicDetail: React.FC = () => {
     }
   };
 
+  const handleSubscribe = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/subscribe`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setIsSubscribed(data.subscribed);
+        alert(data.subscribed ? (isArabic ? "تم الاشتراك" : "Subscribed!") : (isArabic ? "تم إلغاء الاشتراك" : "Unsubscribed"));
+      }
+    } catch (err) {
+      console.error("Failed to subscribe", err);
+    }
+  };
+
+  const handleReact = async (emoji: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/react`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ emoji })
+      });
+
+      if (res.ok) {
+        await fetchReactions();
+        setShowEmojiPicker(null);
+      }
+    } catch (err) {
+      console.error("Failed to react", err);
+    }
+  };
+
+  const handleReplyReact = async (replyId: number, emoji: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/replies/${replyId}/react`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ emoji })
+      });
+
+      if (res.ok) {
+        const reactRes = await fetch(`${API_BASE_URL}/api/community/replies/${replyId}/reactions`);
+        if (reactRes.ok) {
+          const data = await reactRes.json();
+          setReplyReactions(prev => ({ ...prev, [replyId]: data }));
+        }
+        setShowEmojiPicker(null);
+      }
+    } catch (err) {
+      console.error("Failed to react", err);
+    }
+  };
+
+  const handleNestedReply = async (parentId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/replies/${parentId}/reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ content: nestedReplyText })
+      });
+
+      if (res.ok) {
+        setNestedReplyText("");
+        setReplyingTo(null);
+        await fetchTopic();
+      }
+    } catch (err) {
+      console.error("Failed to add nested reply", err);
+    }
+  };
+
+  const handleMarkBestAnswer = async (replyId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/community/replies/${replyId}/mark-best`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        alert(isArabic ? "تم تحديد أفضل إجابة" : "Best answer marked!");
+        await fetchTopic();
+      }
+    } catch (err) {
+      console.error("Failed to mark best answer", err);
+    }
+  };
+
+  const handleVote = async (optionIndex: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ option_index: optionIndex })
+      });
+
+      if (res.ok) {
+        setUserVote(optionIndex);
+        await fetchPollResults();
+      }
+    } catch (err) {
+      console.error("Failed to vote", err);
+    }
+  };
+
   if (loading) return <div className="loading">{isArabic ? "جاري التحميل..." : "Loading..."}</div>;
   if (!topic) return <div className="error">{isArabic ? "الموضوع غير موجود" : "Topic not found"}</div>;
 
@@ -473,6 +694,70 @@ const TopicDetail: React.FC = () => {
           )}
         </div>
 
+        {/* Reactions */}
+        <div className="reactions-section">
+          {reactions.map((r: any) => (
+            <span key={r.emoji} className="reaction-badge" title={r.users.join(', ')}>
+              {r.emoji} {r.count}
+            </span>
+          ))}
+          {currentUser && (
+            <button className="add-reaction-btn" onClick={() => setShowEmojiPicker({type: 'topic', id: topic.id})}>
+              ➕ {isArabic ? "تفاعل" : "React"}
+            </button>
+          )}
+          {showEmojiPicker?.type === 'topic' && showEmojiPicker?.id === topic.id && (
+            <div className="emoji-picker">
+              {['👍', '❤️', '😂', '😮', '😢', '🎉', '🔥', '💯'].map(emoji => (
+                <button key={emoji} onClick={() => handleReact(emoji)}>{emoji}</button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Poll Section */}
+        {topic.poll_question && (
+          <div className="poll-section">
+            <h3>{topic.poll_question}</h3>
+            {JSON.parse(topic.poll_options || '[]').map((option: string, idx: number) => {
+              const result = pollResults.find(r => r.option_index === idx);
+              const votes = result ? parseInt(result.votes) : 0;
+              const totalVotes = pollResults.reduce((sum, r) => sum + parseInt(r.votes), 0);
+              const percentage = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+              
+              return (
+                <div key={idx} className="poll-option">
+                  <button 
+                    onClick={() => handleVote(idx)}
+                    className={userVote === idx ? 'voted' : ''}
+                    disabled={userVote !== null}
+                  >
+                    {option}
+                  </button>
+                  {userVote !== null && (
+                    <div className="poll-result">
+                      <div className="poll-bar" style={{width: `${percentage}%`}}></div>
+                      <span>{percentage}% ({votes} votes)</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Attachments */}
+        {attachments.length > 0 && (
+          <div className="attachments-section">
+            <h4>{isArabic ? "المرفقات" : "Attachments"}</h4>
+            {attachments.map((att: any) => (
+              <a key={att.id} href={att.file_url} target="_blank" rel="noopener noreferrer" className="attachment-link">
+                📎 {att.file_name} ({Math.round(att.file_size / 1024)}KB)
+              </a>
+            ))}
+          </div>
+        )}
+
         {/* Topic Stats & Actions */}
         <div className="topic-actions">
           <button 
@@ -530,6 +815,9 @@ const TopicDetail: React.FC = () => {
               <button className="bookmark-btn" onClick={handleBookmark}>
                 {isBookmarked ? '⭐' : '☆'} {isArabic ? "حفظ" : "Bookmark"}
               </button>
+              <button className="subscribe-btn" onClick={handleSubscribe}>
+                {isSubscribed ? '🔔' : '🔕'} {isArabic ? "اشتراك" : "Subscribe"}
+              </button>
               <button className="report-btn" onClick={() => {
                 setReportData({ type: "topic", id: topic.id, reason: "" });
                 setShowReportModal(true);
@@ -548,13 +836,35 @@ const TopicDetail: React.FC = () => {
             <p className="no-replies">{isArabic ? "لا توجد ردود بعد. كن أول من يرد!" : "No replies yet. Be the first to reply!"}</p>
           ) : (
             <div className="replies-list">
-              {replies.map((reply) => (
-                <div key={reply.id} className="reply-card">
+              {replies.filter(r => !r.parent_reply_id).map((reply) => (
+                <div key={reply.id} className={`reply-card ${reply.best_answer ? 'best-answer' : ''}`}>
                   <div className="reply-header">
                     <strong>{reply.author_name}</strong>
                     <span>{timeAgo(reply.created_at, isArabic)}</span>
+                    {reply.best_answer && <span className="best-badge">✓ {isArabic ? "أفضل إجابة" : "Best Answer"}</span>}
                   </div>
                   <div className="reply-content" dangerouslySetInnerHTML={{ __html: reply.content }} />
+                  
+                  {/* Reply Reactions */}
+                  <div className="reply-reactions">
+                    {(replyReactions[reply.id] || []).map((r: any) => (
+                      <span key={r.emoji} className="reaction-badge-small" title={r.users.join(', ')}>
+                        {r.emoji} {r.count}
+                      </span>
+                    ))}
+                    {currentUser && (
+                      <button className="add-reaction-btn-small" onClick={() => setShowEmojiPicker({type: 'reply', id: reply.id})}>
+                        ➕
+                      </button>
+                    )}
+                    {showEmojiPicker?.type === 'reply' && showEmojiPicker?.id === reply.id && (
+                      <div className="emoji-picker-small">
+                        {['👍', '❤️', '😂', '😮', '😢', '🎉'].map(emoji => (
+                          <button key={emoji} onClick={() => handleReplyReact(reply.id, emoji)}>{emoji}</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   {editingReply === reply.id ? (
                     <div className="edit-reply-form">
                       <RichTextEditor
@@ -586,6 +896,14 @@ const TopicDetail: React.FC = () => {
                           <button className="delete-btn-small" onClick={() => handleDeleteReply(reply.id)}>
                             {isArabic ? "حذف" : "Delete"}
                           </button>
+                          <button className="reply-btn-small" onClick={() => setReplyingTo(reply.id)}>
+                            {isArabic ? "رد" : "Reply"}
+                          </button>
+                          {currentUser.id === topic.user_id && !reply.best_answer && (
+                            <button className="best-answer-btn" onClick={() => handleMarkBestAnswer(reply.id)}>
+                              ✓ {isArabic ? "أفضل إجابة" : "Best Answer"}
+                            </button>
+                          )}
                         </>
                       )}
                       {currentUser && (
@@ -596,6 +914,40 @@ const TopicDetail: React.FC = () => {
                           {isArabic ? "بلاغ" : "Report"}
                         </button>
                       )}
+                    </div>
+                  )}
+                  
+                  {/* Nested Replies */}
+                  {replies.filter(r => r.parent_reply_id === reply.id).length > 0 && (
+                    <div className="nested-replies">
+                      {replies.filter(r => r.parent_reply_id === reply.id).map(nestedReply => (
+                        <div key={nestedReply.id} className="nested-reply-card">
+                          <div className="reply-header">
+                            <strong>{nestedReply.author_name}</strong>
+                            <span>{timeAgo(nestedReply.created_at, isArabic)}</span>
+                          </div>
+                          <div className="reply-content" dangerouslySetInnerHTML={{ __html: nestedReply.content }} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Nested Reply Form */}
+                  {replyingTo === reply.id && (
+                    <div className="nested-reply-form">
+                      <RichTextEditor
+                        value={nestedReplyText}
+                        onChange={setNestedReplyText}
+                        placeholder={isArabic ? "اكتب ردك..." : "Write your reply..."}
+                      />
+                      <div className="nested-reply-actions">
+                        <button onClick={() => handleNestedReply(reply.id)} className="btn-primary">
+                          {isArabic ? "إرسال" : "Send"}
+                        </button>
+                        <button onClick={() => setReplyingTo(null)} className="btn-cancel">
+                          {isArabic ? "إلغاء" : "Cancel"}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

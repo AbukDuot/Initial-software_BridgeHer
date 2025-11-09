@@ -736,4 +736,463 @@ router.put("/topics/:id/lock", requireAuth, async (req, res) => {
   }
 });
 
+// ========== ADVANCED FEATURE 1: NESTED REPLIES ==========
+router.post("/replies/:id/reply", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+    const userId = req.user.id;
+    
+    const { rows: parentReply } = await pool.query(
+      `SELECT topic_id FROM topic_replies WHERE id = $1`,
+      [id]
+    );
+    
+    if (!parentReply[0]) return res.status(404).json({ error: "Parent reply not found" });
+    
+    const { rows } = await pool.query(
+      `INSERT INTO topic_replies (topic_id, user_id, content, parent_reply_id)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [parentReply[0].topic_id, userId, content, id]
+    );
+    
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== ADVANCED FEATURE 2: USER MENTIONS ==========
+router.post("/mentions", requireAuth, async (req, res) => {
+  try {
+    const { content_type, content_id, mentioned_user_id } = req.body;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `INSERT INTO user_mentions (user_id, mentioned_user_id, content_type, content_id)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [userId, mentioned_user_id, content_type, content_id]
+    );
+    
+    await pool.query(
+      `INSERT INTO notifications (user_id, type, title, message)
+       VALUES ($1, $2, $3, $4)`,
+      [mentioned_user_id, 'mention', 'You were mentioned', `You were mentioned in a ${content_type}`]
+    );
+    
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/mentions", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { rows } = await pool.query(
+      `SELECT m.*, u.name as mentioner_name
+       FROM user_mentions m
+       JOIN users u ON u.id = m.user_id
+       WHERE m.mentioned_user_id = $1
+       ORDER BY m.created_at DESC
+       LIMIT 50`,
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== ADVANCED FEATURE 3: EMOJI REACTIONS ==========
+router.post("/topics/:id/react", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { emoji } = req.body;
+    const userId = req.user.id;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT * FROM topic_reactions WHERE topic_id = $1 AND user_id = $2 AND emoji = $3`,
+      [id, userId, emoji]
+    );
+    
+    if (existing.length > 0) {
+      await pool.query(
+        `DELETE FROM topic_reactions WHERE topic_id = $1 AND user_id = $2 AND emoji = $3`,
+        [id, userId, emoji]
+      );
+      res.json({ reacted: false });
+    } else {
+      await pool.query(
+        `INSERT INTO topic_reactions (topic_id, user_id, emoji) VALUES ($1, $2, $3)`,
+        [id, userId, emoji]
+      );
+      res.json({ reacted: true });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/topics/:id/reactions", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT emoji, COUNT(*) as count, array_agg(u.name) as users
+       FROM topic_reactions tr
+       JOIN users u ON u.id = tr.user_id
+       WHERE tr.topic_id = $1
+       GROUP BY emoji`,
+      [id]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/replies/:id/react", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { emoji } = req.body;
+    const userId = req.user.id;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT * FROM reply_reactions WHERE reply_id = $1 AND user_id = $2 AND emoji = $3`,
+      [id, userId, emoji]
+    );
+    
+    if (existing.length > 0) {
+      await pool.query(
+        `DELETE FROM reply_reactions WHERE reply_id = $1 AND user_id = $2 AND emoji = $3`,
+        [id, userId, emoji]
+      );
+      res.json({ reacted: false });
+    } else {
+      await pool.query(
+        `INSERT INTO reply_reactions (reply_id, user_id, emoji) VALUES ($1, $2, $3)`,
+        [id, userId, emoji]
+      );
+      res.json({ reacted: true });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/replies/:id/reactions", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT emoji, COUNT(*) as count, array_agg(u.name) as users
+       FROM reply_reactions rr
+       JOIN users u ON u.id = rr.user_id
+       WHERE rr.reply_id = $1
+       GROUP BY emoji`,
+      [id]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== ADVANCED FEATURE 4: FILE ATTACHMENTS ==========
+router.post("/attachments", requireAuth, async (req, res) => {
+  try {
+    const { content_type, content_id, file_url, file_name, file_size } = req.body;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `INSERT INTO file_attachments (user_id, content_type, content_id, file_url, file_name, file_size)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [userId, content_type, content_id, file_url, file_name, file_size]
+    );
+    
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/attachments/:contentType/:contentId", async (req, res) => {
+  try {
+    const { contentType, contentId } = req.params;
+    const { rows } = await pool.query(
+      `SELECT * FROM file_attachments WHERE content_type = $1 AND content_id = $2`,
+      [contentType, contentId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== ADVANCED FEATURE 5: TOPIC POLLS ==========
+router.post("/topics/:id/vote", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { option_index } = req.body;
+    const userId = req.user.id;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT * FROM poll_votes WHERE topic_id = $1 AND user_id = $2`,
+      [id, userId]
+    );
+    
+    if (existing.length > 0) {
+      await pool.query(
+        `UPDATE poll_votes SET option_index = $1 WHERE topic_id = $2 AND user_id = $3`,
+        [option_index, id, userId]
+      );
+    } else {
+      await pool.query(
+        `INSERT INTO poll_votes (topic_id, user_id, option_index) VALUES ($1, $2, $3)`,
+        [id, userId, option_index]
+      );
+    }
+    
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/topics/:id/poll-results", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      `SELECT option_index, COUNT(*) as votes
+       FROM poll_votes
+       WHERE topic_id = $1
+       GROUP BY option_index
+       ORDER BY option_index`,
+      [id]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== ADVANCED FEATURE 6: BEST ANSWER ==========
+router.post("/replies/:id/mark-best", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const { rows: reply } = await pool.query(
+      `SELECT r.topic_id, t.user_id as topic_owner
+       FROM topic_replies r
+       JOIN community_topics t ON t.id = r.topic_id
+       WHERE r.id = $1`,
+      [id]
+    );
+    
+    if (!reply[0]) return res.status(404).json({ error: "Reply not found" });
+    if (reply[0].topic_owner !== userId && req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Only topic owner can mark best answer" });
+    }
+    
+    await pool.query(
+      `UPDATE topic_replies SET best_answer = false WHERE topic_id = $1`,
+      [reply[0].topic_id]
+    );
+    
+    await pool.query(
+      `UPDATE topic_replies SET best_answer = true WHERE id = $1`,
+      [id]
+    );
+    
+    await pool.query(
+      `UPDATE community_topics SET status = 'solved' WHERE id = $1`,
+      [reply[0].topic_id]
+    );
+    
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== ADVANCED FEATURE 7: USER REPUTATION ==========
+router.post("/reputation", requireAuth, async (req, res) => {
+  try {
+    const { target_user_id, points, reason } = req.body;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `INSERT INTO user_reputation (user_id, awarded_by, points, reason)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [target_user_id, userId, points, reason]
+    );
+    
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/reputation/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { rows } = await pool.query(
+      `SELECT COALESCE(SUM(points), 0) as total_reputation
+       FROM user_reputation
+       WHERE user_id = $1`,
+      [userId]
+    );
+    res.json({ reputation: parseInt(rows[0].total_reputation) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/reputation/:userId/history", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { rows } = await pool.query(
+      `SELECT r.*, u.name as awarded_by_name
+       FROM user_reputation r
+       LEFT JOIN users u ON u.id = r.awarded_by
+       WHERE r.user_id = $1
+       ORDER BY r.created_at DESC
+       LIMIT 50`,
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== ADVANCED FEATURE 8: TOPIC SUBSCRIPTIONS ==========
+router.post("/topics/:id/subscribe", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT * FROM topic_subscriptions WHERE topic_id = $1 AND user_id = $2`,
+      [id, userId]
+    );
+    
+    if (existing.length > 0) {
+      await pool.query(
+        `DELETE FROM topic_subscriptions WHERE topic_id = $1 AND user_id = $2`,
+        [id, userId]
+      );
+      res.json({ subscribed: false });
+    } else {
+      await pool.query(
+        `INSERT INTO topic_subscriptions (topic_id, user_id) VALUES ($1, $2)`,
+        [id, userId]
+      );
+      res.json({ subscribed: true });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/subscriptions", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { rows } = await pool.query(
+      `SELECT t.*, u.name as author_name,
+       (SELECT COUNT(*) FROM topic_replies WHERE topic_id = t.id) as replies,
+       (SELECT COUNT(*) FROM topic_likes WHERE topic_id = t.id) as likes
+       FROM topic_subscriptions ts
+       JOIN community_topics t ON t.id = ts.topic_id
+       JOIN users u ON u.id = t.user_id
+       WHERE ts.user_id = $1
+       ORDER BY t.created_at DESC`,
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== ADVANCED FEATURE 9: DRAFT SAVING ==========
+router.post("/drafts", requireAuth, async (req, res) => {
+  try {
+    const { title, category, description, tags } = req.body;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `INSERT INTO community_topics (user_id, title, category, description, tags, is_draft)
+       VALUES ($1, $2, $3, $4, $5, true) RETURNING *`,
+      [userId, title || 'Untitled Draft', category, description, tags || []]
+    );
+    
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/drafts", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { rows } = await pool.query(
+      `SELECT * FROM community_topics WHERE user_id = $1 AND is_draft = true ORDER BY created_at DESC`,
+      [userId]
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put("/drafts/:id/publish", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `UPDATE community_topics SET is_draft = false WHERE id = $1 AND user_id = $2 RETURNING *`,
+      [id, userId]
+    );
+    
+    if (!rows[0]) return res.status(404).json({ error: "Draft not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ========== ADVANCED FEATURE 10: TOPIC TEMPLATES ==========
+router.get("/templates", async (req, res) => {
+  try {
+    const templates = [
+      { type: 'question', name: 'Question', template: '**Question:** \n\n**What I tried:** \n\n**Expected result:** \n\n**Actual result:** ' },
+      { type: 'discussion', name: 'Discussion', template: '**Topic:** \n\n**Background:** \n\n**Points to discuss:** \n\n**Your thoughts:** ' },
+      { type: 'tutorial', name: 'Tutorial', template: '**Title:** \n\n**Prerequisites:** \n\n**Steps:** \n\n**Conclusion:** ' },
+      { type: 'announcement', name: 'Announcement', template: '**Announcement:** \n\n**Details:** \n\n**Action required:** ' }
+    ];
+    res.json(templates);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/topics/from-template", requireAuth, async (req, res) => {
+  try {
+    const { template_type, title, category, description, tags } = req.body;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `INSERT INTO community_topics (user_id, title, category, description, tags, template_type)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [userId, title, category, description, tags || [], template_type]
+    );
+    
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
