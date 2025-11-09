@@ -36,6 +36,7 @@ import searchRoutes from "./routes/search.js";
 import moduleVideosRoutes from "./routes/moduleVideos.js";
 import setupTechCourseRoutes from "./routes/setupTechCourse.js";
 import testQuizRoutes from "./routes/testQuiz.js";
+import uploadRoutes from "./routes/upload.js";
 
 const app = express();
 app.set('trust proxy', 1);
@@ -85,6 +86,7 @@ app.use("/api/search", searchRoutes);
 app.use("/api/module-videos", moduleVideosRoutes);
 app.use("/api/setup", setupTechCourseRoutes);
 app.use("/api/test", testQuizRoutes);
+app.use("/api/upload", uploadRoutes);
 
 
 app.use((_req, res) => {
