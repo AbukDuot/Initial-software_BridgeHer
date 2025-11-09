@@ -368,7 +368,7 @@ const CourseDetail: React.FC = () => {
               alignItems: 'center',
               gap: '8px'
             }}>
-              📱 {isAr ? 'متاح دون اتصال' : 'Available Offline'}
+               {isAr ? 'متاح دون اتصال' : 'Available Offline'}
             </div>
           )}
         </div>
