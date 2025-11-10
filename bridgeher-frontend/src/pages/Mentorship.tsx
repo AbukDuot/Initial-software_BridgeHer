@@ -87,8 +87,20 @@ const Mentorship: React.FC = () => {
     const fetchMentors = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/api/users/mentors`);
+        if (!res.ok) {
+          console.error('Mentors API error:', res.status);
+          setMentors([]);
+          setLoading(false);
+          return;
+        }
+        const data = await res.json();
+        if (data.error) {
+          console.error('Mentors API error:', data.error);
+          setMentors([]);
+          setLoading(false);
+          return;
+        }
         if (res.ok) {
-          const data = await res.json();
           const avatarMap: Record<string, string> = {
             "Priscilla Ayuen": priscillaImg,
             "Aguil Ajang": aguilImg,
