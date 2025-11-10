@@ -54,65 +54,19 @@ const TopicDetail: React.FC = () => {
   const [editReplyText, setEditReplyText] = useState("");
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportData, setReportData] = useState({ type: "", id: 0, reason: "" });
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [reactions, setReactions] = useState<any[]>([]);
   const [replyReactions, setReplyReactions] = useState<{[key: number]: any[]}>({});
   const [showEmojiPicker, setShowEmojiPicker] = useState<{type: string, id: number} | null>(null);
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [nestedReplyText, setNestedReplyText] = useState("");
-  const [pollResults, setPollResults] = useState<any[]>([]);
-  const [userVote, setUserVote] = useState<number | null>(null);
   const [attachments, setAttachments] = useState<any[]>([]);
-  const [reputation, setReputation] = useState(0);
 
   useEffect(() => {
     fetchTopic();
     fetchCurrentUser();
-    checkBookmarkStatus();
-    checkSubscriptionStatus();
     fetchReactions();
-    fetchPollResults();
     fetchAttachments();
   }, [id]);
-
-  const checkBookmarkStatus = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      
-      const res = await fetch(`${API_BASE_URL}/api/community/bookmarks`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (res.ok) {
-        const bookmarks = await res.json();
-        const isBookmarked = bookmarks.some((b: any) => b.id === Number(id));
-        setIsBookmarked(isBookmarked);
-      }
-    } catch (err) {
-      console.error("Failed to check bookmark status", err);
-    }
-  };
-
-  const checkSubscriptionStatus = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      
-      const res = await fetch(`${API_BASE_URL}/api/community/subscriptions`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (res.ok) {
-        const subs = await res.json();
-        const isSub = subs.some((s: any) => s.id === Number(id));
-        setIsSubscribed(isSub);
-      }
-    } catch (err) {
-      console.error("Failed to check subscription", err);
-    }
-  };
 
   const fetchReactions = async () => {
     try {
@@ -123,18 +77,6 @@ const TopicDetail: React.FC = () => {
       }
     } catch (err) {
       console.error("Failed to fetch reactions", err);
-    }
-  };
-
-  const fetchPollResults = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/poll-results`);
-      if (res.ok) {
-        const data = await res.json();
-        setPollResults(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch poll results", err);
     }
   };
 
@@ -363,36 +305,7 @@ const TopicDetail: React.FC = () => {
     }
   };
 
-  const handleBookmark = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
-        navigate("/login");
-        return;
-      }
 
-      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/bookmark`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setIsBookmarked(data.bookmarked);
-        alert(data.bookmarked 
-          ? (isArabic ? "تم الحفظ في المفضلة" : "Bookmarked!")
-          : (isArabic ? "تم الإزالة من المفضلة" : "Bookmark removed")
-        );
-      } else {
-        const error = await res.json();
-        alert(error.error || (isArabic ? "فشل في الحفظ" : "Failed to bookmark"));
-      }
-    } catch (err) {
-      console.error("Failed to bookmark", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
-    }
-  };
 
   const handleReport = async () => {
     try {
@@ -463,28 +376,7 @@ const TopicDetail: React.FC = () => {
     }
   };
 
-  const handleSubscribe = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
-        return;
-      }
 
-      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/subscribe`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setIsSubscribed(data.subscribed);
-        alert(data.subscribed ? (isArabic ? "تم الاشتراك" : "Subscribed!") : (isArabic ? "تم إلغاء الاشتراك" : "Unsubscribed"));
-      }
-    } catch (err) {
-      console.error("Failed to subscribe", err);
-    }
-  };
 
   const handleReact = async (emoji: string) => {
     try {
@@ -569,48 +461,7 @@ const TopicDetail: React.FC = () => {
     }
   };
 
-  const handleMarkBestAnswer = async (replyId: number) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE_URL}/api/community/replies/${replyId}/mark-best`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` }
-      });
 
-      if (res.ok) {
-        alert(isArabic ? "تم تحديد أفضل إجابة" : "Best answer marked!");
-        await fetchTopic();
-      }
-    } catch (err) {
-      console.error("Failed to mark best answer", err);
-    }
-  };
-
-  const handleVote = async (optionIndex: number) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
-        return;
-      }
-
-      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/vote`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ option_index: optionIndex })
-      });
-
-      if (res.ok) {
-        setUserVote(optionIndex);
-        await fetchPollResults();
-      }
-    } catch (err) {
-      console.error("Failed to vote", err);
-    }
-  };
 
   if (loading) return <div className="loading">{isArabic ? "جاري التحميل..." : "Loading..."}</div>;
   if (!topic) return <div className="error">{isArabic ? "الموضوع غير موجود" : "Topic not found"}</div>;
@@ -715,37 +566,6 @@ const TopicDetail: React.FC = () => {
           )}
         </div>
 
-        {/* Poll Section */}
-        {topic.poll_question && (
-          <div className="poll-section">
-            <h3>{topic.poll_question}</h3>
-            {JSON.parse(topic.poll_options || '[]').map((option: string, idx: number) => {
-              const result = pollResults.find(r => r.option_index === idx);
-              const votes = result ? parseInt(result.votes) : 0;
-              const totalVotes = pollResults.reduce((sum, r) => sum + parseInt(r.votes), 0);
-              const percentage = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
-              
-              return (
-                <div key={idx} className="poll-option">
-                  <button 
-                    onClick={() => handleVote(idx)}
-                    className={userVote === idx ? 'voted' : ''}
-                    disabled={userVote !== null}
-                  >
-                    {option}
-                  </button>
-                  {userVote !== null && (
-                    <div className="poll-result">
-                      <div className="poll-bar" style={{width: `${percentage}%`}}></div>
-                      <span>{percentage}% ({votes} votes)</span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
         {/* Attachments */}
         {attachments.length > 0 && (
           <div className="attachments-section">
@@ -811,20 +631,12 @@ const TopicDetail: React.FC = () => {
             </select>
           )}
           {currentUser && (
-            <>
-              <button className="bookmark-btn" onClick={handleBookmark}>
-                {isBookmarked ? '⭐' : '☆'} {isArabic ? "حفظ" : "Bookmark"}
-              </button>
-              <button className="subscribe-btn" onClick={handleSubscribe}>
-                {isSubscribed ? '🔔' : '🔕'} {isArabic ? "اشتراك" : "Subscribe"}
-              </button>
-              <button className="report-btn" onClick={() => {
-                setReportData({ type: "topic", id: topic.id, reason: "" });
-                setShowReportModal(true);
-              }}>
-                {isArabic ? "بلاغ" : "Report"}
-              </button>
-            </>
+            <button className="report-btn" onClick={() => {
+              setReportData({ type: "topic", id: topic.id, reason: "" });
+              setShowReportModal(true);
+            }}>
+              {isArabic ? "بلاغ" : "Report"}
+            </button>
           )}
         </div>
 
@@ -899,11 +711,6 @@ const TopicDetail: React.FC = () => {
                           <button className="reply-btn-small" onClick={() => setReplyingTo(reply.id)}>
                             {isArabic ? "رد" : "Reply"}
                           </button>
-                          {currentUser.id === topic.user_id && !reply.best_answer && (
-                            <button className="best-answer-btn" onClick={() => handleMarkBestAnswer(reply.id)}>
-                              ✓ {isArabic ? "أفضل إجابة" : "Best Answer"}
-                            </button>
-                          )}
                         </>
                       )}
                       {currentUser && (
