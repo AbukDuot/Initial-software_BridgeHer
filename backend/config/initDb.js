@@ -106,7 +106,8 @@ const initDatabase = async () => {
             status VARCHAR(50) DEFAULT 'pending',
             message TEXT,
             scheduled_at TIMESTAMP,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
           );
         END IF;
       END $$;
@@ -312,12 +313,21 @@ const initDatabase = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS course_recommendations (
+        id SERIAL PRIMARY KEY,
+        course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+        recommended_course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+        similarity_score DECIMAL(3,2) DEFAULT 0.50,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(course_id, recommended_course_id)
+      );
+
       CREATE INDEX IF NOT EXISTS idx_enrollments_user ON enrollments(user_id);
       CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id);
       CREATE INDEX IF NOT EXISTS idx_modules_course ON modules(course_id);
       CREATE INDEX IF NOT EXISTS idx_assignments_module ON assignments(module_id);
-      -- CREATE INDEX IF NOT EXISTS idx_mentorship_requester ON mentorship_requests(requester_id);
-      -- CREATE INDEX IF NOT EXISTS idx_mentorship_mentor ON mentorship_requests(mentor_id);
+      CREATE INDEX IF NOT EXISTS idx_course_recommendations_course_id ON course_recommendations(course_id);
+      CREATE INDEX IF NOT EXISTS idx_course_recommendations_recommended_id ON course_recommendations(recommended_course_id);
     `);
 
     console.log('Database tables created successfully');
