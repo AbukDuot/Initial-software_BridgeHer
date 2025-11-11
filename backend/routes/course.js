@@ -83,17 +83,27 @@ router.get("/:id/preview", async (req, res) => {
 router.get("/:id/recommendations", async (req, res) => {
   try {
     const { id } = req.params;
-    let { rows } = await pool.query(
-      `SELECT c.id, c.title, c.description, c.category, c.level, c.duration, 
-              COALESCE(c.image_url, c.image) as image, 
-              c.average_rating, c.total_reviews, cr.similarity_score 
-       FROM course_recommendations cr
-       JOIN courses c ON c.id = cr.recommended_course_id
-       WHERE cr.course_id = $1
-       ORDER BY cr.similarity_score DESC LIMIT 4`,
-      [id]
-    );
+    let rows = [];
     
+    // Try to get recommendations from course_recommendations table
+    try {
+      const result = await pool.query(
+        `SELECT c.id, c.title, c.description, c.category, c.level, c.duration, 
+                COALESCE(c.image_url, c.image) as image, 
+                c.average_rating, c.total_reviews, cr.similarity_score 
+         FROM course_recommendations cr
+         JOIN courses c ON c.id = cr.recommended_course_id
+         WHERE cr.course_id = $1
+         ORDER BY cr.similarity_score DESC LIMIT 4`,
+        [id]
+      );
+      rows = result.rows;
+    } catch (tableErr) {
+      // Table doesn't exist, fall back to category-based recommendations
+      console.log('course_recommendations table not found, using category-based fallback');
+    }
+    
+    // Fallback to category-based recommendations if no results
     if (rows.length === 0) {
       const { rows: courseRows } = await pool.query('SELECT category FROM courses WHERE id = $1', [id]);
       if (courseRows[0]) {
@@ -111,7 +121,7 @@ router.get("/:id/recommendations", async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error('Course recommendations error:', err);
-    res.status(500).json({ error: err.message });
+    res.json([]);
   }
 });
 router.get("/:id", async (req, res) => {
