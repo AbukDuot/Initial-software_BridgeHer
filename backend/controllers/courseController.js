@@ -19,7 +19,7 @@ async function modelList(opts) {
     where.push(`(title ILIKE $${params.length} OR description ILIKE $${params.length})`);
   }
   params.push(200);
-  const sql = `SELECT * FROM courses ${where.length ? "WHERE " + where.join(" AND ") : ""} ORDER BY id DESC LIMIT $${params.length}`;
+  const sql = `SELECT *, COALESCE(image_url, image) as image FROM courses ${where.length ? "WHERE " + where.join(" AND ") : ""} ORDER BY id DESC LIMIT $${params.length}`;
   const { rows } = await pool.query(sql, params);
   return rows;
 }

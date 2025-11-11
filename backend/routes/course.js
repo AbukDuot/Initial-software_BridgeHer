@@ -62,7 +62,7 @@ router.get("/:id/preview", async (req, res) => {
       estimated_hours: course.estimated_hours || 10,
       prerequisites: course.prerequisites || 'No prerequisites required.',
       learning_objectives: course.learning_objectives || 'Learn essential skills and knowledge in this subject area.',
-      average_rating: parseFloat(course.average_rating) || 4.5,
+      average_rating: course.average_rating ? parseFloat(course.average_rating) : 4.5,
       total_reviews: course.total_reviews || 0,
       category: course.category,
       level: course.level,
@@ -83,36 +83,31 @@ router.get("/:id/preview", async (req, res) => {
 router.get("/:id/recommendations", async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Try to get recommendations from database
     let { rows } = await pool.query(
-      `SELECT c.*, cr.similarity_score 
+      `SELECT c.id, c.title, c.description, c.category, c.level, c.duration, 
+              COALESCE(c.image_url, c.image) as image, 
+              c.average_rating, c.total_reviews, cr.similarity_score 
        FROM course_recommendations cr
        JOIN courses c ON c.id = cr.recommended_course_id
        WHERE cr.course_id = $1
-       ORDER BY cr.similarity_score DESC
-       LIMIT 4`,
+       ORDER BY cr.similarity_score DESC LIMIT 4`,
       [id]
     );
     
-    // If no recommendations exist, get similar courses by category
     if (rows.length === 0) {
-      const { rows: courseRows } = await pool.query(
-        'SELECT category FROM courses WHERE id = $1',
-        [id]
-      );
-      
+      const { rows: courseRows } = await pool.query('SELECT category FROM courses WHERE id = $1', [id]);
       if (courseRows[0]) {
         const { rows: similarRows } = await pool.query(
-          `SELECT *, 0.8 as similarity_score FROM courses 
-           WHERE category = $1 AND id != $2 
+          `SELECT id, title, description, category, level, duration, 
+                  COALESCE(image_url, image) as image, 
+                  average_rating, total_reviews, 0.8 as similarity_score 
+           FROM courses WHERE category = $1 AND id != $2 
            ORDER BY created_at DESC LIMIT 4`,
           [courseRows[0].category, id]
         );
         rows = similarRows;
       }
     }
-    
     res.json(rows);
   } catch (err) {
     console.error('Course recommendations error:', err);
