@@ -12,7 +12,7 @@ const CommunityCreate: React.FC = () => {
 
   const [form, setForm] = useState({
     title: "",
-    category: "General",
+    category: "General",    
     description: "",
     tags: ""
   });

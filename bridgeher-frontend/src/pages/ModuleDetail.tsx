@@ -89,7 +89,17 @@ const ModuleDetail: React.FC = () => {
       
       if (res.ok) {
         const data = await res.json();
-        if (data.length > 0) setAssignment(data[0]);
+        if (data.length > 0) {
+          const assignmentData = data[0];
+          const submissionRes = await fetch(`${API_BASE_URL}/api/assignments/${assignmentData.id}/submission`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (submissionRes.ok) {
+            const submission = await submissionRes.json();
+            assignmentData.submitted = !!submission;
+          }
+          setAssignment(assignmentData);
+        }
       }
     } catch (err) {
       console.error("Failed to load assignment", err);
@@ -129,25 +139,36 @@ const ModuleDetail: React.FC = () => {
 
   const submitAssignment = async () => {
     if (!assignment) return;
+    if (!submissionText.trim()) {
+      alert(isArabic ? "يرجى كتابة إجابة" : "Please write an answer");
+      return;
+    }
     
     try {
       const token = localStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("content", submissionText);
-      if (submissionFile) formData.append("file", submissionFile);
+      const answers = { text: submissionText, file: submissionFile?.name || null };
       
       const res = await fetch(`${API_BASE_URL}/api/assignments/${assignment.id}/submit`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ answers }),
       });
       
       if (res.ok) {
         alert(isArabic ? "تم تقديم الواجب بنجاح!" : "Assignment submitted successfully!");
         setAssignment({ ...assignment, submitted: true });
+        setSubmissionText("");
+        setSubmissionFile(null);
+      } else {
+        const data = await res.json();
+        alert(data.error || (isArabic ? "فشل التقديم" : "Submission failed"));
       }
     } catch (err) {
       console.error("Failed to submit assignment", err);
+      alert(isArabic ? "خطأ في الاتصال" : "Connection error");
     }
   };
 

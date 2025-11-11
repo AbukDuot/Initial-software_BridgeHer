@@ -678,7 +678,7 @@ Covers:
 
 **Course Enrollment Confirmation**
 
-![Email - Course Enrollment](./screenshots/email-enrollment.png)
+![Email - Course Enrollment](./screenshots/Enrollment.jpg)
 
 *Email notification sent when a user successfully enrolls in a course*
 
@@ -686,11 +686,22 @@ Covers:
 
 **Assignment Submission Confirmation**
 
-![Email - Assignment Submitted](./screenshots/email-assignment-submitted.png)
+![Email - Assignment Submitted](./screenshots/Assignment.jpg)
 
 *Email notification confirming assignment submission*
 
 ---
+
+**Mentorship request**
+
+![Email - mentor request](./screenshots/Request.jpg)
+
+*Email notification sent to mentor when a mentorship request is received*
+
+**Sms notification**
+
+![Email - sms notification](./screenshots/Sms.jpg)
+
 
 ## Testing Results
 
@@ -728,21 +739,11 @@ Covers:
 
 **Edge Cases**:
 - Special characters in names and descriptions
-- Very long text inputs (truncation/validation)
+- Very long text inputs (validation)
 - Concurrent user actions
 - Network timeout handling
 
 ### Performance Testing
-
-**Different Hardware/Software Specifications**:
-
-| Device Type | Browser | Screen Size | Performance |
-|-------------|---------|-------------|-------------|
-| Desktop | Chrome 120 | 1920x1080 | Excellent |
-| Desktop | Firefox 121 | 1920x1080 | Excellent |
-| Laptop | Safari 17 | 1440x900 | Good |
-| Tablet | Chrome Mobile | 768x1024 | Good |
-| Mobile | Chrome Mobile | 375x667 | Satisfactory |
 
 **Load Testing Results**:
 - Concurrent Users: Tested up to 50 simultaneous users
@@ -775,7 +776,6 @@ Covers:
 #### Medium-term (6-12 months)
 - AI-powered course recommendations
 - Live video mentorship sessions (WebRTC)
-- Payment integration for premium courses
 - Multi-language support (Swahili)
 - Social media integration for sharing achievements
 
@@ -839,7 +839,7 @@ Software Engineer & Founder – BridgeHer Initiative
 - **Scalable Architecture**: Can support thousands of concurrent users
 - **Open Source Contribution**: Codebase available for educational purposes
 - **Best Practices**: Demonstrates modern web development standards
-- **Innovation**: Combines learning, mentorship, and community in one platform
+
 
 ## License
 
