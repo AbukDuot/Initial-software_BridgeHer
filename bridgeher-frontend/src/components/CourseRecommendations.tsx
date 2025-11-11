@@ -38,6 +38,8 @@ const CourseRecommendations: React.FC<CourseRecommendationsProps> = ({ courseId 
       if (res.ok) {
         const data = await res.json();
         setRecommendations(data);
+      } else {
+        console.error('Recommendations API error:', res.status);
       }
     } catch (error) {
       console.error('Failed to load recommendations:', error);

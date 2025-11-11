@@ -99,7 +99,7 @@ const EnhancedCourseCard: React.FC<CourseCardProps> = ({
 
         <div className="course-actions">
           {!enrolled && onPreview && (
-            <button onClick={() => onPreview(id)} className="preview-btn">
+            <button onClick={() => onPreview(id)} className="preview-btn preview-btn-small">
                {isArabic ? "معاينة" : "Preview"}
             </button>
           )}

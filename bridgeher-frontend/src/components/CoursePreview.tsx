@@ -40,7 +40,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ courseId, onEnroll, onClo
         const data = await res.json();
         setCourse(data);
       } else {
-        // Fallback: try to get basic course info
+        console.error('Preview API error:', res.status, await res.text());
         const fallbackRes = await fetch(`${API_BASE_URL}/api/courses/${courseId}`);
         if (fallbackRes.ok) {
           const fallbackData = await fallbackRes.json();
@@ -56,7 +56,6 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ courseId, onEnroll, onClo
       }
     } catch (error) {
       console.error('Failed to load course preview:', error);
-      // Set a default course object to prevent crashes
       setCourse({
         id: courseId,
         title: 'Course Preview',
