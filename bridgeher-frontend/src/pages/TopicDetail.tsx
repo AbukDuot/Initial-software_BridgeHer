@@ -5,6 +5,7 @@ import { API_BASE_URL } from "../config/api";
 import { timeAgo } from "../utils/timeAgo";
 import RichTextEditor from "../components/RichTextEditor";
 import "../styles/topicDetail.css";
+import "../styles/toggleComments.css";
 
 interface Topic {
   id: number;
@@ -60,13 +61,64 @@ const TopicDetail: React.FC = () => {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [nestedReplyText, setNestedReplyText] = useState("");
   const [attachments, setAttachments] = useState<any[]>([]);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [expandedReplies, setExpandedReplies] = useState<{[key: number]: boolean}>({});
 
   useEffect(() => {
     fetchTopic();
     fetchCurrentUser();
     fetchReactions();
     fetchAttachments();
+    checkBookmark();
   }, [id]);
+  
+  const checkBookmark = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/bookmarks/check/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setIsBookmarked(data.bookmarked);
+      }
+    } catch (err) {
+      console.error("Failed to check bookmark", err);
+    }
+  };
+  
+  const handleBookmark = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/bookmark`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setIsBookmarked(data.bookmarked);
+        alert(data.bookmarked 
+          ? (isArabic ? "تمت إضافة الإشارة المرجعية" : "Bookmark added")
+          : (isArabic ? "تمت إزالة الإشارة المرجعية" : "Bookmark removed")
+        );
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to bookmark", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
+    }
+  };
 
   const fetchReactions = async () => {
     try {
@@ -211,6 +263,11 @@ const TopicDetail: React.FC = () => {
 
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+      
       const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
@@ -219,9 +276,13 @@ const TopicDetail: React.FC = () => {
       if (res.ok) {
         alert(isArabic ? "تم حذف الموضوع" : "Topic deleted");
         navigate("/community");
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
       }
     } catch (err) {
       console.error("Failed to delete topic", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
     }
   };
 
@@ -247,22 +308,36 @@ const TopicDetail: React.FC = () => {
   const handleEditTopic = async () => {
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+      
       const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(editTopicData)
+        body: JSON.stringify({
+          title: editTopicData.title,
+          description: editTopicData.description,
+          category: topic?.category,
+          tags: topic?.tags || []
+        })
       });
 
       if (res.ok) {
         alert(isArabic ? "تم تحديث الموضوع" : "Topic updated");
         setEditingTopic(false);
         await fetchTopic();
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
       }
     } catch (err) {
       console.error("Failed to edit topic", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
     }
   };
 
@@ -398,9 +473,13 @@ const TopicDetail: React.FC = () => {
       if (res.ok) {
         await fetchReactions();
         setShowEmojiPicker(null);
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
       }
     } catch (err) {
       console.error("Failed to react", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
     }
   };
 
@@ -434,7 +513,29 @@ const TopicDetail: React.FC = () => {
     }
   };
 
+  const handleMarkBestAnswer = async (replyId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/community/replies/${replyId}/mark-best`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        alert(isArabic ? "تم تحديد أفضل إجابة" : "Best answer marked");
+        await fetchTopic();
+      }
+    } catch (err) {
+      console.error("Failed to mark best answer", err);
+    }
+  };
+
   const handleNestedReply = async (parentId: number) => {
+    if (!nestedReplyText.trim()) {
+      alert(isArabic ? "الرجاء كتابة تعليق" : "Please write a comment");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -455,9 +556,14 @@ const TopicDetail: React.FC = () => {
         setNestedReplyText("");
         setReplyingTo(null);
         await fetchTopic();
+        alert(isArabic ? "تم إضافة التعليق!" : "Comment added!");
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
       }
     } catch (err) {
       console.error("Failed to add nested reply", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
     }
   };
 
@@ -521,7 +627,9 @@ const TopicDetail: React.FC = () => {
 
         {/* Topic Content */}
         <div className="topic-body">
-          <p className="topic-description">{topic.description}</p>
+          {topic.description && (
+            <div className="topic-description" dangerouslySetInnerHTML={{ __html: topic.description }} />
+          )}
           {topic.content && <div className="topic-content" dangerouslySetInnerHTML={{ __html: topic.content }} />}
           
           {/* Media Display */}
@@ -580,12 +688,6 @@ const TopicDetail: React.FC = () => {
 
         {/* Topic Stats & Actions */}
         <div className="topic-actions">
-          <button 
-            className={`like-btn ${topic.user_liked ? 'liked' : ''}`}
-            onClick={handleLikeTopic}
-          >
-            {topic.user_liked ? '❤️' : '🤍'} {topic.likes} {isArabic ? "إعجاب" : "Likes"}
-          </button>
           <span>👁️ {topic.views} {isArabic ? "مشاهدة" : "Views"}</span>
           <span>💬 {replies.length} {isArabic ? "رد" : "Replies"}</span>
           {topic.status && (
@@ -631,12 +733,20 @@ const TopicDetail: React.FC = () => {
             </select>
           )}
           {currentUser && (
-            <button className="report-btn" onClick={() => {
-              setReportData({ type: "topic", id: topic.id, reason: "" });
-              setShowReportModal(true);
-            }}>
-              {isArabic ? "بلاغ" : "Report"}
-            </button>
+            <>
+              <button 
+                className={`bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`}
+                onClick={handleBookmark}
+              >
+                {isBookmarked ? '🔖' : '📑'} {isBookmarked ? (isArabic ? "محفوظ" : "Saved") : (isArabic ? "حفظ" : "Bookmark")}
+              </button>
+              <button className="report-btn" onClick={() => {
+                setReportData({ type: "topic", id: topic.id, reason: "" });
+                setShowReportModal(true);
+              }}>
+                {isArabic ? "بلاغ" : "Report"}
+              </button>
+            </>
           )}
         </div>
 
@@ -654,8 +764,13 @@ const TopicDetail: React.FC = () => {
                     <strong>{reply.author_name}</strong>
                     <span>{timeAgo(reply.created_at, isArabic)}</span>
                     {reply.best_answer && <span className="best-badge">✓ {isArabic ? "أفضل إجابة" : "Best Answer"}</span>}
+                    {currentUser && (currentUser.id === topic.user_id || currentUser.role === 'Admin') && !reply.best_answer && (
+                      <button className="best-answer-btn" onClick={() => handleMarkBestAnswer(reply.id)}>
+                        ✓ {isArabic ? "أفضل إجابة" : "Mark Best"}
+                      </button>
+                    )}
                   </div>
-                  <div className="reply-content" dangerouslySetInnerHTML={{ __html: reply.content }} />
+                  <div className="reply-content">{reply.content.replace(/<[^>]*>/g, '')}</div>
                   
                   {/* Reply Reactions */}
                   <div className="reply-reactions">
@@ -691,12 +806,6 @@ const TopicDetail: React.FC = () => {
                     </div>
                   ) : (
                     <div className="reply-actions">
-                      <button 
-                        className={`like-btn-small ${reply.user_liked ? 'liked' : ''}`}
-                        onClick={() => handleLikeReply(reply.id)}
-                      >
-                        {reply.user_liked ? '❤️' : '🤍'} {reply.likes}
-                      </button>
                       {currentUser && (
                         <>
                           <button className="edit-btn-small" onClick={() => {
@@ -709,7 +818,7 @@ const TopicDetail: React.FC = () => {
                             {isArabic ? "حذف" : "Delete"}
                           </button>
                           <button className="reply-btn-small" onClick={() => setReplyingTo(reply.id)}>
-                            {isArabic ? "رد" : "Reply"}
+                            {isArabic ? "تعليق" : "Comment"}
                           </button>
                         </>
                       )}
@@ -726,30 +835,45 @@ const TopicDetail: React.FC = () => {
                   
                   {/* Nested Replies */}
                   {replies.filter(r => r.parent_reply_id === reply.id).length > 0 && (
-                    <div className="nested-replies">
-                      {replies.filter(r => r.parent_reply_id === reply.id).map(nestedReply => (
-                        <div key={nestedReply.id} className="nested-reply-card">
-                          <div className="reply-header">
-                            <strong>{nestedReply.author_name}</strong>
-                            <span>{timeAgo(nestedReply.created_at, isArabic)}</span>
-                          </div>
-                          <div className="reply-content" dangerouslySetInnerHTML={{ __html: nestedReply.content }} />
+                    <>
+                      <button 
+                        className="toggle-comments-btn"
+                        onClick={() => setExpandedReplies(prev => ({ ...prev, [reply.id]: !prev[reply.id] }))}
+                      >
+                        {expandedReplies[reply.id] ? '▼' : '▶'} 
+                        {expandedReplies[reply.id] 
+                          ? (isArabic ? 'إخفاء' : 'Hide') 
+                          : (isArabic ? 'عرض' : 'Show')
+                        } {replies.filter(r => r.parent_reply_id === reply.id).length} 
+                        {isArabic ? 'تعليق' : 'comment(s)'}
+                      </button>
+                      {expandedReplies[reply.id] && (
+                        <div className="nested-replies">
+                          {replies.filter(r => r.parent_reply_id === reply.id).map(nestedReply => (
+                            <div key={nestedReply.id} className="nested-reply-card">
+                              <div className="reply-header">
+                                <strong>{nestedReply.author_name}</strong>
+                                <span>{timeAgo(nestedReply.created_at, isArabic)}</span>
+                              </div>
+                              <div className="reply-content">{nestedReply.content.replace(/<[^>]*>/g, '')}</div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      )}
+                    </>
                   )}
                   
-                  {/* Nested Reply Form */}
+                  {/* Nested Comment Form */}
                   {replyingTo === reply.id && (
                     <div className="nested-reply-form">
                       <RichTextEditor
                         value={nestedReplyText}
                         onChange={setNestedReplyText}
-                        placeholder={isArabic ? "اكتب ردك..." : "Write your reply..."}
+                        placeholder={isArabic ? "اكتب تعليقك..." : "Write your comment..."}
                       />
                       <div className="nested-reply-actions">
                         <button onClick={() => handleNestedReply(reply.id)} className="btn-primary">
-                          {isArabic ? "إرسال" : "Send"}
+                          {isArabic ? "إرسال التعليق" : "Post Comment"}
                         </button>
                         <button onClick={() => setReplyingTo(null)} className="btn-cancel">
                           {isArabic ? "إلغاء" : "Cancel"}
@@ -770,10 +894,10 @@ const TopicDetail: React.FC = () => {
                 <RichTextEditor
                   value={replyText}
                   onChange={setReplyText}
-                  placeholder={isArabic ? "اكتب ردك هنا..." : "Write your reply here..."}
+                  placeholder={isArabic ? "اكتب ردك على الموضوع... (استخدم @اسم_المستخدم للإشارة)" : "Write your reply to the topic... (Use @username to mention)"}
                 />
                 <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
-                  {isArabic ? "إرسال الرد" : "Submit Reply"}
+                  {isArabic ? "إرسال الرد" : "Post Reply"}
                 </button>
               </form>
             </div>

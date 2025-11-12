@@ -29,6 +29,7 @@ const AdminReports = lazy(() => import("./pages/AdminReports"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const Bookmarks = lazy(() => import("./pages/Bookmarks"));
 const ChangePassword = lazy(() => import("./pages/ChangePassword"));
+const CreateAnnouncement = lazy(() => import("./pages/CreateAnnouncement"));
 
 import { UserProvider } from "./context/UserContext";
 import { LanguageProvider } from "./context/LanguageContext";
@@ -72,7 +73,6 @@ function App() {
             <CookieBanner language="English" />
 
             <main className="flex-grow-1">
-              {import.meta.env.DEV && <FeatureTest />}
               <Suspense fallback={<div style={{textAlign: 'center', padding: '50px'}}>Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -145,6 +145,14 @@ function App() {
                 <Route path="/user/:userId" element={<UserProfile />} />
                 <Route path="/bookmarks" element={<Bookmarks />} />
                 <Route path="/change-password" element={<ChangePassword />} />
+                <Route 
+                  path="/community/announcement/create" 
+                  element={
+                    <ProtectedRoute allowedRoles={["Admin"]}>
+                      <CreateAnnouncement />
+                    </ProtectedRoute>
+                  } 
+                />
               </Routes>
               </Suspense>
             </main>

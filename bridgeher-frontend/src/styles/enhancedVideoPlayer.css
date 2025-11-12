@@ -63,6 +63,43 @@
   font-size: 14px;
 }
 
+.offline-download-control {
+  display: flex;
+  align-items: center;
+}
+
+.btn-download,
+.btn-downloaded {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-download {
+  background: #4A148C;
+  color: white;
+}
+
+.btn-download:hover:not(:disabled) {
+  background: #FFD700;
+  color: #4A148C;
+}
+
+.btn-download:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-downloaded {
+  background: #2E7D32;
+  color: white;
+  cursor: default;
+}
+
 .video-sidebar {
   background: var(--bg-primary);
   border-radius: var(--radius-md);

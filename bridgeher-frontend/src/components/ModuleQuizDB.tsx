@@ -16,6 +16,9 @@ interface Quiz {
   time_limit: number;
   passing_score: number;
   questions: Question[];
+  attemptCount?: number;
+  maxAttempts?: number;
+  attemptsRemaining?: number;
 }
 
 interface ModuleQuizDBProps {
@@ -40,6 +43,8 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [attemptNumber, setAttemptNumber] = useState(0);
+  const [attemptsRemaining, setAttemptsRemaining] = useState(3);
 
   useEffect(() => {
     fetchQuiz();
@@ -63,7 +68,17 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
       
       if (response.ok) {
         const data = await response.json();
+        
+        // Check if max attempts reached
+        if (data.attemptCount >= data.maxAttempts) {
+          alert(isArabic ? 'لقد وصلت إلى الحد الأقصى من المحاولات (3)' : 'You have reached the maximum attempts (3) for this quiz');
+          onClose();
+          return;
+        }
+        
         setQuiz(data);
+        setAttemptNumber(data.attemptCount + 1);
+        setAttemptsRemaining(data.attemptsRemaining);
         setTimeLeft(data.time_limit * 60); 
       } else {
         
@@ -173,7 +188,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
         const token = localStorage.getItem('token');
         const timeSpent = (quiz.time_limit * 60) - timeLeft;
         
-        await fetch(`${API_BASE_URL}/api/quiz/${quiz.id}/submit`, {
+        const submitRes = await fetch(`${API_BASE_URL}/api/quiz/${quiz.id}/submit`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -181,6 +196,12 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
           },
           body: JSON.stringify({ answers, timeSpent })
         });
+        
+        if (submitRes.ok) {
+          const submitData = await submitRes.json();
+          setAttemptNumber(submitData.attemptNumber);
+          setAttemptsRemaining(submitData.attemptsRemaining);
+        }
       } catch (error) {
         console.error('Error submitting quiz:', error);
       }
@@ -239,11 +260,19 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
           }}>
             {score}%
           </div>
-          <p style={{fontSize: '18px', marginBottom: '20px'}}>
+          <p style={{fontSize: '18px', marginBottom: '10px'}}>
             {score >= quiz.passing_score 
-              ? (isArabic ? ' تهانينا! لقد نجحت!' : ' Congratulations! You passed!')
+              ? (isArabic ? '🎉 تهانينا! لقد نجحت!' : '🎉 Congratulations! You passed!')
               : (isArabic ? ` تحتاج إلى ${quiz.passing_score}% للنجاح` : ` You need ${quiz.passing_score}% to pass`)
             }
+          </p>
+          <p style={{fontSize: '14px', color: '#666', marginBottom: '20px'}}>
+            {isArabic ? `المحاولة ${attemptNumber} من 3` : `Attempt ${attemptNumber} of 3`}
+            {attemptsRemaining > 0 && score < quiz.passing_score && (
+              <span style={{display: 'block', marginTop: '5px', color: '#4A148C'}}>
+                {isArabic ? `${attemptsRemaining} محاولات متبقية` : `${attemptsRemaining} attempts remaining`}
+              </span>
+            )}
           </p>
           <button 
             onClick={onClose}
@@ -270,12 +299,18 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
         background: 'white', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '600px', maxHeight: '90vh', overflow: 'auto'
       }}>
         {/* Header */}
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid #4A148C', paddingBottom: '15px'}}>
-          <h2 style={{color: '#4A148C', margin: 0}}>
-            {quiz.title}
-          </h2>
-          <div style={{background: '#FFD700', color: '#4A148C', padding: '8px 15px', borderRadius: '20px', fontWeight: 'bold'}}>
-             {formatTime(timeLeft)}
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid #4A148C', paddingBottom: '15px', flexWrap: 'wrap', gap: '10px'}}>
+          <div>
+            <h2 style={{color: '#4A148C', margin: 0}}>
+              {quiz.title}
+            </h2>
+            <p style={{fontSize: '12px', color: '#666', margin: '5px 0 0 0'}}>
+              {isArabic ? `المحاولة ${attemptNumber} من 3` : `Attempt ${attemptNumber} of 3`} | 
+              {isArabic ? ` ${attemptsRemaining} متبقية` : ` ${attemptsRemaining} remaining`}
+            </p>
+          </div>
+          <div style={{background: timeLeft < 300 ? '#E53935' : '#FFD700', color: timeLeft < 300 ? 'white' : '#4A148C', padding: '8px 15px', borderRadius: '20px', fontWeight: 'bold'}}>
+            ⏱ {formatTime(timeLeft)}
           </div>
         </div>
 

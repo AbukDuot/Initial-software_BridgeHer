@@ -53,11 +53,15 @@ const ModuleVideoManager: React.FC = () => {
       
       if (res.ok) {
         const result = await res.json();
-        alert(` ${result.message}`);
+        alert(`✅ ${result.message}`);
         loadModulesWithoutVideos(); 
+      } else {
+        const error = await res.json();
+        alert(`❌ Error: ${error.error || 'Failed to auto-assign videos'}`);
       }
-    } catch {
-      alert(' Failed to auto-assign videos');
+    } catch (err) {
+      console.error('Auto-assign error:', err);
+      alert('❌ Failed to auto-assign videos');
     } finally {
       setUpdating(false);
     }

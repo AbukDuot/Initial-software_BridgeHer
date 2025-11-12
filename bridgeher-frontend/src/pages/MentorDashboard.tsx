@@ -204,6 +204,15 @@ const MentorDashboard: React.FC = () => {
       setMentorUser(JSON.parse(userData));
     }
     
+    // Refresh user data on focus (when returning from settings)
+    const handleFocus = () => {
+      const updatedUser = localStorage.getItem('user');
+      if (updatedUser) {
+        setMentorUser(JSON.parse(updatedUser));
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    
     const fetchDashboard = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -221,25 +230,18 @@ const MentorDashboard: React.FC = () => {
         }
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
-        console.log('🔍 FULL Mentor Dashboard Data:', JSON.stringify(data, null, 2));
-        console.log('🔍 Connections Array:', data.connections);
-        console.log('🔍 Connections Length:', data.connections?.length);
         setDashboardData(data);
         
         if (data.connections && Array.isArray(data.connections)) {
           const pending = data.connections.filter((c: any) => c.status === 'pending');
-          console.log('🔍 Pending requests:', pending);
-          console.log('🔍 Pending count:', pending.length);
           setRequests(pending.map((c: any) => ({
             id: c.id.toString(),
             learner: c.learner_name,
             course: c.topic,
             status: c.status
           })));
-          console.log('🔍 Requests state set to:', pending.length, 'items');
           
           const accepted = data.connections.filter((c: any) => c.status === 'accepted');
-          console.log('Accepted connections:', accepted);
           setLearners(accepted.map((c: any) => ({
             id: c.id.toString(),
             name: c.learner_name,
@@ -254,7 +256,6 @@ const MentorDashboard: React.FC = () => {
             topic: c.topic,
             dateISO: c.scheduled_at || new Date(Date.now() + 24 * 3600 * 1000).toISOString()
           }));
-          console.log('Sessions:', sessions);
           setSessions(sessions);
         }
       } catch (err) {
@@ -265,6 +266,8 @@ const MentorDashboard: React.FC = () => {
       }
     };
     fetchDashboard();
+    
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
   const feedback = dashboardData?.feedback || [];
 
@@ -378,13 +381,19 @@ const MentorDashboard: React.FC = () => {
     }
   };
   const openReschedule = (s: SessionItem) => {
-    setModalSession(s);
     const dt = new Date(s.dateISO);
-    setModalDate(dt.toISOString().slice(0, 10));
+    const dateValue = dt.toISOString().slice(0, 10);
     const hh = String(dt.getHours()).padStart(2, "0");
     const mm = String(dt.getMinutes()).padStart(2, "0");
-    setModalTime(`${hh}:${mm}`);
-    setShowModal(true);
+    const timeValue = `${hh}:${mm}`;
+    
+    setModalDate(dateValue);
+    setModalTime(timeValue);
+    setModalSession(s);
+    
+    setTimeout(() => {
+      setShowModal(true);
+    }, 0);
   };
   const saveReschedule = async () => {
     if (!modalSession) return;
@@ -420,11 +429,11 @@ const MentorDashboard: React.FC = () => {
     }
   };
 
-  const totalLearners = dashboardData?.stats?.totalLearners || 0;
-  const totalSessions = dashboardData?.stats?.activeSessions || 0;
-  const avgProgress = learners.length > 0 ? Math.round(learners.reduce((sum, l) => sum + l.progress, 0) / learners.length) : 0;
-  const avgRating = dashboardData?.stats?.avgRating || 0;
-
+  const totalLearners = learners.length || 0;
+  const totalSessions = sessions.length || 0;
+  const avgProgress = learners.length > 0 ? Math.round(learners.reduce((sum, l) => sum + (l.progress || 0), 0) / learners.length) : 0;
+  const avgRating = feedback.length > 0 ? (feedback.reduce((sum: number, f: any) => sum + (f.rating || 0), 0) / feedback.length).toFixed(1) : 0;
+  
   const countLearners = useCountUp(totalLearners);
   const countSessions = useCountUp(totalSessions);
   const countProgress = useCountUp(Math.round(avgProgress));
@@ -433,6 +442,7 @@ const MentorDashboard: React.FC = () => {
   if (loading) return <div className="loading">Loading...</div>;
 
   return (
+    <>
     <div className={`mentor-dashboard ${theme}`}>
       <header className="dashboard-header">
         <div className="header-left" style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
@@ -440,6 +450,7 @@ const MentorDashboard: React.FC = () => {
             <img 
               src={mentorUser.profile_pic || "/default-profile.png"} 
               alt="Profile" 
+              key={mentorUser.profile_pic}
               style={{
                 width: '60px',
                 height: '60px',
@@ -455,6 +466,9 @@ const MentorDashboard: React.FC = () => {
           </div>
         </div>
         <div className="header-controls">
+          <button className="toggle-btn" onClick={() => window.location.href = '/settings'}>
+            ⚙️ {lang === 'ar' ? 'الإعدادات' : 'Settings'}
+          </button>
           <button className="toggle-btn" onClick={() => setSoundEnabled(!soundEnabled)}>
             {soundEnabled ? "🔊 " + t.soundOn : "🔇 " + t.soundOff}
           </button>
@@ -537,24 +551,75 @@ const MentorDashboard: React.FC = () => {
           </ul>
         )}
       </section>
-
+      
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>{t.reschedule}</h3>
-            <div className="modal-grid">
-              <label>{t.date}<input type="date" value={modalDate} onChange={(e) => setModalDate(e.target.value)} /></label>
-              <label>{t.time}<input type="time" value={modalTime} onChange={(e) => setModalTime(e.target.value)} /></label>
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999999
+          }}
+          onClick={() => setShowModal(false)}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '10px',
+              padding: '30px',
+              width: '90%',
+              maxWidth: '420px',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+              color: '#333',
+              border: '3px solid #4A148C'
+            }}
+          >
+            <h3 style={{ color: '#4A148C', marginBottom: '20px', fontSize: '24px' }}>{t.reschedule}</h3>
+            <div style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
+              <label style={{ display: 'block' }}>
+                <strong style={{ display: 'block', marginBottom: '5px', color: '#333' }}>{t.date}</strong>
+                <input 
+                  type="date" 
+                  value={modalDate} 
+                  onChange={(e) => setModalDate(e.target.value)}
+                  style={{ width: '100%', padding: '10px', fontSize: '16px', border: '2px solid #4A148C', borderRadius: '5px' }}
+                />
+              </label>
+              <label style={{ display: 'block' }}>
+                <strong style={{ display: 'block', marginBottom: '5px', color: '#333' }}>{t.time}</strong>
+                <input 
+                  type="time" 
+                  value={modalTime} 
+                  onChange={(e) => setModalTime(e.target.value)}
+                  style={{ width: '100%', padding: '10px', fontSize: '16px', border: '2px solid #4A148C', borderRadius: '5px' }}
+                />
+              </label>
             </div>
-            <div className="modal-actions">
-              <button className="toggle-btn" onClick={saveReschedule}>{t.save}</button>
-              <button className="toggle-btn" onClick={() => setShowModal(false)}>{t.cancel}</button>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button 
+                onClick={saveReschedule}
+                style={{ background: '#4A148C', color: '#FFF', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontSize: '16px' }}
+              >{t.save}</button>
+              <button 
+                onClick={() => setShowModal(false)}
+                style={{ background: '#E53935', color: '#FFF', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontSize: '16px' }}
+              >{t.cancel}</button>
             </div>
           </div>
         </div>
       )}
     </div>
+    </>
   );
 };
+
+
 
 export default MentorDashboard;

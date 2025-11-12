@@ -146,13 +146,30 @@ const Settings: React.FC = () => {
     document.documentElement.style.setProperty("--accent", accent);
   }, [accent, isAr]);
 
-  const handleProfilePicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     playUiSound(true);
-    const reader = new FileReader();
-    reader.onloadend = () => setProfilePic(reader.result as string);
-    reader.readAsDataURL(file);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', 'avatar');
+    
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/api/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setProfilePic(`${API_BASE_URL}${data.url}`);
+      }
+    } catch (err) {
+      console.error('Upload failed:', err);
+    }
   };
 
   const handleSave = async () => {
@@ -179,6 +196,21 @@ const Settings: React.FC = () => {
       if (res.ok) {
         document.documentElement.dataset.theme = theme;
         playUiSound(true, "success");
+        
+        // Update localStorage user data
+        const userRes = await fetch(`${API_BASE_URL}/api/settings`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+          localStorage.setItem('user', JSON.stringify({
+            ...currentUser,
+            name: userData.user.name,
+            profile_pic: userData.user.profile_pic
+          }));
+        }
+        
         alert(t.profile.savedMsg);
       } else {
         alert(isAr ? "فشل الحفظ" : "Failed to save");

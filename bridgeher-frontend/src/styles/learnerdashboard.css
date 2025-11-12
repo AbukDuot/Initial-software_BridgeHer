@@ -284,20 +284,95 @@ html[data-theme="dark"] {
 @media (max-width: 768px) {
   .learner-dashboard {
     flex-direction: column;
+    width: 100%;
+    overflow-x: hidden;
   }
 
   .sidebar {
     width: 100%;
-    flex-direction: row;
-    justify-content: space-around;
+    padding: 15px;
+  }
+
+  .user-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .user-avatar {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .sidebar-nav .nav-item {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  .dashboard-main {
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.3rem;
   }
 
   .stats-section {
     flex-direction: column;
+    gap: 10px;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
   }
 
   .theme-toggle {
     flex-wrap: wrap;
     gap: 5px;
+    width: 100%;
+  }
+
+  .theme-toggle button {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .add-reminder {
+    flex-direction: column;
+  }
+
+  .add-reminder input {
+    width: 100%;
+  }
+
+  .reminder-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .reminder-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .btn-small {
+    flex: 1;
   }
 }

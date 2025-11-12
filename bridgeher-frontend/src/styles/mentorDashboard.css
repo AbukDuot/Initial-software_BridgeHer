@@ -259,20 +259,26 @@ body.fade-transition .chart-box canvas {
 
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 99999;
 }
 
 .modal {
-  background: var(--bg-primary);
+  background: #FFFFFF;
   border-radius: var(--radius-md);
   padding: var(--space-lg);
   width: 90%;
   max-width: 420px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 100000;
+  position: relative;
 }
 
 .modal-grid {
@@ -290,9 +296,44 @@ body.fade-transition .chart-box canvas {
 
 
 @media (max-width: 768px) {
+  .mentor-dashboard {
+    padding: var(--space-md);
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
   .dashboard-header {
     flex-direction: column;
     gap: var(--space-sm);
+    align-items: stretch;
+  }
+
+  .header-left {
+    width: 100%;
+  }
+
+  .header-left img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .header-controls {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-cards {
+    grid-template-columns: 1fr;
   }
 
   .session-card,
@@ -305,5 +346,11 @@ body.fade-transition .chart-box canvas {
   .actions {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .btn-accept,
+  .btn-decline,
+  .btn-reschedule {
+    flex: 1;
   }
 }

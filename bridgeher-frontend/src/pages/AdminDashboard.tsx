@@ -80,13 +80,34 @@ const AdminDashboard: React.FC = () => {
   const [courseForm, setCourseForm] = useState({ title: "", enrollments: 0, status: "Active" });
   const [showVideoManager, setShowVideoManager] = useState(false);
   const [adminUser, setAdminUser] = useState<{id: number; name: string; email: string; role: string; profile_pic?: string} | null>(null);
+  
+  interface SupportMessage {
+    id: number;
+    name: string;
+    email: string;
+    message: string;
+    status: string;
+    created_at: string;
+  }
+  const [supportMessages, setSupportMessages] = useState<SupportMessage[]>([]);
 
   useEffect(() => {
     fetchData();
+    fetchSupportMessages();
     const userData = localStorage.getItem('user');
     if (userData) {
       setAdminUser(JSON.parse(userData));
     }
+    
+    // Refresh user data on focus (when returning from settings)
+    const handleFocus = () => {
+      const updatedUser = localStorage.getItem('user');
+      if (updatedUser) {
+        setAdminUser(JSON.parse(updatedUser));
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   const fetchData = async () => {
@@ -128,7 +149,16 @@ const AdminDashboard: React.FC = () => {
       
       if (coursesRes.ok) {
         const coursesData = await coursesRes.json();
-        setCourses(coursesData.map((c: Course) => ({ ...c, enrollments: 0, status: "Active" })));
+        const enrollmentsRes = await fetch(`${API_BASE_URL}/api/admin/enrollments`, { headers: { Authorization: `Bearer ${token}` } });
+        let enrollmentCounts: Record<number, number> = {};
+        if (enrollmentsRes.ok) {
+          const enrollments = await enrollmentsRes.json();
+          enrollmentCounts = enrollments.reduce((acc: Record<number, number>, e: any) => {
+            acc[e.course_id] = (acc[e.course_id] || 0) + 1;
+            return acc;
+          }, {});
+        }
+        setCourses(coursesData.map((c: Course) => ({ ...c, enrollments: enrollmentCounts[c.id] || 0, status: "Active" })));
         setStats(prev => ({ ...prev, totalCourses: coursesData.length }));
       }
     } catch (err) {
@@ -283,7 +313,45 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const fetchSupportMessages = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/support/messages`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSupportMessages(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch support messages", err);
+    }
+  };
 
+  const handleResolveMessage = async (id: number) => {
+    playUiSound(sound);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/support/messages/${id}/resolve`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        await fetchSupportMessages();
+        addToast(isArabic ? "تم وضع علامة كمحلول" : "Marked as resolved", "success");
+      }
+    } catch {
+      addToast(isArabic ? "فشل في التحديث" : "Failed to update", "error");
+    }
+  };
+
+  const handleReplyEmail = (email: string, name: string) => {
+    playUiSound(sound);
+    const message = isArabic 
+      ? `البريد الإلكتروني للمتعلم:\n\n${email}\n\nانسخ هذا البريد وارسل ردك عبر Gmail أو Outlook`
+      : `Learner's Email:\n\n${email}\n\nCopy this email and send your reply via Gmail or Outlook`;
+    alert(message);
+  };
 
   if (loading) {
     return <LoadingSpinner size="large" message={isArabic ? "جارٍ التحميل..." : "Loading..."} />;
@@ -301,6 +369,7 @@ const AdminDashboard: React.FC = () => {
             <img 
               src={adminUser.profile_pic || "/default-profile.png"} 
               alt="Profile" 
+              key={adminUser.profile_pic}
               style={{
                 width: '50px',
                 height: '50px',
@@ -329,6 +398,9 @@ const AdminDashboard: React.FC = () => {
           {isArabic ? 'البلاغات' : 'Reports'}
         </button>
         <div className="theme-toggle">
+          <button onClick={() => navigate('/settings')} style={{marginRight: '10px'}}>
+            ⚙️ {isArabic ? 'الإعدادات' : 'Settings'}
+          </button>
           <button
             onClick={() => {
               playUiSound(sound);
@@ -365,17 +437,18 @@ const AdminDashboard: React.FC = () => {
           <h2>{t.userManagement}</h2>
           <button className="btn primary" onClick={handleAddUser}>{t.addUser}</button>
         </div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t.name}</th>
-              <th>{t.email}</th>
-              <th>{t.role}</th>
-              <th>{t.status}</th>
-              <th>{t.actions}</th>
-            </tr>
-          </thead>
-          <tbody>
+        <div className="data-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{t.name}</th>
+                <th>{t.email}</th>
+                <th>{t.role}</th>
+                <th>{t.status}</th>
+                <th>{t.actions}</th>
+              </tr>
+            </thead>
+            <tbody>
             {users.length === 0 ? (
               <tr>
                 <td colSpan={5} style={{textAlign: 'center', padding: '40px'}}>
@@ -395,13 +468,14 @@ const AdminDashboard: React.FC = () => {
                 </td>
               </tr>
             ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </section>
       <section className="management-section">
         <div className="section-header">
           <h2>{t.courseManagement}</h2>
-          <div style={{display: 'flex', gap: '10px'}}>
+          <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
             <button className="btn primary" onClick={() => navigate('/admin-course-upload')}>
               📹 {isArabic ? 'رفع دورة بالفيديو' : 'Upload Course with Videos'}
             </button>
@@ -411,16 +485,17 @@ const AdminDashboard: React.FC = () => {
             <button className="btn primary" onClick={handleAddCourse}>{t.addCourse}</button>
           </div>
         </div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>{t.titleCol}</th>
-              <th>{t.enrollments}</th>
-              <th>{t.status}</th>
-              <th>{t.actions}</th>
-            </tr>
-          </thead>
-          <tbody>
+        <div className="data-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{t.titleCol}</th>
+                <th>{t.enrollments}</th>
+                <th>{t.status}</th>
+                <th>{t.actions}</th>
+              </tr>
+            </thead>
+            <tbody>
             {courses.length === 0 ? (
               <tr>
                 <td colSpan={4} style={{textAlign: 'center', padding: '40px'}}>
@@ -439,8 +514,82 @@ const AdminDashboard: React.FC = () => {
                 </td>
               </tr>
             ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="management-section">
+        <div className="section-header">
+          <h2>{isArabic ? 'رسائل الدعم' : 'Support Messages'}</h2>
+          <span style={{color: '#666', fontSize: '0.9rem'}}>
+            {isArabic ? `${toArabicNumerals(supportMessages.filter(m => m.status === 'pending').length)} قيد الانتظار` : `${supportMessages.filter(m => m.status === 'pending').length} Pending`}
+          </span>
+        </div>
+        <div className="data-table">
+          {supportMessages.length === 0 ? (
+            <p style={{textAlign: 'center', padding: '40px', color: '#666'}}>
+              {isArabic ? 'لا توجد رسائل دعم بعد' : 'No support messages yet'}
+            </p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>{isArabic ? 'الاسم' : 'Name'}</th>
+                  <th>{isArabic ? 'البريد الإلكتروني' : 'Email'}</th>
+                  <th>{isArabic ? 'الرسالة' : 'Message'}</th>
+                  <th>{isArabic ? 'التاريخ' : 'Date'}</th>
+                  <th>{isArabic ? 'الحالة' : 'Status'}</th>
+                  <th>{isArabic ? 'الإجراءات' : 'Actions'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {supportMessages.map((msg) => (
+                  <tr key={msg.id} style={{backgroundColor: msg.status === 'resolved' ? '#f0f0f0' : 'white'}}>
+                    <td style={{minWidth: '100px'}}>{msg.name}</td>
+                    <td style={{minWidth: '150px'}}>{msg.email}</td>
+                    <td style={{maxWidth: '200px', minWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                      {msg.message}
+                    </td>
+                    <td style={{minWidth: '100px'}}>{new Date(msg.created_at).toLocaleDateString()}</td>
+                    <td style={{minWidth: '80px'}}>
+                      <span style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        background: msg.status === 'resolved' ? '#4CAF50' : '#FF9800',
+                        color: 'white',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {msg.status === 'resolved' ? (isArabic ? 'محلول' : 'Resolved') : (isArabic ? 'قيد الانتظار' : 'Pending')}
+                      </span>
+                    </td>
+                    <td style={{minWidth: '120px'}}>
+                      <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
+                        <button 
+                          className="btn-small" 
+                          onClick={() => handleReplyEmail(msg.email, msg.name)}
+                          style={{margin: 0, width: '100%'}}
+                        >
+                          {isArabic ? 'رد' : 'Reply'}
+                        </button>
+                        {msg.status === 'pending' && (
+                          <button 
+                            className="btn-small" 
+                            onClick={() => handleResolveMessage(msg.id)}
+                            style={{background: '#4CAF50', color: 'white', margin: 0, width: '100%'}}
+                          >
+                            {isArabic ? 'حل' : 'Resolve'}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </section>
 
     </div>
@@ -508,10 +657,10 @@ const AdminDashboard: React.FC = () => {
     
     {showVideoManager && (
       <div className="modal-overlay" onClick={() => setShowVideoManager(false)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10000, padding: '20px'}}>
-        <div className="modal" onClick={(e) => e.stopPropagation()} style={{width: '90%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto', background: 'white', borderRadius: '12px'}}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', borderBottom: '1px solid #eee'}}>
+        <div onClick={(e) => e.stopPropagation()} style={{width: '90%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto', background: 'white', borderRadius: '12px', padding: '20px'}}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
             <h3 style={{margin: 0}}>{isArabic ? 'إدارة فيديوهات الوحدات' : 'Module Video Manager'}</h3>
-            <button onClick={() => setShowVideoManager(false)} style={{background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer'}}>×</button>
+            <button onClick={() => setShowVideoManager(false)} style={{background: 'none', border: 'none', fontSize: '32px', cursor: 'pointer', color: '#333'}}>×</button>
           </div>
           <ModuleVideoManager />
         </div>

@@ -166,8 +166,23 @@ const LearnerDashboard: React.FC = () => {
   const [reminders, setReminders] = useState<{ id: number; reminder_text: string; done: boolean; isNew?: boolean; reminder_time?: string }[]>([]);
   const [input, setInput] = useState("");
   const [reminderTime, setReminderTime] = useState("");
+  const [learnerUser, setLearnerUser] = useState<any>(null);
 
   useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setLearnerUser(JSON.parse(userData));
+    }
+    
+    // Refresh user data on focus (when returning from settings)
+    const handleFocus = () => {
+      const updatedUser = localStorage.getItem('user');
+      if (updatedUser) {
+        setLearnerUser(JSON.parse(updatedUser));
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    
     const fetchDashboard = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -188,6 +203,21 @@ const LearnerDashboard: React.FC = () => {
         console.log('📊 Learner Dashboard Data:', data);
         console.log('📊 Weekly Hours:', data.weeklyHours);
         console.log('📊 Calendar ID:', data.user?.calendar_id);
+        
+        // Verify the user data matches the logged-in user
+        const storedUser = JSON.parse(localStorage.getItem("user") || '{}');
+        console.log('📊 Stored user:', storedUser);
+        console.log('📊 API returned user:', data.user);
+        
+        if (data.user && storedUser.email && data.user.email !== storedUser.email) {
+          console.error('⚠️ User mismatch! Stored:', storedUser.email, 'API returned:', data.user.email);
+          alert('Session error detected. Please login again.');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+          return;
+        }
+        
         setDashboardData(data);
       } catch (err) {
         console.error("Failed to fetch dashboard", err);
@@ -197,6 +227,8 @@ const LearnerDashboard: React.FC = () => {
       }
     };
     fetchDashboard();
+    
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   useEffect(() => {
@@ -246,7 +278,10 @@ const LearnerDashboard: React.FC = () => {
   }, [reminders, sound]);
 
   const { user, stats = {}, completion = { completed: 0, remaining: 100 }, dailyQuote = { en: "", ar: "" } } = dashboardData || {};
-  const userName = user?.name || "User";
+  
+  // Always use the stored user as the source of truth for display
+  const storedUser = JSON.parse(localStorage.getItem("user") || '{}');
+  const userName = storedUser?.name || user?.name || "User";
   const { streak = 0, xp = 0, level = 1 } = stats;
 
   const chartTextColor = theme === "dark" ? "#FFFFFF" : "#333333";
@@ -371,9 +406,10 @@ const LearnerDashboard: React.FC = () => {
       <aside className="sidebar">
         <div className="user-section">
           <img 
-            src={dashboardData?.user?.profile_pic || "/default-profile.png"} 
+            src={learnerUser?.profile_pic || "/default-profile.png"} 
             alt="Profile" 
             className="user-avatar"
+            key={learnerUser?.profile_pic}
             style={{
               width: '80px',
               height: '80px',

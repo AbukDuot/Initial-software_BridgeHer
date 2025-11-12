@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { API_BASE_URL } from '../config/api';
 import VideoQualitySelector from './VideoQualitySelector';
+import { cacheVideoForOffline, isVideoCached } from '../utils/videoCache';
 import '../styles/enhancedVideoPlayer.css';
 
 interface VideoNote {
@@ -58,6 +59,8 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
   const [bookmarks, setBookmarks] = useState<VideoBookmark[]>([]);
   const [newNote, setNewNote] = useState('');
   const [newBookmarkTitle, setNewBookmarkTitle] = useState('');
+  const [isVideoDownloading, setIsVideoDownloading] = useState(false);
+  const [isVideoDownloaded, setIsVideoDownloaded] = useState(false);
 
   const speedOptions = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 
@@ -65,7 +68,31 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
     loadNotes();
     loadBookmarks();
     loadPlaybackSettings();
+    checkIfVideoCached();
   }, [moduleId]);
+  
+  const checkIfVideoCached = async () => {
+    const cached = await isVideoCached(videoUrl);
+    setIsVideoDownloaded(cached);
+  };
+  
+  const downloadVideoForOffline = async () => {
+    setIsVideoDownloading(true);
+    try {
+      const success = await cacheVideoForOffline(videoUrl);
+      if (success) {
+        setIsVideoDownloaded(true);
+        alert(isAr ? '✅ تم تنزيل الفيديو للاستخدام دون اتصال!' : '✅ Video downloaded for offline use!');
+      } else {
+        alert(isAr ? '❌ فشل تنزيل الفيديو' : '❌ Failed to download video');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert(isAr ? '❌ حدث خطأ أثناء التنزيل' : '❌ Error during download');
+    } finally {
+      setIsVideoDownloading(false);
+    }
+  };
 
   useEffect(() => {
     if (videoRef.current) {
@@ -238,6 +265,9 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
     noteText: isAr ? 'نص الملاحظة' : 'Note text',
     bookmarkTitle: isAr ? 'عنوان العلامة المرجعية' : 'Bookmark title',
     jumpTo: isAr ? 'انتقل إلى' : 'Jump to',
+    downloadVideo: isAr ? 'تنزيل للاستخدام دون اتصال' : 'Download for Offline',
+    downloading: isAr ? 'جاري التنزيل...' : 'Downloading...',
+    downloaded: isAr ? 'متاح دون اتصال' : 'Available Offline',
   };
 
   return (
@@ -276,6 +306,22 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
           
           <div className="time-display">
             {formatTime(currentTime)} / {formatTime(duration)}
+          </div>
+          
+          <div className="offline-download-control">
+            {isVideoDownloaded ? (
+              <button className="btn-downloaded" disabled>
+                ✓ {t.downloaded}
+              </button>
+            ) : (
+              <button 
+                className="btn-download" 
+                onClick={downloadVideoForOffline}
+                disabled={isVideoDownloading}
+              >
+                {isVideoDownloading ? `⏳ ${t.downloading}` : `📥 ${t.downloadVideo}`}
+              </button>
+            )}
           </div>
         </div>
       </div>

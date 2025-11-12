@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
 import ModuleQuizSimple from "../components/ModuleQuizSimple";
+import { cacheVideoForOffline, isVideoCached, getCachedVideo } from "../utils/videoCache";
 import "../styles/moduleDetail.css";
 
 interface Module {
@@ -39,11 +40,55 @@ const ModuleDetail: React.FC = () => {
   const [submissionFile, setSubmissionFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [showQuiz, setShowQuiz] = useState(false);
+  const [isVideoDownloading, setIsVideoDownloading] = useState(false);
+  const [isVideoDownloaded, setIsVideoDownloaded] = useState(false);
+  const [cachedVideoUrl, setCachedVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     loadModule();
     loadAllModules();
   }, [id, moduleId]);
+  
+  useEffect(() => {
+    if (module?.video_url) {
+      checkIfVideoCached();
+    }
+  }, [module]);
+  
+  const checkIfVideoCached = async () => {
+    if (!module?.video_url) return;
+    const videoUrl = module.video_url.startsWith('http') ? module.video_url : `${API_BASE_URL}${module.video_url}`;
+    const cached = await isVideoCached(videoUrl);
+    setIsVideoDownloaded(cached);
+    
+    // If cached, get the blob URL
+    if (cached) {
+      const blobUrl = await getCachedVideo(videoUrl);
+      setCachedVideoUrl(blobUrl);
+    }
+  };
+  
+  const downloadVideoForOffline = async () => {
+    if (!module?.video_url) return;
+    
+    setIsVideoDownloading(true);
+    try {
+      const videoUrl = module.video_url.startsWith('http') ? module.video_url : `${API_BASE_URL}${module.video_url}`;
+      const success = await cacheVideoForOffline(videoUrl);
+      
+      if (success) {
+        setIsVideoDownloaded(true);
+        alert(isArabic ? '✅ تم تنزيل الفيديو للاستخدام دون اتصال!' : '✅ Video downloaded for offline use!');
+      } else {
+        alert(isArabic ? '❌ فشل تنزيل الفيديو' : '❌ Failed to download video');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert(isArabic ? '❌ حدث خطأ أثناء التنزيل' : '❌ Error during download');
+    } finally {
+      setIsVideoDownloading(false);
+    }
+  };
 
   const loadModule = async () => {
     try {
@@ -225,6 +270,58 @@ const ModuleDetail: React.FC = () => {
 
       {/* Video Player */}
       <div className="video-container">
+        {module.video_url && (
+          <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            {isVideoDownloaded ? (
+              <button 
+                style={{
+                  background: '#2E7D32',
+                  color: 'white',
+                  padding: '10px 20px',
+                  border: 'none',
+                  borderRadius: '5px',
+                  fontWeight: '600',
+                  cursor: 'default'
+                }}
+                disabled
+              >
+                ✓ {isArabic ? 'متاح دون اتصال' : 'Available Offline'}
+              </button>
+            ) : (
+              <button 
+                onClick={downloadVideoForOffline}
+                disabled={isVideoDownloading}
+                style={{
+                  background: isVideoDownloading ? '#CCC' : '#4A148C',
+                  color: 'white',
+                  padding: '10px 20px',
+                  border: 'none',
+                  borderRadius: '5px',
+                  fontWeight: '600',
+                  cursor: isVideoDownloading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s'
+                }}
+                onMouseOver={(e) => {
+                  if (!isVideoDownloading) {
+                    e.currentTarget.style.background = '#FFD700';
+                    e.currentTarget.style.color = '#4A148C';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!isVideoDownloading) {
+                    e.currentTarget.style.background = '#4A148C';
+                    e.currentTarget.style.color = 'white';
+                  }
+                }}
+              >
+                {isVideoDownloading 
+                  ? `⏳ ${isArabic ? 'جاري التنزيل...' : 'Downloading...'}` 
+                  : `📥 ${isArabic ? 'تنزيل للاستخدام دون اتصال' : 'Download for Offline'}`
+                }
+              </button>
+            )}
+          </div>
+        )}
         {module.video_url ? (
           module.video_url.includes('youtube.com') || module.video_url.includes('youtu.be') ? (
             <iframe
@@ -237,8 +334,9 @@ const ModuleDetail: React.FC = () => {
           ) : (
             <video 
               controls 
-              src={module.video_url.startsWith('http') ? module.video_url : `${API_BASE_URL}${module.video_url}`}
+              src={cachedVideoUrl || (module.video_url.startsWith('http') ? module.video_url : `${API_BASE_URL}${module.video_url}`)}
               style={{ width: '100%', maxHeight: '500px' }}
+              crossOrigin="anonymous"
               onError={(e) => {
                 console.error('Video load error:', module.video_url);
                 const target = e.target as HTMLVideoElement;

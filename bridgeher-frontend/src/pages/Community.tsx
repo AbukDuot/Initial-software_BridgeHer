@@ -274,9 +274,16 @@ const Community: React.FC = () => {
           {/* Header */}
           <div className="community-header">
             <h1>{isArabic ? "منتدى المجتمع" : "Community Forum"}</h1>
-            <button className="btn-primary" onClick={() => navigate("/community/create")}>
-              + {isArabic ? "موضوع جديد" : "New Topic"}
-            </button>
+            <div style={{display: 'flex', gap: '10px'}}>
+              <button className="btn-primary" onClick={() => navigate("/community/create")}>
+                + {isArabic ? "موضوع جديد" : "New Topic"}
+              </button>
+              {JSON.parse(localStorage.getItem("user") || '{}').role === 'Admin' && (
+                <button className="btn-primary" onClick={() => navigate("/community/announcement/create")}>
+                  📢 {isArabic ? "إعلان" : "Announcement"}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Search & Filters */}
@@ -362,7 +369,7 @@ const Community: React.FC = () => {
                 <div key={topic.id} className="topic-card" onClick={() => viewTopic(topic.id)}>
                   <div className="topic-content">
                     <h3>{topic.title}</h3>
-                    <p>{topic.description?.substring(0, 150) + "..."}</p>
+                    <p>{(topic.description || '').replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
                     <div className="topic-meta">
                       {topic.category && <span className="category-badge">{topic.category}</span>}
                       <span>{isArabic ? "بواسطة" : "by"} {topic.author_name}</span>

@@ -110,13 +110,19 @@ const Mentorship: React.FC = () => {
             "Abraham Madol": abrahamImg
           };
           const mapped = data.map((m: { id: number; name: string; video_intro?: string; expertise?: string; expertise_ar?: string; location?: string; badges?: string; avatar_url?: string; rating?: number }) => {
-            let videoUrl = m.video_intro || "";
-            if (videoUrl.includes("youtu.be/")) {
-              const videoId = videoUrl.split("youtu.be/")[1]?.split("?")[0];
-              videoUrl = `https://www.youtube.com/embed/${videoId}`;
-            } else if (videoUrl.includes("youtube.com/watch?v=")) {
-              const videoId = videoUrl.split("v=")[1]?.split("&")[0];
-              videoUrl = `https://www.youtube.com/embed/${videoId}`;
+            let videoUrl = "";
+            if (m.video_intro && m.video_intro.trim()) {
+              const rawUrl = m.video_intro.trim();
+              if (rawUrl.includes("youtu.be/")) {
+                const videoId = rawUrl.split("youtu.be/")[1]?.split("?")[0]?.split("/")[0];
+                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+              } else if (rawUrl.includes("youtube.com/watch?v=")) {
+                const videoId = rawUrl.split("v=")[1]?.split("&")[0];
+                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+              } else if (rawUrl.includes("youtube.com/embed/")) {
+                videoUrl = rawUrl;
+              }
+              console.log(`Video for ${m.name}: ${rawUrl} -> ${videoUrl}`);
             }
             const expertiseMap: Record<string, string> = {
               'ENTREPRENEURSHIP_AR': 'ريادة الأعمال',
@@ -153,7 +159,7 @@ const Mentorship: React.FC = () => {
               rating: m.rating || 4.8,
               available: true,
               calendar: [],
-              videoIntro: videoUrl
+              videoIntro: videoUrl && videoUrl.trim() !== '' ? videoUrl : ''
             };
           });
           setMentors(mapped);
@@ -265,6 +271,8 @@ const Mentorship: React.FC = () => {
       return;
     }
     
+    console.log('🔍 Before request - User in localStorage:', JSON.parse(localStorage.getItem("user") || '{}'));
+    
     const requestData = {
       mentor_id: modalMentor.id,
       topic: modalMentor.role,
@@ -295,6 +303,9 @@ const Mentorship: React.FC = () => {
       
       if (res.ok) {
         const newRequest = await res.json();
+        console.log('🔍 After request - Response:', newRequest);
+        console.log('🔍 After request - User in localStorage:', JSON.parse(localStorage.getItem("user") || '{}'));
+        
         const session = sessionDate && sessionTime ? `${sessionDate} ${sessionTime}` : "-";
         setRequests((prev) => [
           ...prev,
@@ -367,21 +378,25 @@ const Mentorship: React.FC = () => {
 
       <section className="videos-section">
         <h2>{t.videos}</h2>
-        <div className="videos-grid">
-          {mentors.filter(m => m.videoIntro).map((m) => (
-            <div key={m.id} className="video-card">
-              <iframe
-                src={m.videoIntro}
-                title={m.name}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-              <h4>{m.name}</h4>
-              <p>{m.role}</p>
-            </div>
-          ))}
-        </div>
+        {mentors.filter(m => m.videoIntro).length === 0 ? (
+          <p style={{textAlign: 'center', color: '#888'}}>No videos available yet.</p>
+        ) : (
+          <div className="videos-grid">
+            {mentors.filter(m => m.videoIntro).map((m) => (
+              <div key={m.id} className="video-card">
+                <iframe
+                  src={m.videoIntro}
+                  title={m.name}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+                <h4>{m.name}</h4>
+                <p>{m.role}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="requests-section">

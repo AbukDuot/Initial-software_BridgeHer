@@ -147,7 +147,6 @@ const Register: React.FC = () => {
             <select name="role" value={form.role} onChange={handleChange}>
               <option value="Learner">{isArabic ? "متعلم" : "Learner"}</option>
               <option value="Mentor">{isArabic ? "مرشد" : "Mentor"}</option>
-              <option value="Admin">{isArabic ? "مسؤول" : "Admin"}</option>
             </select>
 
             <div className="terms-checkbox">

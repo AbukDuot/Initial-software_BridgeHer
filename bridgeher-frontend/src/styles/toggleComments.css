@@ -1,0 +1,16 @@
+.toggle-comments-btn {
+  background: transparent;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #4A148C;
+  margin: 10px 0;
+  transition: all 0.3s;
+}
+
+.toggle-comments-btn:hover {
+  background: #f0f0f0;
+  border-color: #4A148C;
+}

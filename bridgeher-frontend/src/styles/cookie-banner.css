@@ -73,12 +73,12 @@
 }
 
 .btn-accept {
-  background: #ffd700;
-  color: #4a148c;
+  background: #FFD700;
+  color: #4A148C;
 }
 
 .btn-accept:hover {
-  background: #ffd700;
+  background: #FFD700;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
