@@ -38,4 +38,17 @@ router.get("/messages", async (req, res) => {
   }
 });
 
+router.put("/messages/:id/resolve", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      `UPDATE support_messages SET status = 'resolved' WHERE id = $1`,
+      [id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

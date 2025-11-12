@@ -41,6 +41,14 @@ router.delete('/users/:id', protect, async (req, res) => {
   try {
     const { id } = req.params;
     
+    // Delete related records first to avoid foreign key constraint errors
+    await pool.query('DELETE FROM user_badges WHERE user_id = $1', [id]);
+    await pool.query('DELETE FROM enrollments WHERE user_id = $1', [id]);
+    await pool.query('DELETE FROM user_points WHERE user_id = $1', [id]);
+    await pool.query('DELETE FROM mentorship_requests WHERE requester_id = $1 OR mentor_id = $1', [id]);
+    await pool.query('DELETE FROM assignment_submissions WHERE user_id = $1', [id]);
+    await pool.query('DELETE FROM module_progress WHERE user_id = $1', [id]);
+    
     const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
     
     if (result.rows.length === 0) {
@@ -48,6 +56,16 @@ router.delete('/users/:id', protect, async (req, res) => {
     }
     
     res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.get('/enrollments', protect, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT course_id, user_id FROM enrollments');
+    res.json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

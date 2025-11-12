@@ -37,6 +37,8 @@ const initDatabase = async () => {
         category VARCHAR(100),
         difficulty VARCHAR(50),
         thumbnail_url TEXT,
+        image_url TEXT,
+        preview_video_url TEXT,
         created_by INTEGER REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );

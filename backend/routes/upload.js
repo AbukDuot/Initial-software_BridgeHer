@@ -12,7 +12,8 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname}`;
+    const sanitizedName = file.originalname.replace(/\s+/g, '_');
+    const uniqueName = `${Date.now()}-${sanitizedName}`;
     cb(null, uniqueName);
   }
 });
@@ -28,9 +29,12 @@ router.post("/", requireAuth, upload.single('file'), (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
     
-    const fileUrl = `/uploads/${req.file.filename}`;
+    const subfolder = req.file.mimetype.startsWith('image/') ? 'avatars' : 
+                      req.file.mimetype.startsWith('video/') ? 'videos' : 'pdfs';
+    const fileUrl = `/uploads/${subfolder}/${req.file.filename}`;
     res.json({ url: fileUrl, filename: req.file.filename });
   } catch (err) {
+    console.error('Upload error:', err);
     res.status(500).json({ error: err.message });
   }
 });

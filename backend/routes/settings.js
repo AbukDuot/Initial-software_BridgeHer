@@ -9,18 +9,22 @@ router.get("/", requireAuth, async (req, res) => {
     const userId = req.user.id;
     
     const { rows: userRows } = await pool.query(
-      "SELECT name, email, bio, profile_pic FROM users WHERE id = $1",
+      "SELECT name, email, bio, profile_pic, calendar_id FROM users WHERE id = $1",
       [userId]
     );
     
     const { rows: settingsRows } = await pool.query(
-      "SELECT language, notifications_enabled FROM user_settings WHERE user_id = $1",
+      "SELECT theme, font_size, accent_color, account_privacy, language, notifications_enabled FROM user_settings WHERE user_id = $1",
       [userId]
     );
     
     res.json({
       user: userRows[0] || {},
       settings: {
+        theme: settingsRows[0]?.theme || 'light',
+        font_size: settingsRows[0]?.font_size || 'medium',
+        accent_color: settingsRows[0]?.accent_color || '#6A1B9A',
+        account_privacy: settingsRows[0]?.account_privacy || 'public',
         language: settingsRows[0]?.language || 'en',
         notifications_enabled: settingsRows[0]?.notifications_enabled !== false
       }
@@ -29,7 +33,7 @@ router.get("/", requireAuth, async (req, res) => {
     console.error('Settings GET error:', err);
     res.json({
       user: {},
-      settings: { language: 'en', notifications_enabled: true }
+      settings: { theme: 'light', font_size: 'medium', accent_color: '#6A1B9A', account_privacy: 'public', language: 'en', notifications_enabled: true }
     });
   }
 });
@@ -37,7 +41,7 @@ router.get("/", requireAuth, async (req, res) => {
 router.put("/", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, bio, profilePic, language, notifications_enabled } = req.body;
+    const { name, bio, profilePic, theme, fontSize, accent, accountPrivacy, language, notifications_enabled } = req.body;
     
     if (name || bio || profilePic) {
       await pool.query(
@@ -46,12 +50,18 @@ router.put("/", requireAuth, async (req, res) => {
       );
     }
     
-    if (language || notifications_enabled !== undefined) {
-      await pool.query(
-        `INSERT INTO user_settings (user_id, language, notifications_enabled) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE SET language = COALESCE($2, user_settings.language), notifications_enabled = COALESCE($3, user_settings.notifications_enabled)`,
-        [userId, language, notifications_enabled]
-      );
-    }
+    await pool.query(
+      `INSERT INTO user_settings (user_id, theme, font_size, accent_color, account_privacy, language, notifications_enabled) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       ON CONFLICT (user_id) DO UPDATE SET 
+       theme = COALESCE($2, user_settings.theme), 
+       font_size = COALESCE($3, user_settings.font_size), 
+       accent_color = COALESCE($4, user_settings.accent_color), 
+       account_privacy = COALESCE($5, user_settings.account_privacy), 
+       language = COALESCE($6, user_settings.language), 
+       notifications_enabled = COALESCE($7, user_settings.notifications_enabled)`,
+      [userId, theme, fontSize, accent, accountPrivacy, language, notifications_enabled]
+    );
     
     res.json({ success: true });
   } catch (err) {

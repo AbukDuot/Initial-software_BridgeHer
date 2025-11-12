@@ -37,7 +37,7 @@ router.get("/:id/preview", async (req, res) => {
   try {
     const { id } = req.params;
     const { rows } = await pool.query(
-      `SELECT c.id, c.title, c.description, c.preview_video_url, c.syllabus, 
+      `SELECT c.id, c.title, c.description, c.preview_video_url, 
               c.estimated_hours, c.prerequisites, c.learning_objectives,
               c.average_rating, c.total_reviews, c.category, c.level, c.duration, c.mentor,
               u.name as instructor_name, u.bio as instructor_bio, 
@@ -53,12 +53,19 @@ router.get("/:id/preview", async (req, res) => {
     }
     
     const course = rows[0];
+    
+    // Get syllabus from courses table
+    const { rows: syllabusRows } = await pool.query(
+      'SELECT syllabus, instructor_name FROM courses WHERE id = $1',
+      [id]
+    );
+    
     const preview = {
       id: course.id,
       title: course.title,
       description: course.description,
       preview_video_url: course.preview_video_url || null,
-      syllabus: course.syllabus || 'Course syllabus will be available soon.',
+      syllabus: syllabusRows[0]?.syllabus || 'Course syllabus will be available soon.',
       estimated_hours: course.estimated_hours || 10,
       prerequisites: course.prerequisites || 'No prerequisites required.',
       learning_objectives: course.learning_objectives || 'Learn essential skills and knowledge in this subject area.',
@@ -67,7 +74,7 @@ router.get("/:id/preview", async (req, res) => {
       category: course.category,
       level: course.level,
       duration: course.duration,
-      instructor_name: course.instructor_name || course.mentor || 'BridgeHer Instructor',
+      instructor_name: syllabusRows[0]?.instructor_name || course.instructor_name || course.mentor || 'BridgeHer Instructor',
       instructor_bio: course.instructor_bio || 'Experienced educator and industry professional.',
       instructor_credentials: 'Certified Professional',
       instructor_expertise: course.instructor_expertise || course.category

@@ -21,6 +21,28 @@ router.get("/announcements", async (req, res) => {
   }
 });
 
+router.post("/announcements", requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Admin only" });
+    }
+    
+    const { title, content, pinned } = req.body;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `INSERT INTO announcements (title, content, created_by, pinned)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [title, content, userId, pinned || false]
+    );
+    
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error('❌ Create announcement error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get("/topics", async (req, res) => {
   try {
     console.log('📋 Fetching topics...');
@@ -181,8 +203,11 @@ router.put("/topics/:id", requireAuth, async (req, res) => {
     );
     
     if (!existing[0]) return res.status(404).json({ error: "Topic not found" });
+    
+    console.log('Edit check - Topic owner:', existing[0].user_id, 'Current user:', userId, 'Role:', userRole);
+    
     if (existing[0].user_id !== userId && userRole !== 'Admin') {
-      return res.status(403).json({ error: "Not authorized" });
+      return res.status(403).json({ error: "Not authorized to edit this topic" });
     }
     
     const { rows } = await pool.query(
@@ -194,6 +219,7 @@ router.put("/topics/:id", requireAuth, async (req, res) => {
     
     res.json(rows[0]);
   } catch (err) {
+    console.error('Edit topic error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -408,6 +434,12 @@ router.delete("/topics/:id", requireAuth, async (req, res) => {
     if (rows[0].user_id !== userId && userRole !== 'Admin') {
       return res.status(403).json({ error: "Not authorized" });
     }
+    
+    // Delete related records first to avoid foreign key constraint violations
+    await pool.query(`DELETE FROM topic_bookmarks WHERE topic_id = $1`, [id]);
+    await pool.query(`DELETE FROM topic_likes WHERE topic_id = $1`, [id]);
+    await pool.query(`DELETE FROM reply_likes WHERE reply_id IN (SELECT id FROM topic_replies WHERE topic_id = $1)`, [id]);
+    await pool.query(`DELETE FROM topic_replies WHERE topic_id = $1`, [id]);
     
     await pool.query(`DELETE FROM community_topics WHERE id = $1`, [id]);
     res.json({ success: true });
@@ -663,6 +695,38 @@ router.post("/topics/:id/bookmark", requireAuth, async (req, res) => {
       );
       res.json({ bookmarked: true });
     }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/bookmarks/check/:id", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `SELECT * FROM topic_bookmarks WHERE topic_id = $1 AND user_id = $2`,
+      [id, userId]
+    );
+    
+    res.json({ bookmarked: rows.length > 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/bookmarks/:id", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    await pool.query(
+      `DELETE FROM topic_bookmarks WHERE topic_id = $1 AND user_id = $2`,
+      [id, userId]
+    );
+    
+    res.json({ bookmarked: false });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -8,6 +8,7 @@ const router = express.Router();
 router.get('/module/:moduleId', requireAuth, async (req, res) => {
   try {
     const { moduleId } = req.params;
+    const userId = req.user.id;
     
     const { rows: quizRows } = await pool.query(
       'SELECT * FROM quizzes WHERE module_id = $1',
@@ -19,6 +20,16 @@ router.get('/module/:moduleId', requireAuth, async (req, res) => {
     }
     
     const quiz = quizRows[0];
+    
+    // Check attempts
+    const { rows: attemptRows } = await pool.query(
+      'SELECT COUNT(*) as attempt_count FROM quiz_attempts WHERE user_id = $1 AND quiz_id = $2',
+      [userId, quiz.id]
+    );
+    
+    const attemptCount = parseInt(attemptRows[0].attempt_count);
+    const maxAttempts = 3;
+    
     let questions = [];
     
     if (quiz.questions && Array.isArray(quiz.questions)) {
@@ -34,9 +45,12 @@ router.get('/module/:moduleId', requireAuth, async (req, res) => {
     res.json({ 
       id: quiz.id,
       title: quiz.title,
-      time_limit: 30,
+      time_limit: quiz.time_limit || 20,
       passing_score: quiz.passing_score || 70,
-      questions
+      questions,
+      attemptCount,
+      maxAttempts,
+      attemptsRemaining: maxAttempts - attemptCount
     });
   } catch (error) {
     console.error('Quiz fetch error:', error);
@@ -50,6 +64,17 @@ router.post('/:quizId/submit', requireAuth, async (req, res) => {
     const { quizId } = req.params;
     const { answers, timeSpent } = req.body;
     const userId = req.user.id;
+    
+    // Check attempts limit
+    const { rows: attemptCheck } = await pool.query(
+      'SELECT COUNT(*) as attempt_count FROM quiz_attempts WHERE user_id = $1 AND quiz_id = $2',
+      [userId, quizId]
+    );
+    
+    const attemptCount = parseInt(attemptCheck[0].attempt_count);
+    if (attemptCount >= 3) {
+      return res.status(400).json({ error: 'Maximum attempts (3) reached for this quiz' });
+    }
     
     const { rows: quizRows } = await pool.query('SELECT * FROM quizzes WHERE id = $1', [quizId]);
     if (!quizRows[0]) return res.status(404).json({ error: 'Quiz not found' });
@@ -65,7 +90,9 @@ router.post('/:quizId/submit', requireAuth, async (req, res) => {
       const userAnswer = answers[questionId];
       const correctAnswer = question.options[question.correctAnswer];
       
-      if (userAnswer && userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim()) {
+      // Safe comparison - handle undefined/null
+      if (userAnswer && correctAnswer && 
+          String(userAnswer).toLowerCase().trim() === String(correctAnswer).toLowerCase().trim()) {
         score += 10;
       }
     });
@@ -74,19 +101,24 @@ router.post('/:quizId/submit', requireAuth, async (req, res) => {
     const passed = percentage >= (quiz.passing_score || 70);
     
     const { rows: attemptRows } = await pool.query(
-      `INSERT INTO quiz_attempts (user_id, quiz_id, score, total_points, percentage, passed, answers, time_taken)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [userId, quizId, score, totalPoints, percentage, passed, JSON.stringify(answers), timeSpent]
+      `INSERT INTO quiz_attempts (user_id, quiz_id, score, passed, answers, time_taken)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [userId, quizId, score, passed, JSON.stringify(answers), timeSpent]
     );
+    
+    const attemptsRemaining = 3 - (attemptCount + 1);
     
     res.json({
       attempt: attemptRows[0],
       passed,
       score,
       totalPoints,
-      percentage: Math.round(percentage)
+      percentage: Math.round(percentage),
+      attemptNumber: attemptCount + 1,
+      attemptsRemaining
     });
   } catch (error) {
+    console.error('Quiz submission error:', error);
     res.status(500).json({ error: error.message });
   }
 });
