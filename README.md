@@ -700,7 +700,7 @@ Covers:
 
 **SMS Notification**
 
-![SMS - notification](./screenshots/Sms.jpg)
+![Email - sms notification](./screenshots/Sms.jpg)
 
 *SMS notification sent via Twilio for critical updates*
 
