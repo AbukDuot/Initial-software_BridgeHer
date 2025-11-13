@@ -1,4 +1,4 @@
-# BridgeHer – Learning & Mentorship Platform
+# BridgeHer – A Digital Learning and Mentorship Platform for Empowering Young Women in South Sudan
 
 ## Overview
 
@@ -663,7 +663,7 @@ TWILIO_PHONE_NUMBER=your_twilio_number
 
 **Final version of the product Video Demo**
 
-🔗 [https://drive.google.com/drive/folders/1uLfcK2XwXCyx_L-lWqW9h_40qczWKnLC?usp=sharing]([https://drive.google.com/drive/folders/1uLfcK2XwXCyx_L-lWqW9h_40qczWKnLC?usp=sharing)
+🔗 [https://drive.google.com/file/d/1A3dZzmg_XGRWIu4jP27-ERwRXXi4YhBV/view?usp=sharing](https://drive.google.com/file/d/1A3dZzmg_XGRWIu4jP27-ERwRXXi4YhBV/view?usp=sharing)
 
 Covers:
 - Project setup and environment configuration
@@ -698,9 +698,21 @@ Covers:
 
 *Email notification sent to mentor when a mentorship request is received*
 
-**Sms notification**
+**SMS Notification**
 
-![Email - sms notification](./screenshots/Sms.jpg)
+![SMS - notification](./screenshots/Sms.jpg)
+
+*SMS notification sent via Twilio for critical updates*
+
+---
+
+### Admin Support System
+
+**Support Messages Dashboard**
+
+![Admin - Support Messages](./screenshots/Support.jpg)
+
+*Admin dashboard showing learner support requests with reply and resolve functionality*
 
 
 ## Testing Results
@@ -749,6 +761,33 @@ Covers:
 - Concurrent Users: Tested up to 50 simultaneous users
 - Response Time: Average 300ms for API calls
 - Video Streaming: Smooth playback on 4G+ connections
+
+### Cross-Platform & Cross-Browser Testing
+
+**Browsers Tested**:
+-  Google Chrome (v120+) - Windows, macOS, Android
+-  Mozilla Firefox (v121+) - Windows, macOS
+-  Microsoft Edge (v120+) - Windows
+-  Safari (v17+) - macOS, iOS
+
+**Devices Tested**:
+-  Desktop (1920x1080, 1366x768)
+-  Tablet (iPad, 768x1024)
+-  Mobile (iPhone 12/13, Samsung Galaxy, 375x667 to 414x896)
+
+**Operating Systems**:
+-  Windows 10/11
+-  macOS Ventura/Sonoma
+-  Android 12+
+-  iOS 16+
+
+**Test Results**:
+- All core functionalities work across all tested browsers
+- Responsive design adapts correctly to all screen sizes
+- RTL layout functions properly in Arabic mode on all platforms
+- Video playback works smoothly on all devices with 4G+ connection
+- Touch interactions work correctly on mobile devices
+- No critical bugs found across different platforms
 
 ## Recommendations
 
