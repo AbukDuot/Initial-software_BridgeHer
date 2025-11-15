@@ -41,6 +41,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       return null;
     } catch (err) {
       console.error('👤 UserContext initialization error:', err);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       return null;
     }
   });
@@ -87,6 +89,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     try {
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
     } catch {
       // ignore
     }

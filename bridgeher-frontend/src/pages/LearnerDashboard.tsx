@@ -161,12 +161,28 @@ const LearnerDashboard: React.FC = () => {
     localStorage.setItem("bh-sound", JSON.stringify(sound));
   }, [sound]);
 
-  const [dashboardData, setDashboardData] = useState<any>(null);
+  interface DashboardData {
+    user?: { email: string; name?: string; calendar_id?: string };
+    stats?: Record<string, number>;
+    completion?: { completed: number; remaining: number };
+    dailyQuote?: { en: string; ar: string };
+    weeklyHours?: number[];
+  }
+
+  interface LearnerUser {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+    profile_pic?: string;
+  }
+
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [reminders, setReminders] = useState<{ id: number; reminder_text: string; done: boolean; isNew?: boolean; reminder_time?: string }[]>([]);
   const [input, setInput] = useState("");
   const [reminderTime, setReminderTime] = useState("");
-  const [learnerUser, setLearnerUser] = useState<any>(null);
+  const [learnerUser, setLearnerUser] = useState<LearnerUser | null>(null);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');

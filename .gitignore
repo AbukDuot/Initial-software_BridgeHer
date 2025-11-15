@@ -45,7 +45,7 @@ backend/uploads/assignments/
 !backend/uploads/pdfs/.gitkeep
 !backend/uploads/avatars/.gitkeep
 
-# Database
+# Database files (block all SQL files)
 *.sql
 *.dump
 
@@ -65,7 +65,6 @@ DEPLOYMENT_GUIDE.md
 FEATURES_COMPLETE.md
 FINAL_CHECKLIST.md
 FRONTEND_BACKEND_COMPATIBILITY.md
-HEROKU_DEPLOYMENT.md
 OAUTH_EMAIL_SMS_SETUP.md
 CLEAR_CACHE_INSTRUCTIONS.md
 ASSIGNMENT_UPDATE.md

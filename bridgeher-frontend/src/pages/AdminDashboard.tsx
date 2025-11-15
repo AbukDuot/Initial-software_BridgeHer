@@ -99,7 +99,7 @@ const AdminDashboard: React.FC = () => {
       setAdminUser(JSON.parse(userData));
     }
     
-    // Refresh user data on focus (when returning from settings)
+
     const handleFocus = () => {
       const updatedUser = localStorage.getItem('user');
       if (updatedUser) {
@@ -153,7 +153,7 @@ const AdminDashboard: React.FC = () => {
         let enrollmentCounts: Record<number, number> = {};
         if (enrollmentsRes.ok) {
           const enrollments = await enrollmentsRes.json();
-          enrollmentCounts = enrollments.reduce((acc: Record<number, number>, e: any) => {
+          enrollmentCounts = enrollments.reduce((acc: Record<number, number>, e: { course_id: number }) => {
             acc[e.course_id] = (acc[e.course_id] || 0) + 1;
             return acc;
           }, {});
@@ -345,7 +345,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleReplyEmail = (email: string, name: string) => {
+  const handleReplyEmail = (email: string) => {
     playUiSound(sound);
     const message = isArabic 
       ? `البريد الإلكتروني للمتعلم:\n\n${email}\n\nانسخ هذا البريد وارسل ردك عبر Gmail أو Outlook`
@@ -399,7 +399,7 @@ const AdminDashboard: React.FC = () => {
         </button>
         <div className="theme-toggle">
           <button onClick={() => navigate('/settings')} style={{marginRight: '10px'}}>
-            ⚙️ {isArabic ? 'الإعدادات' : 'Settings'}
+             {isArabic ? 'الإعدادات' : 'Settings'}
           </button>
           <button
             onClick={() => {
@@ -477,10 +477,10 @@ const AdminDashboard: React.FC = () => {
           <h2>{t.courseManagement}</h2>
           <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
             <button className="btn primary" onClick={() => navigate('/admin-course-upload')}>
-              📹 {isArabic ? 'رفع دورة بالفيديو' : 'Upload Course with Videos'}
+               {isArabic ? 'رفع دورة بالفيديو' : 'Upload Course with Videos'}
             </button>
             <button className="btn primary" onClick={() => setShowVideoManager(true)}>
-              🎬 {isArabic ? 'إدارة فيديوهات الوحدات' : 'Manage Module Videos'}
+               {isArabic ? 'إدارة فيديوهات الوحدات' : 'Manage Module Videos'}
             </button>
             <button className="btn primary" onClick={handleAddCourse}>{t.addCourse}</button>
           </div>
@@ -568,7 +568,7 @@ const AdminDashboard: React.FC = () => {
                       <div style={{display: 'flex', flexDirection: 'column', gap: '4px'}}>
                         <button 
                           className="btn-small" 
-                          onClick={() => handleReplyEmail(msg.email, msg.name)}
+                          onClick={() => handleReplyEmail(msg.email)}
                           style={{margin: 0, width: '100%'}}
                         >
                           {isArabic ? 'رد' : 'Reply'}
