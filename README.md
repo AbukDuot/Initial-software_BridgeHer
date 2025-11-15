@@ -704,10 +704,6 @@ Covers:
 
 *SMS notification sent via Twilio for critical updates*
 
----
-
-### Admin Support System
-
 **Support Messages Dashboard**
 
 ![Admin - Support Messages](./screenshots/Support.jpg)
