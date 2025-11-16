@@ -64,6 +64,10 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(generalLimiter);
+app.use((_req, res, next) => {
+  res.setHeader('Permissions-Policy', 'unload=()');
+  next();
+});
 
 
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
