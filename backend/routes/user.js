@@ -42,7 +42,11 @@ router.get("/mentors", async (req, res) => {
        WHERE role = 'Mentor'
        ORDER BY created_at DESC`
     );
-    res.json(rows);
+    const mentors = rows.map(m => ({
+      ...m,
+      badges: m.badges || "Mentor"
+    }));
+    res.json(mentors);
   } catch (err) {
     console.error('Mentors fetch error:', err);
     res.status(500).json({ error: err.message });
