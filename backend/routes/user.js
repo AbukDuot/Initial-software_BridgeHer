@@ -42,10 +42,17 @@ router.get("/mentors", async (req, res) => {
        WHERE role = 'Mentor'
        ORDER BY created_at DESC`
     );
-    const mentors = rows.map(m => ({
-      ...m,
-      badges: m.badges || "Mentor"
-    }));
+    const mentors = rows.map(m => {
+      let badgesStr = "Mentor";
+      if (m.badges) {
+        if (typeof m.badges === 'string') {
+          badgesStr = m.badges;
+        } else if (Array.isArray(m.badges)) {
+          badgesStr = m.badges.join(",");
+        }
+      }
+      return { ...m, badges: badgesStr };
+    });
     res.json(mentors);
   } catch (err) {
     console.error('Mentors fetch error:', err);
