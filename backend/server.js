@@ -41,8 +41,24 @@ import uploadRoutes from "./routes/upload.js";
 const app = express();
 app.set('trust proxy', 1);
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://bridgeher.vercel.app'
+];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://bridgeher.vercel.app', /https:\/\/bridgeher-.*\.vercel\.app$/],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost and bridgeher vercel deployments
+    if (allowedOrigins.includes(origin) || origin.match(/https:\/\/bridgeher.*\.vercel\.app$/)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '50mb' }));
@@ -97,6 +113,12 @@ app.use((_req, res) => {
 app.use((err, _req, res, _next) => {
   const timestamp = new Date().toISOString();
   console.error(`[${timestamp}] ERROR:`, err && err.stack ? err.stack : err);
+  
+  // Handle CORS errors
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'CORS policy violation' });
+  }
+  
   res.status(err?.status || 500).json({ error: err?.message || "Internal Server Error" });
 });
 
