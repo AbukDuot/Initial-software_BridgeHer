@@ -123,7 +123,7 @@ const CourseDetail: React.FC = () => {
           id: 1,
           titleEn: "Introduction to Computers",
           titleAr: "مقدمة في الحاسوب",
-          videoUrl: "https://youtu.be/8Z3Y0sU1y1M",
+          videoUrl: "https://youtu.be/qfUZBKDh9BY?si=9crY9Qbi4yC5QTy3",
           notesUrl: "/assets/notes/computers-intro.pdf",
           completed: false,
         },
@@ -131,7 +131,7 @@ const CourseDetail: React.FC = () => {
           id: 2,
           titleEn: "Internet Basics",
           titleAr: "أساسيات الإنترنت",
-          videoUrl: "https://youtu.be/YuZP1JmRzjI",
+          videoUrl: "https://youtu.be/mvKmcaytQaA?si=FnnHuPeHmiaN1PVW",
           notesUrl: "/assets/notes/internet-basics.pdf",
           completed: false,
         },
@@ -148,7 +148,7 @@ const CourseDetail: React.FC = () => {
           id: 1,
           titleEn: "Public Speaking Basics",
           titleAr: "أساسيات الخطابة",
-          videoUrl: "https://youtu.be/zvR9sXKQeB0",
+          videoUrl: "https://youtu.be/i5mYphUoOCs?si=ZcNoATUoyTpOC1ZH",
           notesUrl: "/assets/notes/public-speaking.pdf",
           completed: false,
         },
@@ -156,7 +156,7 @@ const CourseDetail: React.FC = () => {
           id: 2,
           titleEn: "Team Leadership",
           titleAr: "قيادة الفريق",
-          videoUrl: "https://youtu.be/Np3GU7aS4nA",
+          videoUrl: "https://youtu.be/95QwKa34PU4?si=Oi0OfQjAw2j1hg_c",
           notesUrl: "/assets/notes/team-leadership.pdf",
           completed: false,
         },
@@ -262,7 +262,7 @@ const CourseDetail: React.FC = () => {
     }
   };
 
-  // Loading state
+
   if (loading) return <p className="loading">Loading course details...</p>;
   if (!course)
     return <p className="error">Course not found. Please return to dashboard.</p>;
