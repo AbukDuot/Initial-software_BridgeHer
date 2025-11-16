@@ -154,7 +154,7 @@ const Mentorship: React.FC = () => {
               role: expertiseText,
               expertise: expertiseArray,
               location: m.location || "Juba, South Sudan",
-              badges: (m.badges && typeof m.badges === 'string') ? m.badges.split(",").map((b: string) => b.trim()) : ["Mentor"],
+              badges: (m.badges && typeof m.badges === 'string') ? m.badges.split(",").map((b: string) => b.trim()) : (Array.isArray(m.badges) ? m.badges : ["Mentor"]),
               avatar: m.avatar_url || avatarMap[m.name] || priscillaImg,
               rating: m.rating || 4.8,
               available: true,
