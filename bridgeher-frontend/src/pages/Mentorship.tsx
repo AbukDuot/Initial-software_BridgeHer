@@ -467,15 +467,6 @@ const Mentorship: React.FC = () => {
         {mentors.filter(m => m.videoIntro && m.videoIntro.trim() !== '').length === 0 ? (
           <div style={{textAlign: 'center', color: '#888'}}>
             <p>No videos available yet.</p>
-            <small>Debug: Found {mentors.length} mentors total</small>
-            {mentors.length > 0 && (
-              <details style={{marginTop: '10px'}}>
-                <summary>Debug Info</summary>
-                <pre style={{textAlign: 'left', fontSize: '12px', background: '#f5f5f5', padding: '10px', borderRadius: '5px'}}>
-                  {JSON.stringify(mentors.map(m => ({name: m.name, hasVideo: !!m.videoIntro, videoUrl: m.videoIntro})), null, 2)}
-                </pre>
-              </details>
-            )}
           </div>
         ) : (
           <div className="videos-grid">
@@ -547,18 +538,7 @@ const Mentorship: React.FC = () => {
           </div>
         )}
         
-        {/* Debug section - remove in production */}
-        <div style={{marginTop: '20px', padding: '10px', background: '#f0f0f0', borderRadius: '5px', fontSize: '12px'}}>
-          <strong>Debug Info:</strong>
-          <p>Total mentors: {mentors.length}</p>
-          <p>Mentors with videos: {mentors.filter(m => m.videoIntro && m.videoIntro.trim() !== '').length}</p>
-          {mentors.length > 0 && (
-            <details>
-              <summary>All mentor video data</summary>
-              <pre>{JSON.stringify(mentors.map(m => ({id: m.id, name: m.name, videoIntro: m.videoIntro})), null, 2)}</pre>
-            </details>
-          )}
-        </div>
+
       </section>
 
       <section className="requests-section">
