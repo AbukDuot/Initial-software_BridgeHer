@@ -61,7 +61,74 @@ const translations = {
 
 type Lang = "en" | "ar";
 
+interface VideoCardProps {
+  mentor: {
+    id: number;
+    name: string;
+    role: string;
+    videoIntro: string;
+  };
+}
 
+const VideoCard: React.FC<VideoCardProps> = ({ mentor }) => {
+  const [videoError, setVideoError] = useState(false);
+  
+  console.log('Rendering video for:', mentor.name, 'URL:', mentor.videoIntro);
+  
+  return (
+    <div className="video-card">
+      {!videoError ? (
+        <iframe
+          src={mentor.videoIntro}
+          title={`${mentor.name} - Motivational Video`}
+          width="100%"
+          height="200"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
+          onError={(e) => {
+            console.error('Video iframe error for', mentor.name, ':', e);
+            console.error('Failed URL:', mentor.videoIntro);
+            setVideoError(true);
+          }}
+          onLoad={() => console.log('Video loaded successfully for:', mentor.name)}
+        ></iframe>
+      ) : (
+        <div style={{
+          height: '200px',
+          background: '#f5f5f5',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          textAlign: 'center'
+        }}>
+          <p style={{ color: '#666', marginBottom: '10px' }}>Video failed to load</p>
+          <small style={{ color: '#999', wordBreak: 'break-all' }}>{mentor.videoIntro}</small>
+          <button 
+            onClick={() => setVideoError(false)}
+            style={{
+              marginTop: '10px',
+              padding: '5px 10px',
+              background: '#4A148C',
+              color: 'white',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer'
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
+      <h4>{mentor.name}</h4>
+      <p>{mentor.role}</p>
+    </div>
+  );
+};
 
 const Mentorship: React.FC = () => {
   const { language } = useLanguage();
@@ -113,17 +180,26 @@ const Mentorship: React.FC = () => {
             let videoUrl = "";
             if (m.video_intro && m.video_intro.trim()) {
               const rawUrl = m.video_intro.trim();
+              console.log('🎥 Processing video URL for', m.name, ':', rawUrl);
+              
               if (rawUrl.includes("youtu.be/")) {
                 const videoId = rawUrl.split("youtu.be/")[1]?.split("?")[0]?.split("/")[0];
-                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : "";
+                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : "";
               } else if (rawUrl.includes("youtube.com/watch?v=")) {
                 const videoId = rawUrl.split("v=")[1]?.split("&")[0];
-                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : "";
+                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : "";
               } else if (rawUrl.includes("youtube.com/embed/")) {
-                videoUrl = rawUrl.includes('?') ? rawUrl : `${rawUrl}?rel=0`;
+                videoUrl = rawUrl.includes('?') ? `${rawUrl}&modestbranding=1` : `${rawUrl}?rel=0&modestbranding=1`;
               } else if (rawUrl.includes("youtube.com/shorts/")) {
                 const videoId = rawUrl.split("shorts/")[1]?.split("?")[0];
-                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : "";
+                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : "";
+              }
+              
+              console.log('🎥 Generated embed URL for', m.name, ':', videoUrl);
+              
+              // Additional validation
+              if (!videoUrl) {
+                console.warn('⚠️ No valid video URL generated for', m.name, 'from:', rawUrl);
               }
             }
             const expertiseMap: Record<string, string> = {
@@ -150,7 +226,7 @@ const Mentorship: React.FC = () => {
               expertiseText = m.expertise || "Mentor";
             }
             
-            return {
+            const mapped = {
               id: m.id,
               name: m.name,
               role: expertiseText,
@@ -162,6 +238,15 @@ const Mentorship: React.FC = () => {
               available: true,
               calendar: [],
               videoIntro: videoUrl && videoUrl.trim() !== '' ? videoUrl : ''
+            };
+            
+            console.log('Final mentor object for', m.name, ':', {
+              id: mapped.id,
+              name: mapped.name,
+              videoIntro: mapped.videoIntro
+            });
+            
+            return mapped;
             };
           });
           setMentors(mapped);
@@ -380,25 +465,101 @@ const Mentorship: React.FC = () => {
 
       <section className="videos-section">
         <h2>{t.videos}</h2>
-        {mentors.filter(m => m.videoIntro).length === 0 ? (
-          <p style={{textAlign: 'center', color: '#888'}}>No videos available yet.</p>
+        {mentors.filter(m => m.videoIntro && m.videoIntro.trim() !== '').length === 0 ? (
+          <div style={{textAlign: 'center', color: '#888'}}>
+            <p>No videos available yet.</p>
+            <small>Debug: Found {mentors.length} mentors total</small>
+            {mentors.length > 0 && (
+              <details style={{marginTop: '10px'}}>
+                <summary>Debug Info</summary>
+                <pre style={{textAlign: 'left', fontSize: '12px', background: '#f5f5f5', padding: '10px', borderRadius: '5px'}}>
+                  {JSON.stringify(mentors.map(m => ({name: m.name, hasVideo: !!m.videoIntro, videoUrl: m.videoIntro})), null, 2)}
+                </pre>
+              </details>
+            )}
+          </div>
         ) : (
           <div className="videos-grid">
-            {mentors.filter(m => m.videoIntro).map((m) => (
-              <div key={m.id} className="video-card">
-                <iframe
-                  src={m.videoIntro}
-                  title={m.name}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-                <h4>{m.name}</h4>
-                <p>{m.role}</p>
-              </div>
+            {mentors.filter(m => m.videoIntro && m.videoIntro.trim() !== '').map((m) => (
+              <VideoCard key={m.id} mentor={m} />
             ))}
           </div>
         )}
+        
+        {/* Test video section - for debugging */}
+        {mentors.filter(m => m.videoIntro && m.videoIntro.trim() !== '').length === 0 && mentors.length > 0 && (
+          <div style={{marginTop: '20px', padding: '15px', background: '#fff3cd', borderRadius: '5px', border: '1px solid #ffeaa7'}}>
+            <h4 style={{color: '#856404', marginBottom: '10px'}}>No Mentor Videos Found</h4>
+            <p style={{color: '#856404', fontSize: '14px', marginBottom: '15px'}}>Click the button below to add sample videos to mentors:</p>
+            <button
+              onClick={async () => {
+                try {
+                  const token = localStorage.getItem('token');
+                  const res = await fetch(`${API_BASE_URL}/api/admin/add-mentor-videos`, {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${token}`,
+                      'Content-Type': 'application/json'
+                    }
+                  });
+                  
+                  if (res.ok) {
+                    const result = await res.json();
+                    alert(`✅ ${result.message}`);
+                    // Refresh the page to load new videos
+                    window.location.reload();
+                  } else {
+                    const error = await res.json();
+                    alert(`❌ Error: ${error.error}`);
+                  }
+                } catch (err) {
+                  console.error('Error adding videos:', err);
+                  alert('❌ Failed to add videos');
+                }
+              }}
+              style={{
+                padding: '10px 20px',
+                background: '#4A148C',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                marginBottom: '15px'
+              }}
+            >
+              🎥 Add Sample Videos to Mentors
+            </button>
+            
+            <div className="video-card" style={{maxWidth: '400px'}}>
+              <iframe
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1"
+                title="Test Video"
+                width="100%"
+                height="200"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+              ></iframe>
+              <h4>Test Video (Verify Player Works)</h4>
+              <p>This test video confirms the video player is functional</p>
+            </div>
+          </div>
+        )}
+        
+        {/* Debug section - remove in production */}
+        <div style={{marginTop: '20px', padding: '10px', background: '#f0f0f0', borderRadius: '5px', fontSize: '12px'}}>
+          <strong>Debug Info:</strong>
+          <p>Total mentors: {mentors.length}</p>
+          <p>Mentors with videos: {mentors.filter(m => m.videoIntro && m.videoIntro.trim() !== '').length}</p>
+          {mentors.length > 0 && (
+            <details>
+              <summary>All mentor video data</summary>
+              <pre>{JSON.stringify(mentors.map(m => ({id: m.id, name: m.name, videoIntro: m.videoIntro})), null, 2)}</pre>
+            </details>
+          )}
+        </div>
       </section>
 
       <section className="requests-section">

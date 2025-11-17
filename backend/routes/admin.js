@@ -41,7 +41,7 @@ router.delete('/users/:id', protect, async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Delete related records first to avoid foreign key constraint errors
+    
     await pool.query('DELETE FROM user_badges WHERE user_id = $1', [id]);
     await pool.query('DELETE FROM enrollments WHERE user_id = $1', [id]);
     await pool.query('DELETE FROM user_points WHERE user_id = $1', [id]);
@@ -68,6 +68,49 @@ router.get('/enrollments', protect, async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+router.post('/add-mentor-videos', protect, async (req, res) => {
+  try {
+    const sampleVideos = [
+      'https://www.youtube.com/watch?v=ZXsQAXx_ao0', 
+      'https://www.youtube.com/watch?v=mgmVOuLgFB0', 
+      'https://www.youtube.com/watch?v=tbnzAVRZ9Xc', 
+      'https://www.youtube.com/watch?v=Tuw8hxrFBH8'  
+    ];
+    
+    
+    const mentorsResult = await pool.query(
+      "SELECT id, name FROM users WHERE role = 'Mentor' AND (video_intro IS NULL OR video_intro = '')"
+    );
+    
+    const mentors = mentorsResult.rows;
+    let updated = 0;
+    
+    for (let i = 0; i < mentors.length; i++) {
+      const mentor = mentors[i];
+      const videoUrl = sampleVideos[i % sampleVideos.length];
+      
+      await pool.query(
+        'UPDATE users SET video_intro = $1 WHERE id = $2',
+        [videoUrl, mentor.id]
+      );
+      updated++;
+    }
+    
+    res.json({ 
+      message: `Added video URLs to ${updated} mentors`,
+      mentorsUpdated: mentors.map((m, i) => ({
+        id: m.id,
+        name: m.name,
+        videoUrl: sampleVideos[i % sampleVideos.length]
+      }))
+    });
+  } catch (err) {
+    console.error('Error adding mentor videos:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
