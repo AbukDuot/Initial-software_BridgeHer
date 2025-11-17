@@ -20,7 +20,7 @@ interface User {
 interface UserContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  login: (email: string, password: string) => boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -47,42 +47,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
-  const login = (email: string, password: string) => {
-    if (email && password) {
-      const loggedInUser: User = {
-        name: email.split("@")[0],
-        email,
-        role: "Learner",
-        coursesCompleted: 2,
-        badges: 3,
-        posts: 5,
-        achievements: [
-          {
-            title: "Fast Learner",
-            description: "Completed your first course in record time!",
-            icon: "⚡",
-            titleAr: "متعلّمة سريعة",
-            descriptionAr: "أنهيتِ دورتك الأولى في وقت قياسي!",
-          },
-          {
-            title: "Community Helper",
-            description: "Shared helpful tips in the community.",
-            icon: "🤝",
-            titleAr: "مساعدة المجتمع",
-            descriptionAr: "قدّمتِ نصائح مفيدة في المجتمع.",
-          },
-        ],
-      };
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      try {
-        localStorage.setItem("user", JSON.stringify(loggedInUser));
-      } catch {
-        // ignore localStorage write errors
+      if (response.ok) {
+        const data = await response.json();
+        const { token, user: userData } = data;
+        
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+        return true;
       }
-      setUser(loggedInUser);
-      return true;
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
   const logout = () => {
