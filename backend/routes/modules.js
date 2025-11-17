@@ -147,7 +147,16 @@ router.get("/:id", async (req, res) => {
     const { id } = req.params;
     const { rows } = await pool.query("SELECT * FROM modules WHERE id = $1", [id]);
     if (!rows[0]) return res.status(404).json({ error: "Module not found" });
-    res.json(rows[0]);
+    
+    const module = rows[0];
+    if (module.video_url && module.video_url.startsWith('http://')) {
+      module.video_url = module.video_url.replace('http://', 'https://');
+    }
+    if (module.pdf_url && module.pdf_url.startsWith('http://')) {
+      module.pdf_url = module.pdf_url.replace('http://', 'https://');
+    }
+    
+    res.json(module);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

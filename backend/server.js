@@ -66,6 +66,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(generalLimiter);
 app.use((_req, res, next) => {
   res.setHeader('Permissions-Policy', 'unload=()');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
   next();
 });
 

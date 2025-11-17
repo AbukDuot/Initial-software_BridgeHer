@@ -115,14 +115,16 @@ const Mentorship: React.FC = () => {
               const rawUrl = m.video_intro.trim();
               if (rawUrl.includes("youtu.be/")) {
                 const videoId = rawUrl.split("youtu.be/")[1]?.split("?")[0]?.split("/")[0];
-                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : "";
               } else if (rawUrl.includes("youtube.com/watch?v=")) {
                 const videoId = rawUrl.split("v=")[1]?.split("&")[0];
-                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : "";
               } else if (rawUrl.includes("youtube.com/embed/")) {
-                videoUrl = rawUrl;
+                videoUrl = rawUrl.includes('?') ? rawUrl : `${rawUrl}?rel=0`;
+              } else if (rawUrl.includes("youtube.com/shorts/")) {
+                const videoId = rawUrl.split("shorts/")[1]?.split("?")[0];
+                videoUrl = videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : "";
               }
-              console.log(`Video for ${m.name}: ${rawUrl} -> ${videoUrl}`);
             }
             const expertiseMap: Record<string, string> = {
               'ENTREPRENEURSHIP_AR': 'ريادة الأعمال',

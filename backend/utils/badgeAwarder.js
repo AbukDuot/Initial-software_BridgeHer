@@ -1,16 +1,16 @@
 import pool from "../config/db.js";
 
 const BADGE_CRITERIA = {
-  FIRST_POST: { name: "First Post", icon: "🎯", topicsRequired: 1 },
-  ACTIVE_CONTRIBUTOR: { name: "Active Contributor", icon: "⭐", topicsRequired: 10 },
-  HELPFUL: { name: "Helpful", icon: "💡", likesRequired: 25 },
-  EXPERT: { name: "Expert", icon: "🏆", topicsRequired: 50, likesRequired: 100 },
-  COMMUNITY_LEADER: { name: "Community Leader", icon: "👑", topicsRequired: 100, repliesRequired: 200 }
+  FIRST_POST: { name: "First Post", icon: "", topicsRequired: 1 },
+  ACTIVE_CONTRIBUTOR: { name: "Active Contributor", icon: "", topicsRequired: 10 },
+  HELPFUL: { name: "Helpful", icon: "", likesRequired: 25 },
+  EXPERT: { name: "Expert", icon: "", topicsRequired: 50, likesRequired: 100 },
+  COMMUNITY_LEADER: { name: "Community Leader", icon: "", topicsRequired: 100, repliesRequired: 200 }
 };
 
 export const checkAndAwardBadges = async (userId) => {
   try {
-    // Force connection refresh
+   
     await pool.query('SELECT 1');
     const { rows: stats } = await pool.query(`
       SELECT 

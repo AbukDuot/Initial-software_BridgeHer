@@ -336,7 +336,6 @@ const ModuleDetail: React.FC = () => {
               controls 
               src={cachedVideoUrl || (module.video_url.startsWith('http') ? module.video_url : `${API_BASE_URL}${module.video_url}`)}
               style={{ width: '100%', maxHeight: '500px' }}
-              crossOrigin="anonymous"
               onError={(e) => {
                 console.error('Video load error:', module.video_url);
                 const target = e.target as HTMLVideoElement;

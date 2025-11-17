@@ -280,7 +280,7 @@ const Community: React.FC = () => {
               </button>
               {JSON.parse(localStorage.getItem("user") || '{}').role === 'Admin' && (
                 <button className="btn-primary" onClick={() => navigate("/community/announcement/create")}>
-                  📢 {isArabic ? "إعلان" : "Announcement"}
+                   {isArabic ? "إعلان" : "Announcement"}
                 </button>
               )}
             </div>
@@ -378,15 +378,15 @@ const Community: React.FC = () => {
                   </div>
                   <div className="topic-stats">
                     <div className="stat">
-                      <span className="stat-icon">💬</span>
+                      <span className="stat-icon"></span>
                       <span>{topic.replies}</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-icon">👁️</span>
+                      <span className="stat-icon"></span>
                       <span>{topic.views}</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-icon">❤️</span>
+                      <span className="stat-icon"></span>
                       <span>{topic.likes}</span>
                     </div>
                   </div>
