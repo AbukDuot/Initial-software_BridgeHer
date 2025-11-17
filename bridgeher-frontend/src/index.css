@@ -34,6 +34,11 @@ main {
   padding: 20px;
 }
 
+/* Remove padding for home page to allow full-width hero */
+main:has(.home) {
+  padding: 0;
+}
+
 
 nav,
 footer {
