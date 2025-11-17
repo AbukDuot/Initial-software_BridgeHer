@@ -44,7 +44,8 @@ app.set('trust proxy', 1);
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
-  'https://bridgeher.vercel.app'
+  'https://bridgeher.vercel.app',
+  'https://software-bridge-her.vercel.app'
 ];
 
 app.use(cors({
