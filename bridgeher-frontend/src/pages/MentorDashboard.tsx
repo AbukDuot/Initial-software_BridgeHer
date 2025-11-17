@@ -437,7 +437,7 @@ const MentorDashboard: React.FC = () => {
   const countLearners = useCountUp(totalLearners);
   const countSessions = useCountUp(totalSessions);
   const countProgress = useCountUp(Math.round(avgProgress));
-  const countRating = useCountUp(Math.round(avgRating * 10) / 10);
+  const countRating = useCountUp(Math.round(Number(avgRating) * 10) / 10);
 
   if (loading) return <div className="loading">Loading...</div>;
 

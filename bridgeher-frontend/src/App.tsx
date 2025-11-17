@@ -39,7 +39,7 @@ import Footer from "./components/Footer";
 import CookieBanner from "./components/CookieBanner";
 import ErrorBoundary from "./components/ErrorBoundary";
 import OfflineIndicator from "./components/OfflineIndicator";
-import FeatureTest from "./components/FeatureTest";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 const OfflineBanner: React.FC = () => {
   const { isOnline } = useAppContext();

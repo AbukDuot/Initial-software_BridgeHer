@@ -178,49 +178,7 @@ const TopicDetail: React.FC = () => {
     }
   };
 
-  const handleLikeTopic = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
-        navigate("/login");
-        return;
-      }
 
-      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/like`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (res.ok) {
-        await fetchTopic();
-      }
-    } catch (err) {
-      console.error("Failed to like topic", err);
-    }
-  };
-
-  const handleLikeReply = async (replyId: number) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
-        navigate("/login");
-        return;
-      }
-
-      const res = await fetch(`${API_BASE_URL}/api/community/replies/${replyId}/like`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (res.ok) {
-        await fetchTopic();
-      }
-    } catch (err) {
-      console.error("Failed to like reply", err);
-    }
-  };
 
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -323,7 +281,7 @@ const TopicDetail: React.FC = () => {
           title: editTopicData.title,
           description: editTopicData.description,
           category: topic?.category,
-          tags: topic?.tags || []
+          tags: []
         })
       });
 
