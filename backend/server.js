@@ -78,6 +78,10 @@ app.get("/", (_req, res) => {
   res.send("BridgeHer Backend API v2 is running");
 });
 
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);

@@ -1,11 +1,21 @@
 {
-  "buildCommand": "cd bridgeher-frontend && npm run build",
-  "outputDirectory": "bridgeher-frontend/dist",
-  "installCommand": "cd bridgeher-frontend && npm install",
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/"
+      "src": "bridgeher-frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
