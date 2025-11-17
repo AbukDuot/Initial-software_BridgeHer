@@ -24,6 +24,7 @@ interface Topic {
   image_url?: string;
   video_url?: string;
   media_type?: string;
+  tags?: string[];
 }
 
 interface Reply {
@@ -281,7 +282,7 @@ const TopicDetail: React.FC = () => {
           title: editTopicData.title,
           description: editTopicData.description,
           category: topic?.category,
-          tags: []
+          tags: topic?.tags || []
         })
       });
 
