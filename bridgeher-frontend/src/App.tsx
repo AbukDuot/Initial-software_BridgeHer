@@ -41,6 +41,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import OfflineIndicator from "./components/OfflineIndicator";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+
 const OfflineBanner: React.FC = () => {
   const { isOnline } = useAppContext();
   if (isOnline) return null;

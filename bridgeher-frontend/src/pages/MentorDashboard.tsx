@@ -432,7 +432,7 @@ const MentorDashboard: React.FC = () => {
   const totalLearners = learners.length || 0;
   const totalSessions = sessions.length || 0;
   const avgProgress = learners.length > 0 ? Math.round(learners.reduce((sum, l) => sum + (l.progress || 0), 0) / learners.length) : 0;
-  const avgRating = feedback.length > 0 ? (feedback.reduce((sum: number, f: any) => sum + (f.rating || 0), 0) / feedback.length).toFixed(1) : 0;
+  const avgRating = feedback.length > 0 ? (feedback.reduce((sum: number, f: any) => sum + (f.rating || 0), 0) / feedback.length).toFixed(1) : "0";
   
   const countLearners = useCountUp(totalLearners);
   const countSessions = useCountUp(totalSessions);

@@ -24,7 +24,6 @@ interface Topic {
   image_url?: string;
   video_url?: string;
   media_type?: string;
-  tags?: string[];
 }
 
 interface Reply {
@@ -281,8 +280,7 @@ const TopicDetail: React.FC = () => {
         body: JSON.stringify({
           title: editTopicData.title,
           description: editTopicData.description,
-          category: topic?.category,
-          tags: topic?.tags || []
+          category: topic?.category
         })
       });
 
