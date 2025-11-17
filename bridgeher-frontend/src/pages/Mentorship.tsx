@@ -247,7 +247,6 @@ const Mentorship: React.FC = () => {
             });
             
             return mapped;
-            };
           });
           setMentors(mapped);
         } else {
