@@ -76,10 +76,10 @@ router.get('/enrollments', protect, async (req, res) => {
 router.post('/add-mentor-videos', protect, async (req, res) => {
   try {
     const sampleVideos = [
-      'https://www.youtube.com/watch?v=ZXsQAXx_ao0', 
-      'https://www.youtube.com/watch?v=mgmVOuLgFB0', 
-      'https://www.youtube.com/watch?v=tbnzAVRZ9Xc', 
-      'https://www.youtube.com/watch?v=Tuw8hxrFBH8'  
+      'https://youtu.be/example1', 
+      'https://youtu.be/example2', 
+      'https://youtu.be/example3', 
+      'https://youtu.be/example4'  
     ];
     
     
