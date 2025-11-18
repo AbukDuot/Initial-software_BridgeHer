@@ -63,6 +63,13 @@ const TopicDetail: React.FC = () => {
   const [attachments, setAttachments] = useState<any[]>([]);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [expandedReplies, setExpandedReplies] = useState<{[key: number]: boolean}>({});
+  const [activeTab, setActiveTab] = useState<'replies' | 'questions'>('replies');
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [questionText, setQuestionText] = useState("");
+  const [answers, setAnswers] = useState<{[key: number]: any[]}>({});
+  const [mentionSuggestions, setMentionSuggestions] = useState<any[]>([]);
+  const [showMentions, setShowMentions] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
     fetchTopic();
@@ -70,6 +77,8 @@ const TopicDetail: React.FC = () => {
     fetchReactions();
     fetchAttachments();
     checkBookmark();
+    fetchQuestions();
+    checkSubscription();
   }, [id]);
   
   const checkBookmark = async () => {
@@ -90,6 +99,54 @@ const TopicDetail: React.FC = () => {
     }
   };
   
+  const checkSubscription = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/subscription`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setIsSubscribed(data.subscribed);
+      }
+    } catch (err) {
+      console.error("Failed to check subscription", err);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/subscribe`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setIsSubscribed(data.subscribed);
+        alert(data.subscribed 
+          ? (isArabic ? "تم الاشتراك في الموضوع" : "Subscribed to topic")
+          : (isArabic ? "تم إلغاء الاشتراك" : "Unsubscribed from topic")
+        );
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to subscribe", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
+    }
+  };
+
   const handleBookmark = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -179,6 +236,53 @@ const TopicDetail: React.FC = () => {
   };
 
 
+
+  const fetchMentionSuggestions = async (query: string) => {
+    if (query.length < 2) {
+      setMentionSuggestions([]);
+      setShowMentions(false);
+      return;
+    }
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/community/users/search?q=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const users = await res.json();
+        setMentionSuggestions(users.slice(0, 5));
+        setShowMentions(true);
+      }
+    } catch (err) {
+      console.error("Failed to fetch mention suggestions", err);
+    }
+  };
+
+  const handleMentionSelect = (user: any) => {
+    const mentionText = `@${user.name} `;
+    setReplyText(prev => {
+      const lastAtIndex = prev.lastIndexOf('@');
+      return prev.substring(0, lastAtIndex) + mentionText;
+    });
+    setShowMentions(false);
+    setMentionSuggestions([]);
+  };
+
+  const handleReplyTextChange = (text: string) => {
+    setReplyText(text);
+    
+    // Check for @ mentions
+    const lastAtIndex = text.lastIndexOf('@');
+    if (lastAtIndex !== -1) {
+      const afterAt = text.substring(lastAtIndex + 1);
+      const spaceIndex = afterAt.indexOf(' ');
+      if (spaceIndex === -1) {
+        fetchMentionSuggestions(afterAt);
+      } else {
+        setShowMentions(false);
+      }
+    } else {
+      setShowMentions(false);
+    }
+  };
 
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -487,6 +591,120 @@ const TopicDetail: React.FC = () => {
     }
   };
 
+  const handleVoteReply = async (replyId: number, voteType: 'up' | 'down') => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/replies/${replyId}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ vote_type: voteType })
+      });
+
+      if (res.ok) {
+        await fetchTopic(); // Refresh to show updated vote counts
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to vote", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
+    }
+  };
+
+  const fetchQuestions = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/questions`);
+      if (res.ok) {
+        const data = await res.json();
+        setQuestions(data.questions || []);
+        setAnswers(data.answers || {});
+      }
+    } catch (err) {
+      console.error("Failed to fetch questions", err);
+    }
+  };
+
+  const handleSubmitQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!questionText.trim()) {
+      alert(isArabic ? "الرجاء كتابة سؤال" : "Please write a question");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/questions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ question: questionText })
+      });
+
+      if (res.ok) {
+        setQuestionText("");
+        await fetchQuestions();
+        alert(isArabic ? "تم إضافة السؤال بنجاح!" : "Question added successfully!");
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to submit question", err);
+      alert(isArabic ? "فشل في إضافة السؤال" : "Failed to add question");
+    }
+  };
+
+  const handleAnswerQuestion = async (questionId: number, answerText: string) => {
+    if (!answerText.trim()) {
+      alert(isArabic ? "الرجاء كتابة إجابة" : "Please write an answer");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/questions/${questionId}/answers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ answer: answerText })
+      });
+
+      if (res.ok) {
+        await fetchQuestions();
+        alert(isArabic ? "تم إضافة الإجابة بنجاح!" : "Answer added successfully!");
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to submit answer", err);
+      alert(isArabic ? "فشل في إضافة الإجابة" : "Failed to add answer");
+    }
+  };
+
   const handleNestedReply = async (parentId: number) => {
     if (!nestedReplyText.trim()) {
       alert(isArabic ? "الرجاء كتابة تعليق" : "Please write a comment");
@@ -619,14 +837,19 @@ const TopicDetail: React.FC = () => {
           ))}
           {currentUser && (
             <button className="add-reaction-btn" onClick={() => setShowEmojiPicker({type: 'topic', id: topic.id})}>
-              ➕ {isArabic ? "تفاعل" : "React"}
+              {isArabic ? "تفاعل" : "React"}
             </button>
           )}
           {showEmojiPicker?.type === 'topic' && showEmojiPicker?.id === topic.id && (
             <div className="emoji-picker">
-              {['👍', '❤️', '😂', '😮', '😢', '🎉', '🔥', '💯'].map(emoji => (
-                <button key={emoji} onClick={() => handleReact(emoji)}>{emoji}</button>
-              ))}
+              {['+1', 'heart', 'laugh', 'wow', 'sad', 'party', 'fire', '100'].map((emoji, index) => {
+                const emojiMap = ['+1', '❤️', '😂', '😮', '😢', '🎉', '🔥', '💯'];
+                return (
+                  <button key={emoji} onClick={() => handleReact(emoji)}>
+                    {emojiMap[index]}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -695,7 +918,13 @@ const TopicDetail: React.FC = () => {
                 className={`bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`}
                 onClick={handleBookmark}
               >
-                {isBookmarked ? '🔖' : '📑'} {isBookmarked ? (isArabic ? "محفوظ" : "Saved") : (isArabic ? "حفظ" : "Bookmark")}
+                {isBookmarked ? 'Saved' : 'Bookmark'}
+              </button>
+              <button 
+                className={`subscribe-btn ${isSubscribed ? 'subscribed' : ''}`}
+                onClick={handleSubscribe}
+              >
+                {isSubscribed ? (isArabic ? "مشترك" : "Following") : (isArabic ? "متابعة" : "Follow")}
               </button>
               <button className="report-btn" onClick={() => {
                 setReportData({ type: "topic", id: topic.id, reason: "" });
@@ -707,13 +936,30 @@ const TopicDetail: React.FC = () => {
           )}
         </div>
 
-        {/* Replies Section */}
-        <div className="replies-section">
-          <h2>{isArabic ? "الردود" : "Replies"} ({replies.length})</h2>
+        {/* Tabs for Replies and Questions */}
+        <div className="content-tabs">
+          <button 
+            className={`tab-btn ${activeTab === 'replies' ? 'active' : ''}`}
+            onClick={() => setActiveTab('replies')}
+          >
+            {isArabic ? 'الردود' : 'Replies'} ({replies.length})
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'questions' ? 'active' : ''}`}
+            onClick={() => setActiveTab('questions')}
+          >
+            {isArabic ? 'الأسئلة' : 'Questions'} ({questions.length})
+          </button>
+        </div>
 
-          {replies.length === 0 ? (
-            <p className="no-replies">{isArabic ? "لا توجد ردود بعد. كن أول من يرد!" : "No replies yet. Be the first to reply!"}</p>
-          ) : (
+        {/* Replies Section */}
+        {activeTab === 'replies' && (
+          <div className="replies-section">
+            <h2>{isArabic ? "الردود" : "Replies"} ({replies.length})</h2>
+
+            {replies.length === 0 ? (
+              <p className="no-replies">{isArabic ? "لا توجد ردود بعد. كن أول من يرد!" : "No replies yet. Be the first to reply!"}</p>
+            ) : (
             <div className="replies-list">
               {replies.filter(r => !r.parent_reply_id).map((reply) => (
                 <div key={reply.id} className={`reply-card ${reply.best_answer ? 'best-answer' : ''}`}>
@@ -743,9 +989,14 @@ const TopicDetail: React.FC = () => {
                     )}
                     {showEmojiPicker?.type === 'reply' && showEmojiPicker?.id === reply.id && (
                       <div className="emoji-picker-small">
-                        {['👍', '❤️', '😂', '😮', '😢', '🎉'].map(emoji => (
-                          <button key={emoji} onClick={() => handleReplyReact(reply.id, emoji)}>{emoji}</button>
-                        ))}
+                        {['+1', 'heart', 'laugh', 'wow', 'sad', 'party'].map((emoji, index) => {
+                          const emojiMap = ['+1', '❤️', '😂', '😮', '😢', '🎉'];
+                          return (
+                            <button key={emoji} onClick={() => handleReplyReact(reply.id, emoji)}>
+                              {emojiMap[index]}
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -763,30 +1014,45 @@ const TopicDetail: React.FC = () => {
                     </div>
                   ) : (
                     <div className="reply-actions">
-                      {currentUser && (
-                        <>
-                          <button className="edit-btn-small" onClick={() => {
-                            setEditReplyText(reply.content);
-                            setEditingReply(reply.id);
+                      <div className="vote-buttons">
+                        {currentUser && (
+                          <>
+                            <button className="vote-btn upvote" onClick={() => handleVoteReply(reply.id, 'up')}>
+                              ▲ {isArabic ? 'مفيد' : 'Helpful'}
+                            </button>
+                            <span className="vote-count">{reply.likes || 0}</span>
+                            <button className="vote-btn downvote" onClick={() => handleVoteReply(reply.id, 'down')}>
+                              ▼ {isArabic ? 'غير مفيد' : 'Not Helpful'}
+                            </button>
+                          </>
+                        )}
+                      </div>
+                      <div className="action-buttons">
+                        {currentUser && (
+                          <>
+                            <button className="edit-btn-small" onClick={() => {
+                              setEditReplyText(reply.content);
+                              setEditingReply(reply.id);
+                            }}>
+                              {isArabic ? "تعديل" : "Edit"}
+                            </button>
+                            <button className="delete-btn-small" onClick={() => handleDeleteReply(reply.id)}>
+                              {isArabic ? "حذف" : "Delete"}
+                            </button>
+                            <button className="reply-btn-small" onClick={() => setReplyingTo(reply.id)}>
+                              {isArabic ? "تعليق" : "Comment"}
+                            </button>
+                          </>
+                        )}
+                        {currentUser && (
+                          <button className="report-btn-small" onClick={() => {
+                            setReportData({ type: "reply", id: reply.id, reason: "" });
+                            setShowReportModal(true);
                           }}>
-                            {isArabic ? "تعديل" : "Edit"}
+                            {isArabic ? "بلاغ" : "Report"}
                           </button>
-                          <button className="delete-btn-small" onClick={() => handleDeleteReply(reply.id)}>
-                            {isArabic ? "حذف" : "Delete"}
-                          </button>
-                          <button className="reply-btn-small" onClick={() => setReplyingTo(reply.id)}>
-                            {isArabic ? "تعليق" : "Comment"}
-                          </button>
-                        </>
-                      )}
-                      {currentUser && (
-                        <button className="report-btn-small" onClick={() => {
-                          setReportData({ type: "reply", id: reply.id, reason: "" });
-                          setShowReportModal(true);
-                        }}>
-                          {isArabic ? "بلاغ" : "Report"}
-                        </button>
-                      )}
+                        )}
+                      </div>
                     </div>
                   )}
                   
@@ -848,11 +1114,27 @@ const TopicDetail: React.FC = () => {
             <div className="reply-form">
               <h3>{isArabic ? "أضف رداً" : "Add a Reply"}</h3>
               <form onSubmit={handleSubmitReply}>
-                <RichTextEditor
-                  value={replyText}
-                  onChange={setReplyText}
-                  placeholder={isArabic ? "اكتب ردك على الموضوع... (استخدم @اسم_المستخدم للإشارة)" : "Write your reply to the topic... (Use @username to mention)"}
-                />
+                <div className="reply-input-container">
+                  <RichTextEditor
+                    value={replyText}
+                    onChange={handleReplyTextChange}
+                    placeholder={isArabic ? "اكتب ردك على الموضوع... (استخدم @اسم_المستخدم للإشارة)" : "Write your reply to the topic... (Use @username to mention)"}
+                  />
+                  {showMentions && mentionSuggestions.length > 0 && (
+                    <div className="mention-suggestions">
+                      {mentionSuggestions.map((user) => (
+                        <div 
+                          key={user.id} 
+                          className="mention-item"
+                          onClick={() => handleMentionSelect(user)}
+                        >
+                          <strong>@{user.name}</strong>
+                          <span>{user.role}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
                   {isArabic ? "إرسال الرد" : "Post Reply"}
                 </button>
@@ -863,7 +1145,71 @@ const TopicDetail: React.FC = () => {
               <p>🔒 {isArabic ? "هذا الموضوع مقفل. لا يمكن إضافة ردود جديدة." : "This topic is locked. No new replies can be added."}</p>
             </div>
           )}
-        </div>
+          </div>
+        )}
+
+        {/* Questions Section */}
+        {activeTab === 'questions' && (
+          <div className="questions-section">
+            <h2>{isArabic ? 'الأسئلة حول هذا الموضوع' : 'Questions About This Topic'} ({questions.length})</h2>
+
+            {questions.length === 0 ? (
+              <p className="no-questions">{isArabic ? 'لا توجد أسئلة بعد. كن أول من يسأل!' : 'No questions yet. Be the first to ask!'}</p>
+            ) : (
+              <div className="questions-list">
+                {questions.map((question: any) => (
+                  <div key={question.id} className="question-card">
+                    <div className="question-header">
+                      <strong>{question.author_name}</strong>
+                      <span>{timeAgo(question.created_at, isArabic)}</span>
+                    </div>
+                    <div className="question-content">{question.question}</div>
+                    <div className="answers-section">
+                      <h4>{isArabic ? 'الإجابات' : 'Answers'} ({(answers[question.id] || []).length})</h4>
+                      {(answers[question.id] || []).map((answer: any) => (
+                        <div key={answer.id} className="answer-card">
+                          <div className="answer-header">
+                            <strong>{answer.author_name}</strong>
+                            <span>{timeAgo(answer.created_at, isArabic)}</span>
+                          </div>
+                          <div className="answer-content">{answer.answer}</div>
+                        </div>
+                      ))}
+                      {currentUser && (
+                        <AnswerForm 
+                          questionId={question.id} 
+                          onSubmit={handleAnswerQuestion} 
+                          isArabic={isArabic} 
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Question Form */}
+            {!topic.locked ? (
+              <div className="question-form">
+                <h3>{isArabic ? 'اطرح سؤالاً' : 'Ask a Question'}</h3>
+                <form onSubmit={handleSubmitQuestion}>
+                  <RichTextEditor
+                    value={questionText}
+                    onChange={setQuestionText}
+                    placeholder={isArabic ? 'اطرح سؤالك حول هذا الموضوع... (استخدم @ للإشارة)' : 'Ask your question about this topic... (Use @ to mention)'}
+                  />
+                  <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
+                    {isArabic ? 'طرح السؤال' : 'Post Question'}
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="locked-message">
+                <p>🔒 {isArabic ? 'هذا الموضوع مقفل. لا يمكن إضافة أسئلة جديدة.' : 'This topic is locked. No new questions can be added.'}</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Report Modal */}
@@ -885,6 +1231,30 @@ const TopicDetail: React.FC = () => {
         </div>
       )}
     </div>
+  );
+};
+
+// Answer Form Component
+const AnswerForm: React.FC<{questionId: number, onSubmit: (id: number, text: string) => void, isArabic: boolean}> = ({ questionId, onSubmit, isArabic }) => {
+  const [answerText, setAnswerText] = useState("");
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(questionId, answerText);
+    setAnswerText("");
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="answer-form">
+      <RichTextEditor
+        value={answerText}
+        onChange={setAnswerText}
+        placeholder={isArabic ? 'اكتب إجابتك...' : 'Write your answer...'}
+      />
+      <button type="submit" className="btn-answer">
+        {isArabic ? 'إرسال الإجابة' : 'Post Answer'}
+      </button>
+    </form>
   );
 };
 

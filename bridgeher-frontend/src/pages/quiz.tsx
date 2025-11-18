@@ -778,7 +778,7 @@ const Quiz: React.FC = () => {
  
   const seedRef = useRef<number>(Date.now());
   const orderedQuestions = useMemo(
-    () => shuffle(courseQuestions, seedRef.current),
+    () => shuffle(courseQuestions, seedRef.current).slice(0, 10), // Limit to 10 questions
     [courseQuestions]
   );
 
@@ -790,7 +790,7 @@ const Quiz: React.FC = () => {
   const [idx, setIdx] = useState(0);
 
   
-  const TOTAL_SECONDS = 30 * 60;
+  const TOTAL_SECONDS = 20 * 60; // 20 minutes for final assessment
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -932,16 +932,16 @@ const Quiz: React.FC = () => {
             </h2>
             <p className="muted">
               {isAr
-                ? "15 سؤالاً، 30 دقيقة، 4 اختيارات لكل سؤال."
-                : "15 questions, 30 minutes, 4 choices each."}
+                ? "10 أسئلة، 20 دقيقة، 4 اختيارات لكل سؤال."
+                : "10 questions, 20 minutes, 4 choices each."}
             </p>
           </div>
           <div
-            className={`timer ${secondsLeft <= 60 ? "danger" : ""}`}
+            className={`timer ${secondsLeft <= 300 ? "warning" : ""} ${secondsLeft <= 60 ? "danger" : ""}`}
             aria-live="polite"
           >
-            <span>{isAr ? T.timeLeft.Arabic : T.timeLeft.English}:</span>{" "}
-            <strong>{formatTime(secondsLeft)}</strong>
+            <span className="timer-label">{isAr ? T.timeLeft.Arabic : T.timeLeft.English}:</span>
+            <span className="timer-value">{formatTime(secondsLeft)}</span>
           </div>
         </header>
 

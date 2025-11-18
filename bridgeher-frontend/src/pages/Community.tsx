@@ -4,6 +4,7 @@ import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
 import { timeAgo } from "../utils/timeAgo";
 import "../styles/community.css";
+import "../styles/modal.css";
 
 interface Topic {
   id: number;
@@ -67,6 +68,15 @@ const Community: React.FC = () => {
     dateTo: "",
     status: ""
   });
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newTopic, setNewTopic] = useState({
+    title: "",
+    category: "",
+    description: "",
+    tags: ""
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTopics();
@@ -194,6 +204,135 @@ const Community: React.FC = () => {
     navigate(`/community/topic/${topicId}`);
   };
 
+  const handleVoteTopic = async (topicId: number, voteType: 'up' | 'down') => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${topicId}/vote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ vote_type: voteType })
+      });
+
+      if (res.ok) {
+        fetchTopics(); // Refresh topics to show updated vote counts
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to vote", err);
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setFilePreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type.startsWith('video/')) {
+        const url = URL.createObjectURL(file);
+        setFilePreview(url);
+      }
+    }
+  };
+
+  const removeFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+  };
+
+  const uploadTopicMedia = async (topicId: number, file: File) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const formData = new FormData();
+      formData.append('media', file);
+      formData.append('topicId', topicId.toString());
+
+      const res = await fetch(`${API_BASE_URL}/api/community/topics/${topicId}/media`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!res.ok) {
+        console.error('Failed to upload media');
+      }
+    } catch (err) {
+      console.error('Error uploading media:', err);
+    }
+  };
+
+  const handleCreateTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTopic.title.trim() || !newTopic.category || !newTopic.description.trim()) {
+      alert(isArabic ? "الرجاء ملء جميع الحقول المطلوبة" : "Please fill all required fields");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/community/topics`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: newTopic.title,
+          category: newTopic.category,
+          description: newTopic.description,
+          tags: newTopic.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Upload media if selected
+        if (selectedFile && data.topicId) {
+          await uploadTopicMedia(data.topicId, selectedFile);
+        }
+        
+        setShowCreateModal(false);
+        setNewTopic({ title: "", category: "", description: "", tags: "" });
+        setSelectedFile(null);
+        setFilePreview(null);
+        fetchTopics(); // Refresh topics list
+        alert(isArabic ? "تم إنشاء الموضوع بنجاح!" : "Topic created successfully!");
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to create topic", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
+    }
+  };
+
   return (
     <div className={`community-page ${isArabic ? "rtl" : ""}`} dir={isArabic ? "rtl" : "ltr"}>
       <div className="community-container">
@@ -256,7 +395,7 @@ const Community: React.FC = () => {
               {activity.slice(0, 10).map((act, idx) => (
                 <li key={idx}>
                   <span className="activity-type">
-                    {act.type === 'topic' ? '' : ''}
+                    {act.type === 'topic' ? 'T' : 'R'}
                   </span>
                   <div>
                     <strong>{act.author}</strong>
@@ -275,7 +414,7 @@ const Community: React.FC = () => {
           <div className="community-header">
             <h1>{isArabic ? "منتدى المجتمع" : "Community Forum"}</h1>
             <div style={{display: 'flex', gap: '10px'}}>
-              <button className="btn-primary" onClick={() => navigate("/community/create")}>
+              <button className="btn-primary" onClick={() => setShowCreateModal(true)}>
                 + {isArabic ? "موضوع جديد" : "New Topic"}
               </button>
               {JSON.parse(localStorage.getItem("user") || '{}').role === 'Admin' && (
@@ -296,7 +435,7 @@ const Community: React.FC = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
-              <button onClick={handleSearch}>🔍</button>
+              <button onClick={handleSearch}>{isArabic ? 'بحث' : 'Search'}</button>
               <button onClick={() => setShowAdvancedSearch(!showAdvancedSearch)} className="advanced-search-btn">
                 {isArabic ? "بحته متقدم" : "Advanced"}
               </button>
@@ -360,7 +499,7 @@ const Community: React.FC = () => {
             {topics.length === 0 ? (
               <div className="empty-state">
                 <p>{isArabic ? "لا توجد مواضيع بعد" : "No topics yet"}</p>
-                <button onClick={() => navigate("/community/create")}>
+                <button onClick={() => setShowCreateModal(true)}>
                   {isArabic ? "كن أول من ينشر!" : "Be the first to post!"}
                 </button>
               </div>
@@ -370,6 +509,30 @@ const Community: React.FC = () => {
                   <div className="topic-content">
                     <h3>{topic.title}</h3>
                     <p>{(topic.description || '').replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
+                    
+                    {/* Media Preview */}
+                    {topic.image_url && (
+                      <div className="topic-media-preview">
+                        <img 
+                          src={topic.image_url.startsWith('http') ? topic.image_url : `${API_BASE_URL}${topic.image_url}`}
+                          alt={topic.title}
+                          className="topic-thumbnail"
+                        />
+                      </div>
+                    )}
+                    {topic.video_url && (
+                      <div className="topic-media-preview">
+                        <video 
+                          src={topic.video_url.startsWith('http') ? topic.video_url : `${API_BASE_URL}${topic.video_url}`}
+                          className="topic-thumbnail"
+                          muted
+                        />
+                        <div className="video-overlay">
+                          <span className="play-icon">▶</span>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="topic-meta">
                       {topic.category && <span className="category-badge">{topic.category}</span>}
                       <span>{isArabic ? "بواسطة" : "by"} {topic.author_name}</span>
@@ -377,17 +540,28 @@ const Community: React.FC = () => {
                     </div>
                   </div>
                   <div className="topic-stats">
+                    <div className="vote-section">
+                      <button 
+                        className="vote-btn upvote-btn" 
+                        onClick={(e) => { e.stopPropagation(); handleVoteTopic(topic.id, 'up'); }}
+                      >
+                        ▲
+                      </button>
+                      <span className="vote-count">{topic.likes || 0}</span>
+                      <button 
+                        className="vote-btn downvote-btn" 
+                        onClick={(e) => { e.stopPropagation(); handleVoteTopic(topic.id, 'down'); }}
+                      >
+                        ▼
+                      </button>
+                    </div>
                     <div className="stat">
-                      <span className="stat-icon"></span>
+                      <span className="stat-label">{isArabic ? 'ردود' : 'Replies'}</span>
                       <span>{topic.replies}</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-icon"></span>
+                      <span className="stat-label">{isArabic ? 'مشاهدات' : 'Views'}</span>
                       <span>{topic.views}</span>
-                    </div>
-                    <div className="stat">
-                      <span className="stat-icon"></span>
-                      <span>{topic.likes}</span>
                     </div>
                   </div>
                 </div>
@@ -415,6 +589,113 @@ const Community: React.FC = () => {
           )}
         </main>
       </div>
+
+      {/* Create Topic Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="modal-content create-topic-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{isArabic ? "إنشاء موضوع جديد" : "Create New Topic"}</h2>
+              <button className="close-btn" onClick={() => setShowCreateModal(false)}>×</button>
+            </div>
+            
+            <form onSubmit={handleCreateTopic} className="create-topic-form">
+              <div className="form-group">
+                <label>{isArabic ? "العنوان" : "Title"} *</label>
+                <input
+                  type="text"
+                  value={newTopic.title}
+                  onChange={(e) => setNewTopic({...newTopic, title: e.target.value})}
+                  placeholder={isArabic ? "اكتب عنوان الموضوع..." : "Enter topic title..."}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>{isArabic ? "الفئة" : "Category"} *</label>
+                <select
+                  value={newTopic.category}
+                  onChange={(e) => setNewTopic({...newTopic, category: e.target.value})}
+                  required
+                >
+                  <option value="">{isArabic ? "اختر فئة" : "Select category"}</option>
+                  <option value="General">{isArabic ? "عام" : "General"}</option>
+                  <option value="Courses">{isArabic ? "الدورات" : "Courses"}</option>
+                  <option value="Mentorship">{isArabic ? "الإرشاد" : "Mentorship"}</option>
+                  <option value="Career">{isArabic ? "المهنة" : "Career"}</option>
+                  <option value="Technology">{isArabic ? "التكنولوجيا" : "Technology"}</option>
+                  <option value="Business">{isArabic ? "الأعمال" : "Business"}</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label>{isArabic ? "الوصف" : "Description"} *</label>
+                <textarea
+                  value={newTopic.description}
+                  onChange={(e) => setNewTopic({...newTopic, description: e.target.value})}
+                  placeholder={isArabic ? "اكتب وصف الموضوع..." : "Write topic description..."}
+                  rows={4}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>{isArabic ? "الوسوم (اختياري)" : "Tags (optional)"}</label>
+                <input
+                  type="text"
+                  value={newTopic.tags}
+                  onChange={(e) => setNewTopic({...newTopic, tags: e.target.value})}
+                  placeholder={isArabic ? "وسم1، وسم2، وسم3" : "tag1, tag2, tag3"}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>{isArabic ? "إضافة صورة أو فيديو (اختياري)" : "Add Image or Video (optional)"}</label>
+                <div className="media-upload-area">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={handleFileSelect}
+                    style={{ display: 'none' }}
+                    id="media-upload"
+                  />
+                  <label htmlFor="media-upload" className="upload-button">
+                    {isArabic ? "اختر ملف" : "Choose File"}
+                  </label>
+                  
+                  {selectedFile && (
+                    <div className="file-preview">
+                      <div className="file-info">
+                        <span>{selectedFile.name}</span>
+                        <button type="button" onClick={removeFile} className="remove-file">×</button>
+                      </div>
+                      
+                      {filePreview && (
+                        <div className="preview-container">
+                          {selectedFile.type.startsWith('image/') ? (
+                            <img src={filePreview} alt="Preview" className="media-preview" />
+                          ) : selectedFile.type.startsWith('video/') ? (
+                            <video src={filePreview} controls className="media-preview" />
+                          ) : null}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="modal-actions">
+                <button type="submit" className="btn-primary">
+                  {isArabic ? "إنشاء الموضوع" : "Create Topic"}
+                </button>
+                <button type="button" className="btn-cancel" onClick={() => setShowCreateModal(false)}>
+                  {isArabic ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

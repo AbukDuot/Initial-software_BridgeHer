@@ -1,222 +1,271 @@
-import React, { useState, useEffect } from "react";
-import { useLanguage } from "../hooks/useLanguage";
-import { useToast } from "../hooks/useToast";
-import Toast from "../components/Toast";
-import LoadingSpinner from "../components/LoadingSpinner";
-import "../styles/profile.css";
-
-interface UserProfile {
-  name: string;
-  email: string;
-  role: string;
-  bio?: string;
-  expertise?: string;
-  avatar?: string;
-}
+import React, { useState, useRef } from 'react';
+import { useUser } from '../hooks/useUser';
+import { useLanguage } from '../hooks/useLanguage';
+import { API_BASE_URL } from '../config/api';
+import '../styles/profile.css';
 
 const Profile: React.FC = () => {
+  const { user, setUser } = useUser();
   const { language } = useLanguage();
-  const { toasts, showToast, removeToast } = useToast();
-  const isArabic = language === "Arabic";
+  const isArabic = language === 'Arabic';
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [profile, setProfile] = useState<UserProfile>({
-    name: "",
-    email: "",
-    role: "",
-    bio: "",
-    expertise: "",
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: '',
+    bio: '',
+    location: '',
   });
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        showToast(isArabic ? "يرجى تسجيل الدخول" : "Please login first", "error");
-        return;
-      }
-
-      const response = await fetch("${API_BASE_URL}/api/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setProfile(data);
-      } else {
-        showToast(isArabic ? "فشل تحميل الملف الشخصي" : "Failed to load profile", "error");
-      }
-    } catch (error) {
-      showToast(isArabic ? "خطأ في الاتصال" : "Connection error", "error");
-    } finally {
-      setLoading(false);
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSave = async () => {
-    setSaving(true);
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("${API_BASE_URL}/api/users/me", {
-        method: "PUT",
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/profile`, {
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: profile.name,
-          bio: profile.bio,
-          expertise: profile.expertise,
-        }),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        showToast(isArabic ? "تم حفظ التغييرات بنجاح" : "Changes saved successfully", "success");
+        const updatedUser = await response.json();
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         setEditing(false);
-      } else {
-        showToast(isArabic ? "فشل حفظ التغييرات" : "Failed to save changes", "error");
+        alert(isArabic ? 'تم حفظ التغييرات بنجاح' : 'Profile updated successfully');
       }
     } catch (error) {
-      showToast(isArabic ? "خطأ في الاتصال" : "Connection error", "error");
-    } finally {
-      setSaving(false);
+      console.error('Error updating profile:', error);
+      alert(isArabic ? 'فشل في حفظ التغييرات' : 'Failed to update profile');
     }
   };
 
-  if (loading) {
-    return <LoadingSpinner size="large" message={isArabic ? "جارٍ التحميل..." : "Loading..."} />;
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert(isArabic ? 'يرجى اختيار ملف صورة صالح' : 'Please select a valid image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert(isArabic ? 'حجم الصورة كبير جداً (الحد الأقصى 5 ميجابايت)' : 'Image size too large (max 5MB)');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const token = localStorage.getItem('token');
+      console.log('Uploading to:', `${API_BASE_URL}/api/profile/upload-image`);
+      console.log('Token exists:', !!token);
+      console.log('File size:', file.size);
+      
+      const response = await fetch(`${API_BASE_URL}/api/profile/upload-image`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Upload result:', result);
+        const updatedUser = { ...user, profile_pic: result.imageUrl };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        alert(isArabic ? 'تم تحديث الصورة بنجاح' : 'Profile image updated successfully');
+        
+        // Trigger navbar refresh
+        window.dispatchEvent(new Event('storage'));
+      } else {
+        let errorMessage = 'Unknown error';
+        try {
+          const error = await response.json();
+          errorMessage = error.message || error.error || `HTTP ${response.status}`;
+        } catch {
+          errorMessage = `HTTP ${response.status} - ${response.statusText}`;
+        }
+        alert(isArabic ? `فشل في رفع الصورة: ${errorMessage}` : `Failed to upload image: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Network error';
+      alert(isArabic ? `فشل في رفع الصورة: ${errorMessage}` : `Failed to upload image: ${errorMessage}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const triggerImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+
+
+  if (!user) {
+    return <div>Please log in to view your profile.</div>;
   }
 
   return (
-    <div className={`profile-page ${isArabic ? "rtl" : ""}`}>
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
-
+    <div className={`profile-page ${isArabic ? 'rtl' : ''}`}>
       <div className="profile-container">
         <div className="profile-header">
-          <div className="avatar-section">
-            <div className="avatar">
-              {profile.avatar ? (
-                <img src={profile.avatar} alt="Profile" />
+          <div className="avatar-container">
+            {user.profile_pic ? (
+              <img 
+                src={user.profile_pic} 
+                alt={user.name}
+                className="avatar-large"
+                onClick={triggerImageUpload}
+              />
+            ) : (
+              <div className="avatar-large" onClick={triggerImageUpload}>
+                {getInitials(user.name)}
+              </div>
+            )}
+            <div className="avatar-overlay" onClick={triggerImageUpload}>
+              {uploading ? (
+                <span>...</span>
               ) : (
-                <span className="avatar-placeholder">
-                  {profile.name.charAt(0).toUpperCase()}
-                </span>
+                <span>+</span>
               )}
             </div>
-            <button className="btn-upload">
-              {isArabic ? "تحميل صورة" : "Upload Photo"}
-            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: 'none' }}
+            />
           </div>
-
-          <div className="profile-info">
-            <h1>{profile.name}</h1>
-            <p className="role-badge">{profile.role}</p>
-            <p className="email">{profile.email}</p>
+          <div className="profile-title">
+            <h1>{isArabic ? 'الملف الشخصي' : 'My Profile'}</h1>
+            <p>{user.role}</p>
           </div>
-
-          <div className="profile-actions">
-            {!editing ? (
-              <button className="btn-edit" onClick={() => setEditing(true)}>
-                {isArabic ? "تعديل الملف الشخصي" : "Edit Profile"}
-              </button>
-            ) : (
-              <>
-                <button className="btn-save" onClick={handleSave} disabled={saving}>
-                  {saving ? (isArabic ? "جارٍ الحفظ..." : "Saving...") : (isArabic ? "حفظ" : "Save")}
-                </button>
-                <button className="btn-cancel" onClick={() => setEditing(false)}>
-                  {isArabic ? "إلغاء" : "Cancel"}
-                </button>
-              </>
-            )}
-          </div>
+          <button 
+            className="edit-btn"
+            onClick={() => setEditing(!editing)}
+          >
+            {editing 
+              ? (isArabic ? 'إلغاء' : 'Cancel')
+              : (isArabic ? 'تعديل' : 'Edit')
+            }
+          </button>
         </div>
 
         <div className="profile-content">
           <div className="profile-section">
-            <h2>{isArabic ? "المعلومات الشخصية" : "Personal Information"}</h2>
+            <h3>{isArabic ? 'المعلومات الأساسية' : 'Basic Information'}</h3>
+            
             <div className="form-group">
-              <label>{isArabic ? "الاسم" : "Name"}</label>
-              <input
-                type="text"
-                value={profile.name}
-                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                disabled={!editing}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>{isArabic ? "البريد الإلكتروني" : "Email"}</label>
-              <input type="email" value={profile.email} disabled />
-            </div>
-
-            <div className="form-group">
-              <label>{isArabic ? "الدور" : "Role"}</label>
-              <input type="text" value={profile.role} disabled />
-            </div>
-          </div>
-
-          {profile.role === "Mentor" && (
-            <div className="profile-section">
-              <h2>{isArabic ? "معلومات المرشد" : "Mentor Information"}</h2>
-              <div className="form-group">
-                <label>{isArabic ? "السيرة الذاتية" : "Bio"}</label>
-                <textarea
-                  value={profile.bio || ""}
-                  onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                  disabled={!editing}
-                  rows={4}
-                  placeholder={isArabic ? "أخبرنا عن نفسك..." : "Tell us about yourself..."}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>{isArabic ? "مجالات الخبرة" : "Expertise"}</label>
+              <label>{isArabic ? 'الاسم' : 'Name'}</label>
+              {editing ? (
                 <input
                   type="text"
-                  value={profile.expertise || ""}
-                  onChange={(e) => setProfile({ ...profile, expertise: e.target.value })}
-                  disabled={!editing}
-                  placeholder={isArabic ? "مثال: التكنولوجيا، الأعمال" : "e.g., Technology, Business"}
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
                 />
-              </div>
+              ) : (
+                <p>{user.name}</p>
+              )}
             </div>
-          )}
 
-          <div className="profile-section">
-            <h2>{isArabic ? "الإحصائيات" : "Statistics"}</h2>
-            <div className="stats-grid">
-              <div className="stat-card">
-                <h3>5</h3>
-                <p>{isArabic ? "الدورات المسجلة" : "Enrolled Courses"}</p>
-              </div>
-              <div className="stat-card">
-                <h3>3</h3>
-                <p>{isArabic ? "الدورات المكتملة" : "Completed Courses"}</p>
-              </div>
-              <div className="stat-card">
-                <h3>150</h3>
-                <p>{isArabic ? "النقاط" : "Points"}</p>
-              </div>
-              <div className="stat-card">
-                <h3>2</h3>
-                <p>{isArabic ? "الشهادات" : "Certificates"}</p>
-              </div>
+            <div className="form-group">
+              <label>{isArabic ? 'البريد الإلكتروني' : 'Email'}</label>
+              {editing ? (
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
+              ) : (
+                <p>{user.email}</p>
+              )}
             </div>
+
+            <div className="form-group">
+              <label>{isArabic ? 'رقم الهاتف' : 'Phone'}</label>
+              {editing ? (
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder={isArabic ? 'أدخل رقم الهاتف' : 'Enter phone number'}
+                />
+              ) : (
+                <p>{formData.phone || (isArabic ? 'غير محدد' : 'Not specified')}</p>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>{isArabic ? 'الموقع' : 'Location'}</label>
+              {editing ? (
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  placeholder={isArabic ? 'أدخل الموقع' : 'Enter location'}
+                />
+              ) : (
+                <p>{formData.location || (isArabic ? 'غير محدد' : 'Not specified')}</p>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>{isArabic ? 'نبذة عني' : 'Bio'}</label>
+              {editing ? (
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  placeholder={isArabic ? 'اكتب نبذة عنك' : 'Tell us about yourself'}
+                  rows={4}
+                />
+              ) : (
+                <p>{formData.bio || (isArabic ? 'لا توجد نبذة' : 'No bio available')}</p>
+              )}
+            </div>
+
+            {editing && (
+              <div className="form-actions">
+                <button className="save-btn" onClick={handleSave}>
+                  {isArabic ? 'حفظ التغييرات' : 'Save Changes'}
+                </button>
+              </div>
+            )}
           </div>
+
+
         </div>
       </div>
     </div>

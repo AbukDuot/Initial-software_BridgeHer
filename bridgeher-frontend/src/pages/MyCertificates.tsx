@@ -24,7 +24,7 @@ const MyCertificates: React.FC = () => {
     const fetchCertificates = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("${API_BASE_URL}/api/courses/my/certificates", {
+        const res = await fetch(`${API_BASE_URL}/api/courses/my/certificates`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -73,32 +73,43 @@ const MyCertificates: React.FC = () => {
       <h2>{isArabic ? "شهاداتي" : "My Certificates"}</h2>
       {certificates.length === 0 ? (
         <div className="no-certificates">
-          <p>{isArabic ? "لم تحصل على شهادات بعد" : "No certificates earned yet."}</p>
-          <p className="hint">{isArabic ? "أكمل دورة للحصول على شهادتك الأولى!" : "Complete a course to earn your first certificate!"}</p>
+          <div className="empty-icon">📜</div>
+          <h3>{isArabic ? "لا توجد شهادات" : "No Certificates Yet"}</h3>
+          <p>{isArabic ? "أكمل دورة للحصول على شهادتك الأولى!" : "Complete a course to earn your first certificate!"}</p>
+          <button className="btn primary" onClick={() => window.location.href = '/courses'}>
+            {isArabic ? "تصفح الدورات" : "Browse Courses"}
+          </button>
         </div>
       ) : (
         <div className="cert-grid">
           {certificates.map((cert) => (
             <div className="cert-card" key={cert.id}>
-              <div className="cert-icon">🎓</div>
+              <div className="cert-header">
+                <div className="cert-icon">🏆</div>
+                {cert.score && cert.score >= 90 && <div className="excellence-badge">{isArabic ? "ممتاز" : "Excellence"}</div>}
+              </div>
               <h3>{cert.courseTitle}</h3>
-              <p className="cert-info">
-                <strong>{isArabic ? "المرشد:" : "Mentor:"}</strong> {cert.mentor}
-              </p>
-              <p className="cert-info">
-                <strong>{isArabic ? "التاريخ:" : "Date:"}</strong>{" "}
-                {new Date(cert.date).toLocaleDateString(isArabic ? "ar" : "en", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </p>
-              {cert.score && (
-                <p className="cert-score">
-                  {isArabic ? "النتيجة:" : "Score:"} {cert.score}%
+              <div className="cert-details">
+                <p className="cert-info">
+                  <span className="label">{isArabic ? "المرشد:" : "Mentor:"}</span>
+                  <span className="value">{cert.mentor}</span>
                 </p>
-              )}
-              <button className="view-btn" onClick={() => setSelectedCert(cert)}>
+                <p className="cert-info">
+                  <span className="label">{isArabic ? "التاريخ:" : "Date:"}</span>
+                  <span className="value">{new Date(cert.date).toLocaleDateString(isArabic ? "ar" : "en", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}</span>
+                </p>
+                {cert.score && (
+                  <p className="cert-score">
+                    <span className="score-value">{cert.score}%</span>
+                    <span className="score-label">{isArabic ? "النتيجة" : "Score"}</span>
+                  </p>
+                )}
+              </div>
+              <button className="view-btn primary" onClick={() => setSelectedCert(cert)}>
                 {isArabic ? "عرض الشهادة" : "View Certificate"}
               </button>
             </div>

@@ -232,3 +232,110 @@
 .auth-page.rtl .terms-checkbox {
   text-align: right;
 }
+
+/* AuthSuccess Improvements */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e1bee7;
+  border-top: 4px solid #4A148C;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  animation: spin 1s linear infinite;
+}
+
+.success-icon, .error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.success-icon {
+  color: #2E7D32;
+}
+
+.error-icon {
+  color: #E53935;
+}
+
+/* Form improvements */
+.auth-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  color: var(--text-primary);
+  background: url("../assets/images/Bg.jpeg") no-repeat center center/cover;
+}
+
+.auth-header {
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--border-light);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: #4A148C;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #4A148C;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.auth-btn:hover:not(:disabled) {
+  background-color: #6A1B9A;
+  transform: translateY(-2px);
+}
+
+.auth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message {
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.message.success {
+  background-color: #E8F5E8;
+  color: #2E7D32;
+  border: 1px solid #4CAF50;
+}
+
+.message.error {
+  background-color: #FFEBEE;
+  color: #E53935;
+  border: 1px solid #F44336;
+}

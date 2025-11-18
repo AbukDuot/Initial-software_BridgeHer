@@ -1,389 +1,196 @@
-import React, { useEffect, useState } from "react";
-import { useLanguage } from "../hooks/useLanguage";
-import { API_BASE_URL } from "../config/api";
-import "../styles/settings.css";
-
-const playUiSound = (enabled: boolean, tone: "tap" | "success" = "tap") => {
-  if (!enabled) return;
-  try {
-    type WindowWithWebkit = Window & { webkitAudioContext?: typeof AudioContext };
-    const AudioCtx = (window.AudioContext || (window as WindowWithWebkit).webkitAudioContext);
-    const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.frequency.value = tone === "success" ? 650 : 540;
-    gain.gain.value = 0.07;
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.12);
-  } catch (err) {
-    console.warn("playUiSound error:", err);
-  }
-};
-
-const tMap = {
-  en: {
-    profile: {
-      title: "Profile",
-      name: "Full Name",
-      email: "Email Address",
-      bio: "Short Bio",
-      changePhoto: "Change Photo",
-      save: "Save Changes",
-      savedMsg: "Profile saved successfully!",
-    },
-    appearance: {
-      title: "Appearance",
-      theme: "Theme",
-      light: "Light Mode",
-      dark: "Dark Mode",
-      fontSize: "Font Size",
-      accent: "Accent Color",
-    },
-    language: {
-      title: "Language",
-      display: "Display Language",
-    },
-    privacy: {
-      title: "Privacy & Security",
-      privacy: "Account Privacy",
-      public: "Public Profile",
-      private: "Private Profile",
-    },
-    account: {
-      title: "Account",
-      delete: "Delete Account",
-      logout: "Log Out",
-      confirmDelete: "Are you sure you want to delete your account?",
-      confirmLogout: "You have been logged out.",
-    },
-  },
-  ar: {
-    profile: {
-      title: "الملف الشخصي",
-      name: "الاسم الكامل",
-      email: "البريد الإلكتروني",
-      bio: "نبذة قصيرة",
-      changePhoto: "تغيير الصورة",
-      save: "حفظ التغييرات",
-      savedMsg: "تم حفظ الملف الشخصي بنجاح!",
-    },
-    appearance: {
-      title: "المظهر",
-      theme: "الوضع",
-      light: "الوضع الفاتح",
-      dark: "الوضع الداكن",
-      fontSize: "حجم الخط",
-      accent: "لون التمييز",
-    },
-    language: {
-      title: "اللغة",
-      display: "لغة العرض",
-    },
-    privacy: {
-      title: "الخصوصية والأمان",
-      privacy: "خصوصية الحساب",
-      public: "الملف عام",
-      private: "الملف خاص",
-    },
-    account: {
-      title: "الحساب",
-      delete: "حذف الحساب",
-      logout: "تسجيل الخروج",
-      confirmDelete: "هل أنت متأكد من حذف الحساب؟",
-      confirmLogout: "تم تسجيل خروجكِ (تجريبي فقط).",
-    },
-  },
-};
+import React, { useState } from 'react';
+import { useLanguage } from '../hooks/useLanguage';
+import { useUser } from '../hooks/useUser';
+import '../styles/settings.css';
 
 const Settings: React.FC = () => {
-  const { language, setLanguage } = useLanguage();
-  const isAr = language === "Arabic";
-  const t = isAr ? tMap.ar : tMap.en;
+  const { language, toggleLanguage } = useLanguage();
+  const { user } = useUser();
+  const isArabic = language === 'Arabic';
 
-  const [profilePic, setProfilePic] = useState<string | null>(null);
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [bio, setBio] = useState("");
-  const [calendarId, setCalendarId] = useState("");
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [fontSize, setFontSize] = useState("medium");
-  const [accent, setAccent] = useState("#6A1B9A");
-  const [accountPrivacy, setAccountPrivacy] = useState("public");
+  const [notifications, setNotifications] = useState({
+    email: true,
+    sms: false,
+    push: true,
+    marketing: false,
+  });
 
-  // Load settings from backend
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/api/settings`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setFullName(data.user.name || "");
-          setEmail(data.user.email || "");
-          setBio(data.user.bio || "");
-          setCalendarId(data.user.calendar_id || data.user.email || "");
-          setProfilePic(data.user.profile_pic || null);
-          const savedTheme = data.settings.theme || "light";
-          setTheme(savedTheme);
-          document.documentElement.dataset.theme = savedTheme;
-          setFontSize(data.settings.font_size || "medium");
-          setAccent(data.settings.accent_color || "#6A1B9A");
-          setAccountPrivacy(data.settings.account_privacy || "public");
-        }
-      } catch (err) {
-        console.error("Failed to load settings", err);
-      }
-    };
-    fetchSettings();
-  }, []);
+  const [privacy, setPrivacy] = useState({
+    profileVisible: true,
+    showEmail: false,
+    showPhone: false,
+  });
 
-  useEffect(() => {
-    document.documentElement.dir = isAr ? "rtl" : "ltr";
-    document.documentElement.style.setProperty("--accent", accent);
-  }, [accent, isAr]);
-
-  const handleProfilePicUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    playUiSound(true);
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('type', 'avatar');
-    
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_BASE_URL}/api/upload`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        setProfilePic(`${API_BASE_URL}${data.url}`);
-      }
-    } catch (err) {
-      console.error('Upload failed:', err);
-    }
+  const handleNotificationChange = (key: string) => {
+    setNotifications(prev => ({
+      ...prev,
+      [key]: !prev[key as keyof typeof prev]
+    }));
   };
 
-  const handleSave = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE_URL}/api/settings`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: fullName,
-          bio,
-          calendarId,
-          theme,
-          fontSize,
-          accent,
-          accountPrivacy,
-          profilePic
-        })
-      });
-      
-      if (res.ok) {
-        document.documentElement.dataset.theme = theme;
-        playUiSound(true, "success");
-        
-        // Update localStorage user data
-        const userRes = await fetch(`${API_BASE_URL}/api/settings`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-          localStorage.setItem('user', JSON.stringify({
-            ...currentUser,
-            name: userData.user.name,
-            profile_pic: userData.user.profile_pic
-          }));
-        }
-        
-        alert(t.profile.savedMsg);
-      } else {
-        alert(isAr ? "فشل الحفظ" : "Failed to save");
-      }
-    } catch (err) {
-      alert(isAr ? "خطأ في الاتصال" : "Connection error");
-    }
+  const handlePrivacyChange = (key: string) => {
+    setPrivacy(prev => ({
+      ...prev,
+      [key]: !prev[key as keyof typeof prev]
+    }));
   };
 
   return (
-    <div className={`settings-page ${isAr ? "rtl" : ""}`}>
-      {/* Profile Section */}
-      <section className="setting-section card profile-centered">
-        <div className="profile-pic-container">
-          <img
-            src={profilePic || "/default-profile.png"}
-            alt="Profile"
-            className="profile-pic"
-          />
-          <label className="upload-btn">
-            {t.profile.changePhoto}
-            <input type="file" accept="image/*" onChange={handleProfilePicUpload} hidden />
-          </label>
+    <div className={`settings-page ${isArabic ? 'rtl' : ''}`}>
+      <div className="settings-container">
+        <div className="settings-header">
+          <h1>{isArabic ? 'الإعدادات' : 'Settings'}</h1>
+          <p>{isArabic ? 'إدارة تفضيلات حسابك' : 'Manage your account preferences'}</p>
         </div>
 
-        <div className="form-group">
-          <input
-            placeholder={t.profile.name}
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
-          <input
-            placeholder={t.profile.email}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <textarea
-            placeholder={t.profile.bio}
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-          />
-          <div style={{marginTop: '10px'}}>
-            <label style={{fontSize: '0.9rem', color: '#666', display: 'block', marginBottom: '5px'}}>
-              {isAr ? 'معرف تقويم Google (للمرشدين)' : 'Google Calendar ID (For Mentors)'}
-            </label>
-            <input
-              placeholder={isAr ? 'مثال: mentor@gmail.com' : 'e.g., mentor@gmail.com'}
-              value={calendarId}
-              onChange={(e) => setCalendarId(e.target.value)}
-            />
-            <small style={{fontSize: '0.8rem', color: '#888', display: 'block', marginTop: '5px'}}>
-              {isAr ? 'للمزامنة مع Google Calendar للجلسات' : 'To sync mentorship sessions with Google Calendar'}
-            </small>
+        <div className="settings-content">
+          {/* Language Settings */}
+          <div className="settings-section">
+            <h3>{isArabic ? 'اللغة' : 'Language'}</h3>
+            <div className="setting-item">
+              <label>{isArabic ? 'لغة التطبيق' : 'App Language'}</label>
+              <select 
+                value={language} 
+                onChange={toggleLanguage}
+                className="settings-select"
+              >
+                <option value="English">English</option>
+                <option value="Arabic">العربية</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Notification Settings */}
+          <div className="settings-section">
+            <h3>{isArabic ? 'الإشعارات' : 'Notifications'}</h3>
+            
+            <div className="setting-item">
+              <div className="setting-info">
+                <label>{isArabic ? 'إشعارات البريد الإلكتروني' : 'Email Notifications'}</label>
+                <p>{isArabic ? 'تلقي إشعارات عبر البريد الإلكتروني' : 'Receive notifications via email'}</p>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={notifications.email}
+                  onChange={() => handleNotificationChange('email')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="setting-item">
+              <div className="setting-info">
+                <label>{isArabic ? 'إشعارات الرسائل النصية' : 'SMS Notifications'}</label>
+                <p>{isArabic ? 'تلقي إشعارات عبر الرسائل النصية' : 'Receive notifications via SMS'}</p>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={notifications.sms}
+                  onChange={() => handleNotificationChange('sms')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="setting-item">
+              <div className="setting-info">
+                <label>{isArabic ? 'الإشعارات الفورية' : 'Push Notifications'}</label>
+                <p>{isArabic ? 'تلقي إشعارات فورية في المتصفح' : 'Receive push notifications in browser'}</p>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={notifications.push}
+                  onChange={() => handleNotificationChange('push')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="setting-item">
+              <div className="setting-info">
+                <label>{isArabic ? 'إشعارات التسويق' : 'Marketing Notifications'}</label>
+                <p>{isArabic ? 'تلقي عروض وأخبار المنصة' : 'Receive platform offers and news'}</p>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={notifications.marketing}
+                  onChange={() => handleNotificationChange('marketing')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          {/* Privacy Settings */}
+          <div className="settings-section">
+            <h3>{isArabic ? 'الخصوصية' : 'Privacy'}</h3>
+            
+            <div className="setting-item">
+              <div className="setting-info">
+                <label>{isArabic ? 'الملف الشخصي مرئي' : 'Profile Visible'}</label>
+                <p>{isArabic ? 'السماح للآخرين برؤية ملفك الشخصي' : 'Allow others to view your profile'}</p>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={privacy.profileVisible}
+                  onChange={() => handlePrivacyChange('profileVisible')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="setting-item">
+              <div className="setting-info">
+                <label>{isArabic ? 'إظهار البريد الإلكتروني' : 'Show Email'}</label>
+                <p>{isArabic ? 'إظهار بريدك الإلكتروني في الملف الشخصي' : 'Display your email in profile'}</p>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={privacy.showEmail}
+                  onChange={() => handlePrivacyChange('showEmail')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
+            <div className="setting-item">
+              <div className="setting-info">
+                <label>{isArabic ? 'إظهار رقم الهاتف' : 'Show Phone'}</label>
+                <p>{isArabic ? 'إظهار رقم هاتفك في الملف الشخصي' : 'Display your phone in profile'}</p>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={privacy.showPhone}
+                  onChange={() => handlePrivacyChange('showPhone')}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          {/* Account Actions */}
+          <div className="settings-section">
+            <h3>{isArabic ? 'إجراءات الحساب' : 'Account Actions'}</h3>
+            
+            <div className="action-buttons">
+              <button className="btn secondary short">
+                {isArabic ? 'تغيير كلمة المرور' : 'Change Password'}
+              </button>
+              
+              <button className="btn danger short">
+                {isArabic ? 'حذف الحساب' : 'Delete Account'}
+              </button>
+            </div>
           </div>
         </div>
-
-        <button className="upload-btn" onClick={handleSave}>
-          {t.profile.save}
-        </button>
-      </section>
-
-      {/* Appearance */}
-      <section className="setting-section card">
-        <h3>{t.appearance.title}</h3>
-        <div className="setting-item">
-          <label>{t.appearance.theme}:</label>
-          <select
-            value={theme}
-            onChange={(e) => {
-              const newTheme = e.target.value as "light" | "dark";
-              setTheme(newTheme);
-              document.documentElement.dataset.theme = newTheme;
-            }}
-          >
-            <option value="light">{t.appearance.light}</option>
-            <option value="dark">{t.appearance.dark}</option>
-          </select>
-        </div>
-        <div className="setting-item">
-          <label>{t.appearance.fontSize}:</label>
-          <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-          </select>
-        </div>
-        <div className="setting-item">
-          <label>{t.appearance.accent}:</label>
-          <input
-            type="color"
-            value={accent}
-            onChange={(e) => setAccent(e.target.value)}
-          />
-        </div>
-      </section>
-
-      {/* Language */}
-      <section className="setting-section card">
-        <h3>{t.language.title}</h3>
-        <div className="setting-item">
-          <label>{t.language.display}:</label>
-          <select
-            value={isAr ? "Arabic" : "English"}
-            onChange={(e) => setLanguage(e.target.value as typeof language)}
-          >
-            <option value="English">English</option>
-            <option value="Arabic">العربية</option>
-          </select>
-        </div>
-      </section>
-
-      {/* Privacy */}
-      <section className="setting-section card">
-        <h3>{t.privacy.title}</h3>
-        <div className="setting-item">
-          <label>{t.privacy.privacy}:</label>
-          <select
-            value={accountPrivacy}
-            onChange={(e) => setAccountPrivacy(e.target.value)}
-          >
-            <option value="public">{t.privacy.public}</option>
-            <option value="private">{t.privacy.private}</option>
-          </select>
-        </div>
-      </section>
-
-      {/* Account Buttons */}
-      <section className="setting-section card account-actions">
-        <h3>{t.account.title}</h3>
-        <div className="button-row">
-          <button
-            className="settings-btn delete"
-            onClick={async () => {
-              if (window.confirm(t.account.confirmDelete)) {
-                try {
-                  const token = localStorage.getItem("token");
-                  const res = await fetch(`${API_BASE_URL}/api/settings/account`, {
-                    method: "DELETE",
-                    headers: { Authorization: `Bearer ${token}` }
-                  });
-                  if (res.ok) {
-                    localStorage.removeItem("token");
-                    window.location.href = "/";
-                  }
-                } catch (err) {
-                  alert("Failed to delete account");
-                }
-              }
-            }}
-          >
-            {t.account.delete}
-          </button>
-          <button
-            className="settings-btn logout"
-            onClick={async () => {
-              try {
-                const token = localStorage.getItem("token");
-                await fetch(`${API_BASE_URL}/api/settings/logout`, {
-                  method: "POST",
-                  headers: { Authorization: `Bearer ${token}` }
-                });
-                localStorage.removeItem("token");
-                alert(t.account.confirmLogout);
-                window.location.href = "/login";
-              } catch (err) {
-                console.error("Logout error", err);
-              }
-            }}
-          >
-            {t.account.logout}
-          </button>
-        </div>
-      </section>
+      </div>
     </div>
   );
 };

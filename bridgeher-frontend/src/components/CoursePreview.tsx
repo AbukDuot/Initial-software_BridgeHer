@@ -123,7 +123,7 @@ const CoursePreview: React.FC<CoursePreviewProps> = ({ courseId, onEnroll, onClo
               <div className="detail-item">
                 <strong>{t.rating}:</strong>
                 <span className="rating">
-                  {'⭐'.repeat(Math.round(course.average_rating))} 
+                  {''.repeat(Math.round(course.average_rating))} 
                   {course.average_rating.toFixed(1)} ({course.total_reviews} {t.reviews})
                 </span>
               </div>

@@ -52,41 +52,58 @@ const ResetPassword: React.FC = () => {
 
   if (!token) {
     return (
-      <div className="auth-page">
+      <div className="auth-container">
         <div className="auth-card">
+          <div className="error-icon">⚠️</div>
           <h2>Invalid Reset Link</h2>
-          <p>Please request a new password reset link from the login page.</p>
-          <button className="btn primary-btn" onClick={() => navigate('/login')}>Go to Login</button>
+          <p>This password reset link is invalid or has expired. Please request a new one.</p>
+          <button className="auth-btn" onClick={() => navigate('/login')}>Go to Login</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-container">
       <div className="auth-card">
-        <h2>Reset Password</h2>
-        <p>Enter your new password below</p>
-        <form onSubmit={handleSubmit} className="auth-form">
-          <input
-            type="password"
-            placeholder="New Password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-          <button type="submit" className="btn primary-btn" disabled={loading}>
+        <div className="auth-header">
+          <h2>Reset Password</h2>
+          <p>Enter your new password below</p>
+        </div>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
+          
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
+          
+          <button type="submit" className="auth-btn" disabled={loading}>
             {loading ? "Resetting..." : "Reset Password"}
           </button>
         </form>
-        {message && <p style={{marginTop: '1rem', color: message.includes('successful') ? '#2E7D32' : '#E53935'}}>{message}</p>}
+        
+        {message && (
+          <div className={`message ${message.includes('successful') ? 'success' : 'error'}`}>
+            {message}
+          </div>
+        )}
       </div>
     </div>
   );

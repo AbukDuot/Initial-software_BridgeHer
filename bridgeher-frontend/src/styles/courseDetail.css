@@ -217,6 +217,38 @@ h2 {
   padding: 2rem;
 }
 
+/* New improved styles */
+.course-actions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.offline-badge {
+  background: #2E7D32;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quiz-btn {
+  background: #FFD700 !important;
+  color: #4A148C !important;
+  font-weight: bold !important;
+  border: 2px solid #4A148C !important;
+}
+
+.quiz-btn:hover {
+  background: #4A148C !important;
+  color: #FFD700 !important;
+}
+
 @media (max-width: 768px) {
   .course-container {
     padding: 1rem;
@@ -224,5 +256,10 @@ h2 {
 
   iframe {
     height: 180px;
+  }
+
+  .course-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

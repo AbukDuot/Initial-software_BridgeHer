@@ -466,9 +466,6 @@ const MentorDashboard: React.FC = () => {
           </div>
         </div>
         <div className="header-controls">
-          <button className="toggle-btn" onClick={() => window.location.href = '/settings'}>
-            ⚙️ {lang === 'ar' ? 'الإعدادات' : 'Settings'}
-          </button>
           <button className="toggle-btn" onClick={() => setSoundEnabled(!soundEnabled)}>
             {soundEnabled ? "🔊 " + t.soundOn : "🔇 " + t.soundOff}
           </button>

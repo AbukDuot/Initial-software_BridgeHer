@@ -34,13 +34,54 @@ const About: React.FC = () => {
 
         <div className="core-values">
           <h3>{t.valuesTitle}</h3>
-          <ul>
-            <li><strong>{t.inclusivity}:</strong> {t.inclusivityDesc}</li>
-            <li><strong>{t.integrity}:</strong> {t.integrityDesc}</li>
-            <li><strong>{t.collaboration}:</strong> {t.collaborationDesc}</li>
-            <li><strong>{t.innovation}:</strong> {t.innovationDesc}</li>
-            <li><strong>{t.empowerment}:</strong> {t.empowermentDesc}</li>
-          </ul>
+          <div className="values-grid">
+            <div className="value-card">
+              <h4>{t.inclusivity}</h4>
+              <p>{t.inclusivityDesc}</p>
+            </div>
+            <div className="value-card">
+              <h4>{t.integrity}</h4>
+              <p>{t.integrityDesc}</p>
+            </div>
+            <div className="value-card">
+              <h4>{t.collaboration}</h4>
+              <p>{t.collaborationDesc}</p>
+            </div>
+            <div className="value-card">
+              <h4>{t.innovation}</h4>
+              <p>{t.innovationDesc}</p>
+            </div>
+            <div className="value-card">
+              <h4>{t.empowerment}</h4>
+              <p>{t.empowermentDesc}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="goals">
+          <h3>{t.goalsTitle}</h3>
+          <div className="goals-grid">
+            <div className="goal-card">
+              <h4>{t.goals.accessibility}</h4>
+              <p>{t.goals.accessibilityDesc}</p>
+            </div>
+            <div className="goal-card">
+              <h4>{t.goals.skills}</h4>
+              <p>{t.goals.skillsDesc}</p>
+            </div>
+            <div className="goal-card">
+              <h4>{t.goals.mentorship}</h4>
+              <p>{t.goals.mentorshipDesc}</p>
+            </div>
+            <div className="goal-card">
+              <h4>{t.goals.community}</h4>
+              <p>{t.goals.communityDesc}</p>
+            </div>
+            <div className="goal-card">
+              <h4>{t.goals.sustainability}</h4>
+              <p>{t.goals.sustainabilityDesc}</p>
+            </div>
+          </div>
         </div>
 
         <div className="team">

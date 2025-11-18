@@ -19,6 +19,7 @@ const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const AuthSuccess = lazy(() => import("./pages/AuthSuccess"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Help = lazy(() => import("./pages/Help"));
 const CourseDetail = lazy(() => import("./pages/CourseDetail"));
 const ModuleDetail = lazy(() => import("./pages/ModuleDetail"));
 const Quiz = lazy(() => import("./pages/quiz"));
@@ -133,7 +134,8 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/auth/success" element={<AuthSuccess />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/help" element={<HelpFAQ />} />
+                <Route path="/help" element={<Help />} />
+                <Route path="/help-faq" element={<HelpFAQ />} />
                 <Route path="/analytics" element={<AnalyticsDashboard />} />
                 <Route 
                   path="/admin-reports" 

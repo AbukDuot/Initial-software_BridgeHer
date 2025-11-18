@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { useUser } from "../hooks/useUser";
@@ -13,6 +13,8 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   const isLoggedIn = !!user;
   const username = user?.name || "";
@@ -27,11 +29,53 @@ const Navbar: React.FC = () => {
     console.log('🔍 Navbar - Role:', userRole);
   }, [user, userRole]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Force re-render when user data changes (e.g., profile image update)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Force component re-render by updating a state
+      setProfileDropdownOpen(prev => prev);
+    };
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleStorageChange);
+    };
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    setProfileDropdownOpen(false);
     navigate("/login");
     window.location.reload();
+  };
+
+  const getDashboardPath = () => {
+    switch (userRole?.toLowerCase()) {
+      case 'admin': return '/admin-dashboard';
+      case 'mentor': return '/mentor-dashboard';
+      default: return '/learner-dashboard';
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const getUserImage = () => {
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    return storedUser?.profile_pic || storedUser?.avatar_url || null;
   };
 
 
@@ -70,15 +114,79 @@ const Navbar: React.FC = () => {
         <div className="nav-actions">
           {isLoggedIn ? (
             <>
-              <NotificationBell />
-              <span>
-                {language === "Arabic"
-                  ? `مرحبًا، ${username}`
-                  : `Welcome, ${username}`}
-              </span>
-              <button onClick={handleLogout} style={{ background: "#e74c3c", color: "#fff" }}>
-                {language === "Arabic" ? "تسجيل الخروج" : "Logout"}
-              </button>
+              <NotificationBell isArabic={language === "Arabic"} />
+              <div className="profile-dropdown" ref={profileDropdownRef}>
+                <div 
+                  className="profile-avatar" 
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                >
+                  {getUserImage() ? (
+                    <img 
+                      src={getUserImage()} 
+                      alt={username}
+                      className="avatar-image"
+                    />
+                  ) : (
+                    <div className="avatar-circle">
+                      {getInitials(username)}
+                    </div>
+                  )}
+                  <span className="profile-name">{username}</span>
+                  <span className="dropdown-arrow">{profileDropdownOpen ? '▲' : '▼'}</span>
+                </div>
+                
+                {profileDropdownOpen && (
+                  <div className="profile-dropdown-menu">
+                    <div className="profile-header">
+                      {getUserImage() ? (
+                        <img 
+                          src={getUserImage()} 
+                          alt={username}
+                          className="avatar-image large"
+                        />
+                      ) : (
+                        <div className="avatar-circle large">
+                          {getInitials(username)}
+                        </div>
+                      )}
+                      <div className="profile-info">
+                        <h4>{username}</h4>
+                        <p>{userRole}</p>
+                        <p>{user?.email}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="dropdown-divider"></div>
+                    
+                    <Link to={getDashboardPath()} onClick={() => setProfileDropdownOpen(false)} className="dropdown-item">
+                      <span className="dropdown-icon">📊</span>
+                      <span className="dropdown-text" style={{fontSize: '14px', fontWeight: '500', color: '#333'}}>{language === "Arabic" ? "لوحة التحكم" : "Dashboard"}</span>
+                    </Link>
+                    
+                    <Link to="/profile" onClick={() => setProfileDropdownOpen(false)} className="dropdown-item">
+                      <span className="dropdown-icon">👤</span>
+                      <span className="dropdown-text" style={{fontSize: '14px', fontWeight: '500', color: '#333'}}>{language === "Arabic" ? "الملف الشخصي" : "Profile"}</span>
+                    </Link>
+                    
+                    <Link to="/settings" onClick={() => setProfileDropdownOpen(false)} className="dropdown-item">
+                      <span className="dropdown-icon">⚙️</span>
+                      <span className="dropdown-text" style={{fontSize: '14px', fontWeight: '500', color: '#333'}}>{language === "Arabic" ? "الإعدادات" : "Settings"}</span>
+                    </Link>
+                    
+                    <Link to="/help" onClick={() => setProfileDropdownOpen(false)} className="dropdown-item">
+                      <span className="dropdown-icon">❓</span>
+                      <span className="dropdown-text" style={{fontSize: '14px', fontWeight: '500', color: '#333'}}>{language === "Arabic" ? "المساعدة" : "Help"}</span>
+                    </Link>
+                    
+                    <div className="dropdown-divider"></div>
+                    
+                    <button onClick={handleLogout} className="dropdown-item logout">
+                      <span className="dropdown-icon">🚪</span>
+                      <span className="dropdown-text" style={{fontSize: '14px', fontWeight: '500', color: '#e74c3c'}}>{language === "Arabic" ? "تسجيل الخروج" : "Logout"}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>

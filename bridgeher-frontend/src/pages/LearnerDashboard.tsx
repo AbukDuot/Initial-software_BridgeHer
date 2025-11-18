@@ -295,7 +295,7 @@ const LearnerDashboard: React.FC = () => {
 
   const { user, stats = {}, completion = { completed: 0, remaining: 100 }, dailyQuote = { en: "", ar: "" } } = dashboardData || {};
   
-  // Always use the stored user as the source of truth for display
+  
   const storedUser = JSON.parse(localStorage.getItem("user") || '{}');
   const userName = storedUser?.name || user?.name || "User";
   const { streak = 0, xp = 0, level = 1 } = stats;
@@ -451,9 +451,6 @@ const LearnerDashboard: React.FC = () => {
           </Link>
           <Link to="/my-certificates" className="nav-item">
             {t.sidebar.certificates}
-          </Link>
-          <Link to="/settings" className="nav-item">
-            {t.sidebar.settings}
           </Link>
         </nav>
       </aside>

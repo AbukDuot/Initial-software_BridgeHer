@@ -18,6 +18,19 @@ type AboutTranslations = {
   innovationDesc: string;
   empowerment: string;
   empowermentDesc: string;
+  goalsTitle: string;
+  goals: {
+    accessibility: string;
+    accessibilityDesc: string;
+    skills: string;
+    skillsDesc: string;
+    mentorship: string;
+    mentorshipDesc: string;
+    community: string;
+    communityDesc: string;
+    sustainability: string;
+    sustainabilityDesc: string;
+  };
   teamTitle: string;
   roles: {
     founder: string;
@@ -60,6 +73,19 @@ const aboutTranslations: Record<LangKey, AboutTranslations> = {
     innovationDesc: "We design offline-first, practical tech for real contexts.",
     empowerment: "Empowerment",
     empowermentDesc: "Skills that build confidence, income, and leadership.",
+    goalsTitle: "Our Goals",
+    goals: {
+      accessibility: "Digital Accessibility",
+      accessibilityDesc: "Make quality education accessible to women in remote areas through offline-capable technology.",
+      skills: "Practical Skills Development",
+      skillsDesc: "Provide comprehensive training in financial literacy, entrepreneurship, and digital skills.",
+      mentorship: "Meaningful Mentorship",
+      mentorshipDesc: "Connect learners with experienced mentors for guidance and career development.",
+      community: "Supportive Community",
+      communityDesc: "Build a network where women support each other's growth and success.",
+      sustainability: "Economic Empowerment",
+      sustainabilityDesc: "Enable women to achieve financial independence and become community leaders."
+    },
     teamTitle: "Meet Our Team",
     roles: {
       founder: "Founder & Project Lead",
@@ -100,6 +126,19 @@ const aboutTranslations: Record<LangKey, AboutTranslations> = {
     innovationDesc: "نصمم تقنيات عملية تعمل دون اتصال بالإنترنت للسياقات الحقيقية.",
     empowerment: "التمكين",
     empowermentDesc: "مهارات تبني الثقة والدخل والقيادة.",
+    goalsTitle: "أهدافنا",
+    goals: {
+      accessibility: "إمكانية الوصول الرقمي",
+      accessibilityDesc: "جعل التعليم الجيد في متناول النساء في المناطق النائية من خلال التكنولوجيا التي تعمل دون اتصال بالإنترنت.",
+      skills: "تطوير المهارات العملية",
+      skillsDesc: "توفير تدريب شامل في الثقافة المالية وريادة الأعمال والمهارات الرقمية.",
+      mentorship: "الإرشاد الهادف",
+      mentorshipDesc: "ربط المتعلمات بالموجهين ذوي الخبرة للحصول على التوجيه والتطوير المهني.",
+      community: "مجتمع داعم",
+      communityDesc: "بناء شبكة حيث تدعم النساء نمو ونجاح بعضهن البعض.",
+      sustainability: "التمكين الاقتصادي",
+      sustainabilityDesc: "تمكين النساء من تحقيق الاستقلال المالي وأن يصبحن قائدات في المجتمع."
+    },
     teamTitle: "تعرفي على فريقنا",
     roles: {
       founder: "المؤسسة وقائدة المشروع",

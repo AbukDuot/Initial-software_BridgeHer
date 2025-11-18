@@ -154,9 +154,9 @@ const UserProfile: React.FC = () => {
                 <h3>{topic.title}</h3>
                 <div className="topic-meta">
                   <span className="category">{topic.category}</span>
-                  <span>👁️ {topic.views}</span>
-                  <span>❤️ {topic.likes}</span>
-                  <span>💬 {topic.replies}</span>
+                  <span>{topic.views} views</span>
+                  <span>{topic.likes} likes</span>
+                  <span>{topic.replies} replies</span>
                   <span>{timeAgo(topic.created_at, isArabic)}</span>
                 </div>
               </div>

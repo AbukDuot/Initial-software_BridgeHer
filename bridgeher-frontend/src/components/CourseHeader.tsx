@@ -27,7 +27,7 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({
   descriptionAr,
   category,
   level,
-  duration: _duration,
+  duration,
   weeks = 4,
   hoursPerWeek = 3,
   estimatedHours,
@@ -56,19 +56,19 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({
           
           <div className="course-header-meta">
             <div className="meta-item">
-              <span className="meta-icon">⭐</span>
+              <span className="meta-icon"></span>
               <span>{rating} ({totalReviews.toLocaleString()} {isArabic ? "تقييم" : "reviews"})</span>
             </div>
             <div className="meta-item">
-              <span className="meta-icon">👥</span>
+              <span className="meta-icon"></span>
               <span>{totalEnrolled.toLocaleString()} {isArabic ? "طالب" : "students"}</span>
             </div>
             <div className="meta-item">
-              <span className="meta-icon">⏱️</span>
+              <span className="meta-icon">⏱</span>
               <span>{estimatedHours || (weeks * hoursPerWeek)} {isArabic ? "ساعة" : "hours"}</span>
             </div>
             <div className="meta-item">
-              <span className="meta-icon">📅</span>
+              <span className="meta-icon"></span>
               <span>{weeks} {isArabic ? "أسابيع" : "weeks"}, {hoursPerWeek} {isArabic ? "ساعات/أسبوع" : "hrs/week"}</span>
             </div>
           </div>

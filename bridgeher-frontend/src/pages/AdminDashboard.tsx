@@ -398,9 +398,6 @@ const AdminDashboard: React.FC = () => {
           {isArabic ? 'البلاغات' : 'Reports'}
         </button>
         <div className="theme-toggle">
-          <button onClick={() => navigate('/settings')} style={{marginRight: '10px'}}>
-             {isArabic ? 'الإعدادات' : 'Settings'}
-          </button>
           <button
             onClick={() => {
               playUiSound(sound);
