@@ -32,7 +32,7 @@ const upload = multer({ storage });
 
 router.get("/", listCourses);
 
-// Course preview endpoint - returns detailed preview with prerequisites, objectives, syllabus
+
 router.get("/:id/preview", async (req, res) => {
   try {
     const { id } = req.params;
@@ -54,7 +54,6 @@ router.get("/:id/preview", async (req, res) => {
     
     const course = rows[0];
     
-    // Get syllabus from courses table
     const { rows: syllabusRows } = await pool.query(
       'SELECT syllabus, instructor_name FROM courses WHERE id = $1',
       [id]
@@ -86,13 +85,13 @@ router.get("/:id/preview", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-// Course recommendations endpoint
+
 router.get("/:id/recommendations", async (req, res) => {
   try {
     const { id } = req.params;
     let rows = [];
     
-    // Try to get recommendations from course_recommendations table
+   
     try {
       const result = await pool.query(
         `SELECT c.id, c.title, c.description, c.category, c.level, c.duration, 
@@ -106,11 +105,11 @@ router.get("/:id/recommendations", async (req, res) => {
       );
       rows = result.rows;
     } catch (tableErr) {
-      // Table doesn't exist, fall back to category-based recommendations
+     
       console.log('course_recommendations table not found, using category-based fallback');
     }
     
-    // Fallback to category-based recommendations if no results
+  
     if (rows.length === 0) {
       const { rows: courseRows } = await pool.query('SELECT category FROM courses WHERE id = $1', [id]);
       if (courseRows[0]) {
@@ -373,7 +372,7 @@ router.get("/certificate/:id", requireAuth, async (req, res) => {
   }
 });
 
-// Course discussions
+
 router.get("/:id/discussions", async (req, res) => {
   try {
     const { id } = req.params;
@@ -408,7 +407,7 @@ router.post("/:id/discussions", requireAuth, async (req, res) => {
   }
 });
 
-// Video playback settings
+
 router.put("/:courseId/modules/:moduleId/playback", requireAuth, async (req, res) => {
   try {
     const { moduleId } = req.params;
