@@ -906,6 +906,108 @@ router.post("/questions/:id/answers", requireAuth, async (req, res) => {
   }
 });
 
+// Edit question
+router.put("/questions/:id", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { question } = req.body;
+    const userId = req.user.id;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT user_id FROM topic_questions WHERE id = $1`,
+      [id]
+    );
+    
+    if (!existing[0]) return res.status(404).json({ error: "Question not found" });
+    if (existing[0].user_id !== userId && req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+    
+    const { rows } = await pool.query(
+      `UPDATE topic_questions SET question = $1 WHERE id = $2 RETURNING *`,
+      [question, id]
+    );
+    
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete question
+router.delete("/questions/:id", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT user_id FROM topic_questions WHERE id = $1`,
+      [id]
+    );
+    
+    if (!existing[0]) return res.status(404).json({ error: "Question not found" });
+    if (existing[0].user_id !== userId && req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+    
+    await pool.query(`DELETE FROM topic_questions WHERE id = $1`, [id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Edit answer
+router.put("/answers/:id", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { answer } = req.body;
+    const userId = req.user.id;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT user_id FROM question_answers WHERE id = $1`,
+      [id]
+    );
+    
+    if (!existing[0]) return res.status(404).json({ error: "Answer not found" });
+    if (existing[0].user_id !== userId && req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+    
+    const { rows } = await pool.query(
+      `UPDATE question_answers SET answer = $1 WHERE id = $2 RETURNING *`,
+      [answer, id]
+    );
+    
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete answer
+router.delete("/answers/:id", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const { rows: existing } = await pool.query(
+      `SELECT user_id FROM question_answers WHERE id = $1`,
+      [id]
+    );
+    
+    if (!existing[0]) return res.status(404).json({ error: "Answer not found" });
+    if (existing[0].user_id !== userId && req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+    
+    await pool.query(`DELETE FROM question_answers WHERE id = $1`, [id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ========== ADVANCED FEATURE 2: USER MENTIONS ==========
 router.post("/mentions", requireAuth, async (req, res) => {
   try {
