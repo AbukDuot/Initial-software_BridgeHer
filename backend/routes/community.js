@@ -828,6 +828,84 @@ router.post("/replies/:id/reply", requireAuth, async (req, res) => {
   }
 });
 
+// Questions functionality
+router.get("/topics/:id/questions", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const { rows: questions } = await pool.query(
+      `SELECT q.*, u.name as author_name FROM topic_questions q
+       JOIN users u ON u.id = q.user_id
+       WHERE q.topic_id = $1 ORDER BY q.created_at DESC`,
+      [id]
+    );
+    
+    const { rows: answers } = await pool.query(
+      `SELECT a.*, u.name as author_name FROM question_answers a
+       JOIN users u ON u.id = a.user_id
+       WHERE a.question_id IN (SELECT id FROM topic_questions WHERE topic_id = $1)
+       ORDER BY a.created_at ASC`,
+      [id]
+    );
+    
+    const answersByQuestion = {};
+    answers.forEach(answer => {
+      if (!answersByQuestion[answer.question_id]) {
+        answersByQuestion[answer.question_id] = [];
+      }
+      answersByQuestion[answer.question_id].push(answer);
+    });
+    
+    res.json({ questions, answers: answersByQuestion });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/topics/:id/questions", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { question } = req.body;
+    const userId = req.user.id;
+    
+    if (!question || question.trim() === '') {
+      return res.status(400).json({ error: "Question is required" });
+    }
+    
+    const { rows } = await pool.query(
+      `INSERT INTO topic_questions (topic_id, user_id, question)
+       VALUES ($1, $2, $3) RETURNING *`,
+      [id, userId, question]
+    );
+    
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/questions/:id/answers", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { answer } = req.body;
+    const userId = req.user.id;
+    
+    if (!answer || answer.trim() === '') {
+      return res.status(400).json({ error: "Answer is required" });
+    }
+    
+    const { rows } = await pool.query(
+      `INSERT INTO question_answers (question_id, user_id, answer)
+       VALUES ($1, $2, $3) RETURNING *`,
+      [id, userId, answer]
+    );
+    
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ========== ADVANCED FEATURE 2: USER MENTIONS ==========
 router.post("/mentions", requireAuth, async (req, res) => {
   try {
