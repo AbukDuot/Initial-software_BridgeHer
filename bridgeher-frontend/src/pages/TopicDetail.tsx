@@ -70,6 +70,10 @@ const TopicDetail: React.FC = () => {
   const [mentionSuggestions, setMentionSuggestions] = useState<any[]>([]);
   const [showMentions, setShowMentions] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<number | null>(null);
+  const [editingAnswer, setEditingAnswer] = useState<number | null>(null);
+  const [editQuestionText, setEditQuestionText] = useState("");
+  const [editAnswerText, setEditAnswerText] = useState("");
 
   useEffect(() => {
     fetchTopic();
@@ -204,7 +208,12 @@ const TopicDetail: React.FC = () => {
   const fetchCurrentUser = () => {
     const user = localStorage.getItem("user");
     if (user) {
-      setCurrentUser(JSON.parse(user));
+      const parsedUser = JSON.parse(user);
+      setCurrentUser(parsedUser);
+      console.log('Current user:', parsedUser);
+      console.log('Topic user_id:', topic?.user_id);
+    } else {
+      console.log('No user found in localStorage');
     }
   };
 
@@ -609,7 +618,7 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        await fetchTopic(); // Refresh to show updated vote counts
+        await fetchTopic(); 
       } else {
         const error = await res.json();
         alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
@@ -742,6 +751,124 @@ const TopicDetail: React.FC = () => {
     }
   };
 
+  const handleEditQuestion = async (questionId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/questions/${questionId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ question: editQuestionText })
+      });
+
+      if (res.ok) {
+        setEditingQuestion(null);
+        await fetchQuestions();
+        alert(isArabic ? "تم تحديث السؤال" : "Question updated");
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to edit question", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
+    }
+  };
+
+  const handleDeleteQuestion = async (questionId: number) => {
+    if (!confirm(isArabic ? "هل تريد حذف هذا السؤال؟" : "Delete this question?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/questions/${questionId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        await fetchQuestions();
+        alert(isArabic ? "تم حذف السؤال" : "Question deleted");
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to delete question", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
+    }
+  };
+
+  const handleEditAnswer = async (answerId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/answers/${answerId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ answer: editAnswerText })
+      });
+
+      if (res.ok) {
+        setEditingAnswer(null);
+        await fetchQuestions();
+        alert(isArabic ? "تم تحديث الإجابة" : "Answer updated");
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to edit answer", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
+    }
+  };
+
+  const handleDeleteAnswer = async (answerId: number) => {
+    if (!confirm(isArabic ? "هل تريد حذف هذه الإجابة؟" : "Delete this answer?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+      
+      const res = await fetch(`${API_BASE_URL}/api/community/answers/${answerId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        await fetchQuestions();
+        alert(isArabic ? "تم حذف الإجابة" : "Answer deleted");
+      } else {
+        const error = await res.json();
+        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to delete answer", err);
+      alert(isArabic ? "حدث خطأ" : "An error occurred");
+    }
+  };
+
 
 
   if (loading) return <div className="loading">{isArabic ? "جاري التحميل..." : "Loading..."}</div>;
@@ -842,14 +969,11 @@ const TopicDetail: React.FC = () => {
           )}
           {showEmojiPicker?.type === 'topic' && showEmojiPicker?.id === topic.id && (
             <div className="emoji-picker">
-              {['+1', 'heart', 'laugh', 'wow', 'sad', 'party', 'fire', '100'].map((emoji, index) => {
-                const emojiMap = ['+1', '❤️', '😂', '😮', '😢', '🎉', '🔥', '💯'];
-                return (
-                  <button key={emoji} onClick={() => handleReact(emoji)}>
-                    {emojiMap[index]}
-                  </button>
-                );
-              })}
+              {['👍', '❤️', '😂', '😮', '😢', '🎉', '🔥', '💯'].map((emoji) => (
+                <button key={emoji} onClick={() => handleReact(emoji)}>
+                  {emoji}
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -866,10 +990,8 @@ const TopicDetail: React.FC = () => {
           </div>
         )}
 
-        {/* Topic Stats & Actions */}
+        {/* Topic Actions */}
         <div className="topic-actions">
-          <span>👁️ {topic.views} {isArabic ? "مشاهدة" : "Views"}</span>
-          <span>💬 {replies.length} {isArabic ? "رد" : "Replies"}</span>
           {topic.status && (
             <span className={`status-badge status-${topic.status}`}>
               {topic.status === 'solved' ? (isArabic ? '✓ محلول' : '✓ Solved') : 
@@ -878,26 +1000,33 @@ const TopicDetail: React.FC = () => {
             </span>
           )}
           {topic.locked && <span className="locked-badge">🔒 {isArabic ? "مقفل" : "Locked"}</span>}
+          
+          
+          {/* Edit and Delete buttons - visible to any logged-in user for now */}
           {currentUser && !editingTopic && (
             <button className="edit-btn" onClick={() => {
+              console.log('Edit button clicked');
               setEditTopicData({ title: topic.title, description: topic.description, content: topic.content });
               setEditingTopic(true);
             }}>
-              {isArabic ? "تعديل" : "Edit"}
+{isArabic ? "تعديل" : "Edit Topic"}
             </button>
           )}
           {currentUser && (
-            <button className="delete-btn" onClick={handleDeleteTopic}>
-              {isArabic ? "حذف" : "Delete"}
+            <button className="delete-btn" onClick={() => {
+              console.log('Delete button clicked');
+              handleDeleteTopic();
+            }}>
+{isArabic ? "حذف" : "Delete Topic"}
             </button>
           )}
           {currentUser && currentUser.role === 'Admin' && (
             <>
               <button className="pin-btn" onClick={handlePinTopic}>
-                📌 {isArabic ? "تثبيت" : "Pin"}
+                 {isArabic ? "تثبيت" : "Pin"}
               </button>
               <button className="lock-btn" onClick={handleLockToggle}>
-                {topic.locked ? '🔓' : '🔒'} {topic.locked ? (isArabic ? "فتح" : "Unlock") : (isArabic ? "قفل" : "Lock")}
+                {topic.locked ? '' : ''} {topic.locked ? (isArabic ? "فتح" : "Unlock") : (isArabic ? "قفل" : "Lock")}
               </button>
             </>
           )}
@@ -989,14 +1118,11 @@ const TopicDetail: React.FC = () => {
                     )}
                     {showEmojiPicker?.type === 'reply' && showEmojiPicker?.id === reply.id && (
                       <div className="emoji-picker-small">
-                        {['+1', 'heart', 'laugh', 'wow', 'sad', 'party'].map((emoji, index) => {
-                          const emojiMap = ['+1', '❤️', '😂', '😮', '😢', '🎉'];
-                          return (
-                            <button key={emoji} onClick={() => handleReplyReact(reply.id, emoji)}>
-                              {emojiMap[index]}
-                            </button>
-                          );
-                        })}
+                        {['👍', '❤️', '😂', '😮', '😢', '🎉'].map((emoji) => (
+                          <button key={emoji} onClick={() => handleReplyReact(reply.id, emoji)}>
+                            {emoji}
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
@@ -1020,10 +1146,11 @@ const TopicDetail: React.FC = () => {
                             <button className="vote-btn upvote" onClick={() => handleVoteReply(reply.id, 'up')}>
                               ▲ {isArabic ? 'مفيد' : 'Helpful'}
                             </button>
-                            <span className="vote-count">{reply.likes || 0}</span>
+                            <span className="vote-count">{reply.upvotes || 0}</span>
                             <button className="vote-btn downvote" onClick={() => handleVoteReply(reply.id, 'down')}>
                               ▼ {isArabic ? 'غير مفيد' : 'Not Helpful'}
                             </button>
+                            <span className="vote-count downvote-count">{reply.downvotes || 0}</span>
                           </>
                         )}
                       </div>
@@ -1077,8 +1204,35 @@ const TopicDetail: React.FC = () => {
                               <div className="reply-header">
                                 <strong>{nestedReply.author_name}</strong>
                                 <span>{timeAgo(nestedReply.created_at, isArabic)}</span>
+                                {currentUser && (currentUser.id === nestedReply.user_id || currentUser.role === 'Admin') && (
+                                  <div className="nested-reply-actions">
+                                    <button className="edit-btn-tiny" onClick={() => {
+                                      setEditReplyText(nestedReply.content);
+                                      setEditingReply(nestedReply.id);
+                                    }}>
+                                      {isArabic ? "تعديل" : "Edit"}
+                                    </button>
+                                    <button className="delete-btn-tiny" onClick={() => handleDeleteReply(nestedReply.id)}>
+                                      {isArabic ? "حذف" : "Delete"}
+                                    </button>
+                                  </div>
+                                )}
                               </div>
-                              <div className="reply-content">{nestedReply.content.replace(/<[^>]*>/g, '')}</div>
+                              {editingReply === nestedReply.id ? (
+                                <div className="edit-nested-reply-form">
+                                  <RichTextEditor
+                                    value={editReplyText}
+                                    onChange={setEditReplyText}
+                                    placeholder={isArabic ? "تعديل التعليق" : "Edit comment"}
+                                  />
+                                  <div className="edit-actions">
+                                    <button onClick={() => handleEditReply(nestedReply.id)} className="btn-save">{isArabic ? "حفظ" : "Save"}</button>
+                                    <button onClick={() => setEditingReply(null)} className="btn-cancel">{isArabic ? "إلغاء" : "Cancel"}</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="reply-content">{nestedReply.content.replace(/<[^>]*>/g, '')}</div>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -1142,7 +1296,7 @@ const TopicDetail: React.FC = () => {
             </div>
           ) : (
             <div className="locked-message">
-              <p>🔒 {isArabic ? "هذا الموضوع مقفل. لا يمكن إضافة ردود جديدة." : "This topic is locked. No new replies can be added."}</p>
+              <p> {isArabic ? "هذا الموضوع مقفل. لا يمكن إضافة ردود جديدة." : "This topic is locked. No new replies can be added."}</p>
             </div>
           )}
           </div>
@@ -1162,8 +1316,35 @@ const TopicDetail: React.FC = () => {
                     <div className="question-header">
                       <strong>{question.author_name}</strong>
                       <span>{timeAgo(question.created_at, isArabic)}</span>
+                      {currentUser && (currentUser.id === question.user_id || currentUser.role === 'Admin') && (
+                        <div className="question-actions">
+                          <button className="edit-btn-small" onClick={() => {
+                            setEditQuestionText(question.question);
+                            setEditingQuestion(question.id);
+                          }}>
+                            {isArabic ? "تعديل" : "Edit"}
+                          </button>
+                          <button className="delete-btn-small" onClick={() => handleDeleteQuestion(question.id)}>
+                            {isArabic ? "حذف" : "Delete"}
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <div className="question-content">{question.question}</div>
+                    {editingQuestion === question.id ? (
+                      <div className="edit-question-form">
+                        <RichTextEditor
+                          value={editQuestionText}
+                          onChange={setEditQuestionText}
+                          placeholder={isArabic ? "تعديل السؤال" : "Edit question"}
+                        />
+                        <div className="edit-actions">
+                          <button onClick={() => handleEditQuestion(question.id)} className="btn-save">{isArabic ? "حفظ" : "Save"}</button>
+                          <button onClick={() => setEditingQuestion(null)} className="btn-cancel">{isArabic ? "إلغاء" : "Cancel"}</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="question-content" dangerouslySetInnerHTML={{ __html: question.question }} />
+                    )}
                     <div className="answers-section">
                       <h4>{isArabic ? 'الإجابات' : 'Answers'} ({(answers[question.id] || []).length})</h4>
                       {(answers[question.id] || []).map((answer: any) => (
@@ -1171,8 +1352,35 @@ const TopicDetail: React.FC = () => {
                           <div className="answer-header">
                             <strong>{answer.author_name}</strong>
                             <span>{timeAgo(answer.created_at, isArabic)}</span>
+                            {currentUser && (currentUser.id === answer.user_id || currentUser.role === 'Admin') && (
+                              <div className="answer-actions">
+                                <button className="edit-btn-small" onClick={() => {
+                                  setEditAnswerText(answer.answer);
+                                  setEditingAnswer(answer.id);
+                                }}>
+                                  {isArabic ? "تعديل" : "Edit"}
+                                </button>
+                                <button className="delete-btn-small" onClick={() => handleDeleteAnswer(answer.id)}>
+                                  {isArabic ? "حذف" : "Delete"}
+                                </button>
+                              </div>
+                            )}
                           </div>
-                          <div className="answer-content">{answer.answer}</div>
+                          {editingAnswer === answer.id ? (
+                            <div className="edit-answer-form">
+                              <RichTextEditor
+                                value={editAnswerText}
+                                onChange={setEditAnswerText}
+                                placeholder={isArabic ? "تعديل الإجابة" : "Edit answer"}
+                              />
+                              <div className="edit-actions">
+                                <button onClick={() => handleEditAnswer(answer.id)} className="btn-save">{isArabic ? "حفظ" : "Save"}</button>
+                                <button onClick={() => setEditingAnswer(null)} className="btn-cancel">{isArabic ? "إلغاء" : "Cancel"}</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="answer-content" dangerouslySetInnerHTML={{ __html: answer.answer }} />
+                          )}
                         </div>
                       ))}
                       {currentUser && (
@@ -1205,7 +1413,7 @@ const TopicDetail: React.FC = () => {
               </div>
             ) : (
               <div className="locked-message">
-                <p>🔒 {isArabic ? 'هذا الموضوع مقفل. لا يمكن إضافة أسئلة جديدة.' : 'This topic is locked. No new questions can be added.'}</p>
+                <p> {isArabic ? 'هذا الموضوع مقفل. لا يمكن إضافة أسئلة جديدة.' : 'This topic is locked. No new questions can be added.'}</p>
               </div>
             )}
           </div>

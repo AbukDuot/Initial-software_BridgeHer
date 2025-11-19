@@ -384,11 +384,145 @@ const initDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_reply_votes_reply_id ON reply_votes(reply_id);
     `);
 
-    console.log('✅ Database tables created successfully');
+    // Clear existing courses and add new ones
+    console.log('Setting up default courses...');
+    
+    // Delete existing courses (this will cascade to modules)
+    await pool.query('DELETE FROM courses');
+    
+    console.log('Adding default courses...');
+      
+      const defaultCourses = [
+        {
+          title: 'Financial Literacy for Women',
+          description: 'Master personal finance, budgeting, saving, and investment strategies designed specifically for women.',
+          category: 'Finance',
+          level: 'Beginner',
+          duration: '6 weeks',
+          mentor: 'Sarah Ahmed',
+          image: '/images/finance-course.jpg'
+        },
+        {
+          title: 'Digital Marketing Fundamentals',
+          description: 'Learn social media marketing, content creation, and online business strategies.',
+          category: 'Business',
+          level: 'Beginner', 
+          duration: '8 weeks',
+          mentor: 'Fatima Hassan',
+          image: '/images/marketing-course.jpg'
+        },
+        {
+          title: 'Introduction to Technology',
+          description: 'Basic computer skills, internet navigation, and digital communication for beginners.',
+          category: 'Tech',
+          level: 'Beginner',
+          duration: '4 weeks', 
+          mentor: 'Amina Mohamed',
+          image: '/images/tech-course.jpg'
+        },
+        {
+          title: 'Leadership and Communication',
+          description: 'Develop leadership skills, public speaking, and effective communication techniques.',
+          category: 'Leadership',
+          level: 'Intermediate',
+          duration: '10 weeks',
+          mentor: 'Zeinab Ali',
+          image: '/images/leadership-course.jpg'
+        },
+        {
+          title: 'Entrepreneurship Basics',
+          description: 'Start your own business with practical guidance on planning, funding, and operations.',
+          category: 'Business',
+          level: 'Beginner',
+          duration: '12 weeks',
+          mentor: 'Hanan Ibrahim',
+          image: '/images/business-course.jpg'
+        },
+        {
+          title: 'Advanced Financial Planning',
+          description: 'Investment strategies, retirement planning, and wealth building for experienced learners.',
+          category: 'Finance', 
+          level: 'Advanced',
+          duration: '8 weeks',
+          mentor: 'Mariam Osman',
+          image: '/images/advanced-finance.jpg'
+        }
+      ];
+      
+      for (const course of defaultCourses) {
+        const { rows } = await pool.query(
+          `INSERT INTO courses (title, description, category, level, duration, mentor, image)
+           VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+          [course.title, course.description, course.category, course.level, course.duration, course.mentor, course.image]
+        );
+        
+        const courseId = rows[0].id;
+        
+        // Add modules for each course
+        let modules = [];
+        
+        if (course.title.includes('Financial Literacy')) {
+          modules = [
+            { title: 'Introduction to Personal Finance', video_url: 'https://www.youtube.com/embed/4j2emMn7UuI', duration: 20 },
+            { title: 'Budgeting Basics', video_url: 'https://www.youtube.com/embed/pCwLhz0ltlE', duration: 25 },
+            { title: 'Saving Strategies', video_url: 'https://www.youtube.com/embed/gMbNxthEQEk', duration: 18 },
+            { title: 'Understanding Credit and Debt', video_url: 'https://www.youtube.com/embed/RlPH-S6f5pI', duration: 22 },
+            { title: 'Investment Fundamentals', video_url: 'https://www.youtube.com/embed/HQzoZfc3GwQ', duration: 30 }
+          ];
+        } else if (course.title.includes('Digital Marketing')) {
+          modules = [
+            { title: 'Marketing Fundamentals', video_url: 'https://www.youtube.com/embed/llKvV8_T95M', duration: 25 },
+            { title: 'Social Media Strategy', video_url: 'https://www.youtube.com/embed/2QR3dvs5Mps', duration: 20 },
+            { title: 'Content Creation', video_url: 'https://www.youtube.com/embed/kFMTec22JfQ', duration: 30 },
+            { title: 'Online Advertising', video_url: 'https://www.youtube.com/embed/llKvV8_T95M', duration: 28 }
+          ];
+        } else if (course.title.includes('Introduction to Technology')) {
+          modules = [
+            { title: 'Computer Basics', video_url: 'https://www.youtube.com/embed/8Z3Y0sU1y1M', duration: 20 },
+            { title: 'Internet Navigation', video_url: 'https://www.youtube.com/embed/YuZP1JmRzjI', duration: 18 },
+            { title: 'Email Communication', video_url: 'https://www.youtube.com/embed/GtQdIYUtAHg', duration: 22 },
+            { title: 'Online Safety', video_url: 'https://www.youtube.com/embed/UB1O30fR-EE', duration: 20 }
+          ];
+        } else if (course.title.includes('Leadership')) {
+          modules = [
+            { title: 'Leadership Fundamentals', video_url: 'https://www.youtube.com/embed/Np3GU7aS4nA', duration: 25 },
+            { title: 'Public Speaking Skills', video_url: 'https://www.youtube.com/embed/zvR9sXKQeB0', duration: 30 },
+            { title: 'Effective Communication', video_url: 'https://www.youtube.com/embed/HAnw168huqA', duration: 22 },
+            { title: 'Team Management', video_url: 'https://www.youtube.com/embed/VzxfQlzzGJE', duration: 28 }
+          ];
+        } else if (course.title.includes('Entrepreneurship')) {
+          modules = [
+            { title: 'Business Idea Development', video_url: 'https://www.youtube.com/embed/0Ul4aUS1dxQ', duration: 25 },
+            { title: 'Business Planning', video_url: 'https://www.youtube.com/embed/bNpx7gpSqbY', duration: 30 },
+            { title: 'Funding Your Business', video_url: 'https://www.youtube.com/embed/kC5QlkiqTLM', duration: 28 },
+            { title: 'Marketing Your Business', video_url: 'https://www.youtube.com/embed/llKvV8_T95M', duration: 25 }
+          ];
+        } else if (course.title.includes('Advanced Financial')) {
+          modules = [
+            { title: 'Investment Strategies', video_url: 'https://www.youtube.com/embed/HQzoZfc3GwQ', duration: 30 },
+            { title: 'Retirement Planning', video_url: 'https://www.youtube.com/embed/WEDIj9JBTC8', duration: 25 },
+            { title: 'Wealth Building', video_url: 'https://www.youtube.com/embed/4j2emMn7UuI', duration: 28 }
+          ];
+        }
+        
+        // Insert modules
+        for (let i = 0; i < modules.length; i++) {
+          const module = modules[i];
+          await pool.query(
+            `INSERT INTO modules (course_id, title, description, video_url, duration, order_index)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [courseId, module.title, `Learn about ${module.title.toLowerCase()}`, module.video_url, module.duration, i + 1]
+          );
+        }
+      }
+      
+      console.log('Default courses and modules added successfully');
+
+    console.log('Database tables created successfully');
 
 
   } catch (error) {
-    console.error('❌ Database initialization error:', error.message);
+    console.error('Database initialization error:', error.message);
     throw error;
   }
 };
