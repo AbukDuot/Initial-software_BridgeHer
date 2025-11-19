@@ -277,6 +277,8 @@ router.get("/topics/:id", async (req, res) => {
     const { rows: replyRows } = await pool.query(
       `SELECT r.*, u.name as author_name, u.avatar_url,
        (SELECT COUNT(*) FROM reply_likes WHERE reply_id = r.id) as likes,
+       (SELECT COUNT(*) FROM reply_votes WHERE reply_id = r.id AND vote_type = 'up') as upvotes,
+       (SELECT COUNT(*) FROM reply_votes WHERE reply_id = r.id AND vote_type = 'down') as downvotes,
        ${userId ? `(SELECT COUNT(*) > 0 FROM reply_likes WHERE reply_id = r.id AND user_id = $2) as user_liked` : 'false as user_liked'}
        FROM topic_replies r
        JOIN users u ON u.id = r.user_id
@@ -940,6 +942,75 @@ router.post("/replies/:id/react", requireAuth, async (req, res) => {
       res.json({ reacted: true });
     }
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Reply voting (helpful/not helpful)
+router.post("/replies/:id/vote", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { vote_type } = req.body;
+    const userId = req.user.id;
+    
+    if (!['up', 'down'].includes(vote_type)) {
+      return res.status(400).json({ error: "Invalid vote type" });
+    }
+    
+    // Check if reply exists
+    const { rows: replyCheck } = await pool.query(
+      `SELECT id FROM topic_replies WHERE id = $1`,
+      [id]
+    );
+    
+    if (!replyCheck[0]) {
+      return res.status(404).json({ error: "Reply not found" });
+    }
+    
+    // Check existing vote
+    const { rows: existing } = await pool.query(
+      `SELECT vote_type FROM reply_votes WHERE reply_id = $1 AND user_id = $2`,
+      [id, userId]
+    );
+    
+    if (existing.length > 0) {
+      if (existing[0].vote_type === vote_type) {
+        // Remove vote if same type
+        await pool.query(
+          `DELETE FROM reply_votes WHERE reply_id = $1 AND user_id = $2`,
+          [id, userId]
+        );
+      } else {
+        // Update vote type
+        await pool.query(
+          `UPDATE reply_votes SET vote_type = $1 WHERE reply_id = $2 AND user_id = $3`,
+          [vote_type, id, userId]
+        );
+      }
+    } else {
+      // Insert new vote
+      await pool.query(
+        `INSERT INTO reply_votes (reply_id, user_id, vote_type) VALUES ($1, $2, $3)`,
+        [id, userId, vote_type]
+      );
+    }
+    
+    // Get updated vote counts
+    const { rows: voteCounts } = await pool.query(
+      `SELECT 
+         COUNT(CASE WHEN vote_type = 'up' THEN 1 END) as upvotes,
+         COUNT(CASE WHEN vote_type = 'down' THEN 1 END) as downvotes
+       FROM reply_votes WHERE reply_id = $1`,
+      [id]
+    );
+    
+    res.json({ 
+      success: true,
+      upvotes: parseInt(voteCounts[0].upvotes),
+      downvotes: parseInt(voteCounts[0].downvotes)
+    });
+  } catch (err) {
+    console.error('Vote error:', err);
     res.status(500).json({ error: err.message });
   }
 });
