@@ -330,11 +330,65 @@ const initDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_assignments_module ON assignments(module_id);
       CREATE INDEX IF NOT EXISTS idx_course_recommendations_course_id ON course_recommendations(course_id);
       CREATE INDEX IF NOT EXISTS idx_course_recommendations_recommended_id ON course_recommendations(recommended_course_id);
+
+      CREATE TABLE IF NOT EXISTS topic_questions (
+        id SERIAL PRIMARY KEY,
+        topic_id INTEGER REFERENCES community_topics(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        question TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS question_answers (
+        id SERIAL PRIMARY KEY,
+        question_id INTEGER REFERENCES topic_questions(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        answer TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS topic_bookmarks (
+        id SERIAL PRIMARY KEY,
+        topic_id INTEGER REFERENCES community_topics(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(topic_id, user_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS reply_votes (
+        id SERIAL PRIMARY KEY,
+        reply_id INTEGER REFERENCES topic_replies(id) ON DELETE CASCADE,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        vote_type VARCHAR(10) CHECK (vote_type IN ('up', 'down')),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(reply_id, user_id)
+      );
+
+      ALTER TABLE community_topics ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'open';
+      ALTER TABLE community_topics ADD COLUMN IF NOT EXISTS locked BOOLEAN DEFAULT FALSE;
+      ALTER TABLE community_topics ADD COLUMN IF NOT EXISTS image_url TEXT;
+      ALTER TABLE community_topics ADD COLUMN IF NOT EXISTS video_url TEXT;
+      ALTER TABLE community_topics ADD COLUMN IF NOT EXISTS media_type VARCHAR(20) DEFAULT 'none';
+      ALTER TABLE community_topics ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+      
+      ALTER TABLE topic_replies ADD COLUMN IF NOT EXISTS parent_reply_id INTEGER REFERENCES topic_replies(id) ON DELETE CASCADE;
+      ALTER TABLE topic_replies ADD COLUMN IF NOT EXISTS best_answer BOOLEAN DEFAULT FALSE;
+      ALTER TABLE topic_replies ADD COLUMN IF NOT EXISTS upvotes INTEGER DEFAULT 0;
+      ALTER TABLE topic_replies ADD COLUMN IF NOT EXISTS downvotes INTEGER DEFAULT 0;
+
+      CREATE INDEX IF NOT EXISTS idx_topic_questions_topic_id ON topic_questions(topic_id);
+      CREATE INDEX IF NOT EXISTS idx_question_answers_question_id ON question_answers(question_id);
+      CREATE INDEX IF NOT EXISTS idx_topic_bookmarks_user_id ON topic_bookmarks(user_id);
+      CREATE INDEX IF NOT EXISTS idx_reply_votes_reply_id ON reply_votes(reply_id);
     `);
 
-    console.log('Database tables created successfully');
+    console.log('✅ Database tables created successfully');
+
+
   } catch (error) {
-    console.error('Database initialization error:', error.message);
+    console.error('❌ Database initialization error:', error.message);
     throw error;
   }
 };

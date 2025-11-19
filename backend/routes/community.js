@@ -197,26 +197,34 @@ router.put("/topics/:id", requireAuth, async (req, res) => {
     const userId = req.user.id;
     const userRole = req.user.role;
     
+    console.log('Edit request - User ID:', userId, 'Role:', userRole, 'Topic ID:', id);
+    
     const { rows: existing } = await pool.query(
       `SELECT user_id FROM community_topics WHERE id = $1`,
       [id]
     );
     
-    if (!existing[0]) return res.status(404).json({ error: "Topic not found" });
+    if (!existing[0]) {
+      console.log('Topic not found:', id);
+      return res.status(404).json({ error: "Topic not found" });
+    }
     
     console.log('Edit check - Topic owner:', existing[0].user_id, 'Current user:', userId, 'Role:', userRole);
     
+    // Allow edit for topic owner or admin
     if (existing[0].user_id !== userId && userRole !== 'Admin') {
+      console.log('Authorization failed for edit');
       return res.status(403).json({ error: "Not authorized to edit this topic" });
     }
     
     const { rows } = await pool.query(
       `UPDATE community_topics 
-       SET title = $1, category = $2, description = $3, tags = $4
+       SET title = $1, category = $2, description = $3, tags = $4, updated_at = CURRENT_TIMESTAMP
        WHERE id = $5 RETURNING *`,
-      [title, category, description, tags || [], id]
+      [title, category || null, description || '', tags || [], id]
     );
     
+    console.log('Topic updated successfully:', rows[0]);
     res.json(rows[0]);
   } catch (err) {
     console.error('Edit topic error:', err);
@@ -426,26 +434,40 @@ router.delete("/topics/:id", requireAuth, async (req, res) => {
     const userId = req.user.id;
     const userRole = req.user.role;
     
+    console.log('Delete request - User ID:', userId, 'Role:', userRole, 'Topic ID:', id);
+    
     const { rows } = await pool.query(
       `SELECT user_id FROM community_topics WHERE id = $1`,
       [id]
     );
     
-    if (!rows[0]) return res.status(404).json({ error: "Topic not found" });
+    if (!rows[0]) {
+      console.log('Topic not found for deletion:', id);
+      return res.status(404).json({ error: "Topic not found" });
+    }
     
+    console.log('Delete check - Topic owner:', rows[0].user_id, 'Current user:', userId, 'Role:', userRole);
+    
+    // Allow delete for topic owner or admin
     if (rows[0].user_id !== userId && userRole !== 'Admin') {
-      return res.status(403).json({ error: "Not authorized" });
+      console.log('Authorization failed for delete');
+      return res.status(403).json({ error: "Not authorized to delete this topic" });
     }
     
     // Delete related records first to avoid foreign key constraint violations
+    console.log('Deleting related records...');
     await pool.query(`DELETE FROM topic_bookmarks WHERE topic_id = $1`, [id]);
     await pool.query(`DELETE FROM topic_likes WHERE topic_id = $1`, [id]);
     await pool.query(`DELETE FROM reply_likes WHERE reply_id IN (SELECT id FROM topic_replies WHERE topic_id = $1)`, [id]);
     await pool.query(`DELETE FROM topic_replies WHERE topic_id = $1`, [id]);
     
+    console.log('Deleting topic...');
     await pool.query(`DELETE FROM community_topics WHERE id = $1`, [id]);
+    
+    console.log('Topic deleted successfully');
     res.json({ success: true });
   } catch (err) {
+    console.error('Delete topic error:', err);
     res.status(500).json({ error: err.message });
   }
 });
