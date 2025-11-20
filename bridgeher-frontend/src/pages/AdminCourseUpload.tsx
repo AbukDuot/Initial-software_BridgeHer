@@ -29,6 +29,8 @@ const AdminCourseUpload: React.FC = () => {
     duration: "",
   });
 
+  const [courseImage, setCourseImage] = useState<File | null>(null);
+
   const [modules, setModules] = useState<Module[]>([]);
   const [currentModule, setCurrentModule] = useState<Module>({
     title: "",
@@ -49,9 +51,16 @@ const AdminCourseUpload: React.FC = () => {
   });
 
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState("");
 
   const handleCourseChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setCourseData({ ...courseData, [e.target.name]: e.target.value });
+  };
+
+  const handleCourseImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setCourseImage(e.target.files[0]);
+    }
   };
 
   const handleModuleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -102,9 +111,26 @@ const AdminCourseUpload: React.FC = () => {
     }
 
     setUploading(true);
+    setUploadProgress("Creating course...");
 
     try {
       const token = localStorage.getItem("token");
+      
+      let imageUrl = null;
+      if (courseImage) {
+        setUploadProgress("Uploading course image...");
+        const imageFormData = new FormData();
+        imageFormData.append("image", courseImage);
+        const imageRes = await fetch(`${API_BASE_URL}/api/upload/image`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: imageFormData,
+        });
+        if (imageRes.ok) {
+          const imageData = await imageRes.json();
+          imageUrl = imageData.url;
+        }
+      }
       
       const courseRes = await fetch(`${API_BASE_URL}/api/courses`, {
         method: "POST",
@@ -112,7 +138,7 @@ const AdminCourseUpload: React.FC = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(courseData),
+        body: JSON.stringify({ ...courseData, image_url: imageUrl }),
       });
 
       if (!courseRes.ok) {
@@ -123,7 +149,10 @@ const AdminCourseUpload: React.FC = () => {
       
       const course = await courseRes.json();
 
-      for (const module of modules) {
+      for (let i = 0; i < modules.length; i++) {
+        const module = modules[i];
+        setUploadProgress(`Uploading module ${i + 1} of ${modules.length}: ${module.title}...`);
+        
         const formData = new FormData();
         formData.append("course_id", course.id);
         formData.append("title", module.title);
@@ -143,6 +172,7 @@ const AdminCourseUpload: React.FC = () => {
         if (!moduleRes.ok) throw new Error(`Failed to upload module: ${module.title}`);
         
         if (module.assignment) {
+          setUploadProgress(`Adding assignment for module ${i + 1}...`);
           const moduleData = await moduleRes.json();
           await fetch(`${API_BASE_URL}/api/assignments`, {
             method: "POST",
@@ -158,11 +188,15 @@ const AdminCourseUpload: React.FC = () => {
         }
       }
 
+      setUploadProgress("Upload complete!");
       alert("Course uploaded successfully!");
       setCourseData({ title: "", description: "", category: "Technology", level: "Beginner", duration: "" });
+      setCourseImage(null);
       setModules([]);
+      setUploadProgress("");
     } catch (err) {
       alert(err instanceof Error ? err.message : "Upload failed");
+      setUploadProgress("");
     } finally {
       setUploading(false);
     }
@@ -199,6 +233,12 @@ const AdminCourseUpload: React.FC = () => {
 
         <label>Duration</label>
         <input name="duration" placeholder="e.g., 4 weeks" value={courseData.duration} onChange={handleCourseChange} />
+
+        <div className="file-input">
+          <label>Course Image (Optional)</label>
+          <input type="file" accept="image/*" onChange={handleCourseImageChange} />
+          {courseImage && <span>✓ {courseImage.name}</span>}
+        </div>
       </div>
 
       <div className="module-form">
@@ -280,6 +320,12 @@ const AdminCourseUpload: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {uploadProgress && (
+        <div className="upload-progress" style={{padding: '15px', background: '#f0f0f0', borderRadius: '5px', marginBottom: '10px', textAlign: 'center'}}>
+          <p style={{margin: 0, color: '#4A148C', fontWeight: 'bold'}}>{uploadProgress}</p>
+        </div>
+      )}
 
       <button onClick={uploadCourse} disabled={uploading} className="upload-btn">
         {uploading ? "Uploading..." : "Upload Course"}
