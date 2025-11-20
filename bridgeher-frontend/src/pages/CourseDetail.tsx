@@ -263,9 +263,9 @@ const CourseDetail: React.FC = () => {
   };
 
 
-  if (loading) return <p className="loading">Loading course details...</p>;
+  if (loading) return <p className="loading">{isAr ? 'جارٍ تحميل تفاصيل الدورة...' : 'Loading course details...'}</p>;
   if (!course)
-    return <p className="error">Course not found. Please return to dashboard.</p>;
+    return <p className="error">{isAr ? 'لم يتم العثور على الدورة. يرجى العودة إلى لوحة التحكم.' : 'Course not found. Please return to dashboard.'}</p>;
 
   const t = {
     modules: isAr ? "الوحدات التعليمية" : "Modules",
@@ -291,13 +291,13 @@ const CourseDetail: React.FC = () => {
         {course.average_rating && (
           <div className="course-rating">
             <span className="stars">{''.repeat(Math.round(course.average_rating))}</span>
-            <span>{course.average_rating.toFixed(1)} ({course.total_reviews} reviews)</span>
+            <span>{course.average_rating.toFixed(1)} ({course.total_reviews} {isAr ? 'تقييم' : 'reviews'})</span>
           </div>
         )}
         
         {course.instructor_name && (
           <div className="instructor-info">
-            <h3>Instructor</h3>
+            <h3>{isAr ? 'المدرب' : 'Instructor'}</h3>
             <p><strong>{course.instructor_name}</strong></p>
             {course.instructor_bio && <p>{course.instructor_bio}</p>}
             {course.instructor_credentials && <p><em>{course.instructor_credentials}</em></p>}

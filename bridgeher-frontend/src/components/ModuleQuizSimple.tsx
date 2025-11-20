@@ -131,15 +131,33 @@ const ModuleQuizSimple: React.FC<ModuleQuizSimpleProps> = ({
               : (isArabic ? ' تحتاج إلى 70% للنجاح' : 'You need 70% to pass')
             }
           </p>
-          <button 
-            onClick={onClose}
-            style={{
-              background: '#4A148C', color: 'white', border: 'none',
-              padding: '12px 30px', borderRadius: '5px', fontSize: '16px', cursor: 'pointer'
-            }}
-          >
-            {isArabic ? 'متابعة' : 'Continue'}
-          </button>
+          <div style={{display: 'flex', gap: '10px', justifyContent: 'center'}}>
+            {score < 70 && (
+              <button 
+                onClick={() => {
+                  setShowResult(false);
+                  setCurrentQuestion(0);
+                  setAnswers([]);
+                  setTimeLeft(1800);
+                }}
+                style={{
+                  background: '#FFD700', color: '#4A148C', border: 'none',
+                  padding: '12px 30px', borderRadius: '5px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold'
+                }}
+              >
+                {isArabic ? 'إعادة المحاولة' : 'Retake Quiz'}
+              </button>
+            )}
+            <button 
+              onClick={onClose}
+              style={{
+                background: '#4A148C', color: 'white', border: 'none',
+                padding: '12px 30px', borderRadius: '5px', fontSize: '16px', cursor: 'pointer'
+              }}
+            >
+              {isArabic ? 'متابعة' : 'Continue'}
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -7,6 +7,7 @@ interface CourseCardProps {
   title: string;
   titleAr?: string;
   description: string;
+  descriptionAr?: string;
   category: string;
   level: string;
   duration: string;
@@ -28,6 +29,7 @@ const EnhancedCourseCard: React.FC<CourseCardProps> = ({
   title,
   titleAr,
   description,
+  descriptionAr,
   category,
   level,
   duration,
@@ -44,13 +46,77 @@ const EnhancedCourseCard: React.FC<CourseCardProps> = ({
   onPreview
 }) => {
   const isArabic = language === "Arabic";
-  const displayTitle = isArabic && titleAr ? titleAr : title;
+  
+  const getArabicCourseTitle = (title: string) => {
+    const titleMap: { [key: string]: string } = {
+      'Financial Literacy Basics': 'أساسيات الثقافة المالية',
+      'Entrepreneurship for Women': 'ريادة الأعمال للنساء',
+      'Digital Skills for Beginners': 'المهارات الرقمية للمبتدئين',
+      'Leadership & Communication': 'القيادة والتواصل',
+      'Entrepreneurship 101': 'ريادة الأعمال 101'
+    };
+    return titleMap[title] || title;
+  };
+  
+  const getArabicCourseDescription = (description: string) => {
+    if (description.includes('Learn how to budget, save, and manage debt')) {
+      return 'تعلم كيفية إعداد الميزانية والادخار وإدارة الديون بفعالية';
+    }
+    if (description.includes('Start and grow your own business')) {
+      return 'ابدأ ونمِّ عملك الخاص باستخدام استراتيجيات بسيطة';
+    }
+    if (description.includes('Master essential computer')) {
+      return 'أتقن أساسيات الحاسوب والإنترنت للنجاح';
+    }
+    if (description.includes('speaking') || description.includes('leadership')) {
+      return 'طوري مهارات الخطابة والعمل الجماعي والقيادة.';
+    }
+    return description;
+  };
+  
+  const getArabicCategory = (category: string) => {
+    const categoryMap: { [key: string]: string } = {
+      'Finance': 'المالية',
+      'Business': 'الأعمال',
+      'Tech': 'التكنولوجيا',
+      'Leadership': 'القيادة'
+    };
+    return categoryMap[category] || category;
+  };
+  
+  const getArabicLevel = (level: string) => {
+    const levelMap: { [key: string]: string } = {
+      'Beginner': 'مبتدئ',
+      'Intermediate': 'متوسط',
+      'Advanced': 'متقدم'
+    };
+    return levelMap[level] || level;
+  };
+  
+  const getArabicDuration = (duration: string) => {
+    if (duration.includes('week')) {
+      const weeks = duration.match(/\d+/);
+      return weeks ? `${weeks[0]} أسابيع` : duration;
+    }
+    if (duration.includes('month')) {
+      const months = duration.match(/\d+/);
+      return months ? `${months[0]} شهر` : duration;
+    }
+    if (duration.includes('hour')) {
+      const hours = duration.match(/\d+/);
+      return hours ? `${hours[0]} ساعة` : duration;
+    }
+    return duration;
+  };
+  
+  const displayTitle = isArabic ? (titleAr || getArabicCourseTitle(title)) : title;
+  const displayDescription = isArabic ? (descriptionAr || getArabicCourseDescription(description)) : description;
 
   return (
     <div className="enhanced-course-card">
       <div className="course-thumbnail" style={{ backgroundImage: thumbnail ? `url(${thumbnail})` : 'linear-gradient(135deg, #4A148C 0%, #FFD700 100%)' }}>
-        <span className="category-badge">{category}</span>
-        <span className="level-badge">{level}</span>
+        <span className="category-badge">{isArabic ? getArabicCategory(category) : category}</span>
+        <span className="level-badge">{isArabic ? getArabicLevel(level) : level}</span>
         {!thumbnail && <span className="icon"></span>}
       </div>
 
@@ -64,11 +130,11 @@ const EnhancedCourseCard: React.FC<CourseCardProps> = ({
           </div>
         )}
 
-        <p className="course-description">{description.substring(0, 100)}...</p>
+        <p className="course-description">{displayDescription.substring(0, 100)}...</p>
 
         <div className="course-meta">
-          <span>⏱ {duration}</span>
-          <span> {level}</span>
+          <span>⏱ {isArabic ? getArabicDuration(duration) : duration}</span>
+          <span> {isArabic ? getArabicLevel(level) : level}</span>
           <span>⭐ {rating} ({totalReviews})</span>
         </div>
 

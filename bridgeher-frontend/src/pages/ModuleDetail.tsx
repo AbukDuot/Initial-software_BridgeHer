@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
-import ModuleQuizSimple from "../components/ModuleQuizSimple";
+import ModuleQuizDB from "../components/ModuleQuizDB";
 import { cacheVideoForOffline, isVideoCached, getCachedVideo } from "../utils/videoCache";
 import "../styles/moduleDetail.css";
 
@@ -78,13 +78,13 @@ const ModuleDetail: React.FC = () => {
       
       if (success) {
         setIsVideoDownloaded(true);
-        alert(isArabic ? '✅ تم تنزيل الفيديو للاستخدام دون اتصال!' : '✅ Video downloaded for offline use!');
+        alert(isArabic ? '✅ تم تنزيل الفيديو للاستخدام دون اتصال' : 'Video downloaded for offline use!');
       } else {
-        alert(isArabic ? '❌ فشل تنزيل الفيديو' : '❌ Failed to download video');
+        alert(isArabic ? '❌ فشل تنزيل الفيديو' : ' Failed to download video');
       }
     } catch (error) {
       console.error('Download error:', error);
-      alert(isArabic ? '❌ حدث خطأ أثناء التنزيل' : '❌ Error during download');
+      alert(isArabic ? '❌ حدث خطأ أثناء التنزيل' : ' Error during download');
     } finally {
       setIsVideoDownloading(false);
     }
@@ -177,9 +177,9 @@ const ModuleDetail: React.FC = () => {
       } catch (err) {
         console.error("Failed to mark complete", err);
       }
-    } else {
-      alert(isArabic ? "يجب اجتياز الاختبار لإكمال الوحدة" : "You must pass the quiz to complete the module");
     }
+    // Don't close quiz for failed attempts - let user see buttons
+    setShowQuiz(false);
   };
 
   const submitAssignment = async () => {
@@ -263,9 +263,7 @@ const ModuleDetail: React.FC = () => {
       <div className="module-header">
         <h2>{module.title}</h2>
         <p>{module.description}</p>
-        <div style={{background: '#FFD700', color: '#4A148C', padding: '10px', borderRadius: '5px', margin: '10px 0', fontWeight: 'bold', textAlign: 'center'}}>
-           {isArabic ? 'الاختبار متاح في نهاية هذه الصفحة!' : 'Quiz available at the bottom of this page!'}
-        </div>
+
       </div>
 
       {/* Video Player */}
@@ -411,33 +409,46 @@ const ModuleDetail: React.FC = () => {
 
       {/* Module Actions */}
       <div className="module-actions">
+        <button 
+          className="btn" 
+          onClick={() => navigate(`/course/${id}/modules`)}
+          style={{
+            background: '#6C757D',
+            color: 'white',
+            border: '2px solid #6C757D',
+            padding: '15px 25px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            marginRight: '15px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            transition: 'all 0.3s ease',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = '#4A148C';
+            e.currentTarget.style.borderColor = '#4A148C';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = '#6C757D';
+            e.currentTarget.style.borderColor = '#6C757D';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          ← {isArabic ? 'العودة إلى الوحدات' : 'Back to Modules'}
+        </button>
+        
         <button className="btn" onClick={() => setShowNotes(!showNotes)}>
           {showNotes ? (isArabic ? "إخفاء المحتوى" : "Hide Content") : (isArabic ? "عرض المحتوى" : "View Content")}
         </button>
 
-        <button 
-          onClick={() => setShowQuiz(true)}
-          style={{
-            background: '#FFD700',
-            color: '#4A148C',
-            border: '3px solid #4A148C',
-            padding: '15px 25px',
-            borderRadius: '8px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-            margin: '10px 0'
-          }}
-        >
-           {isArabic ? "اختبار الوحدة" : "MODULE QUIZ"}
-        </button>
         
         {canProceed && (
           <button className="btn next-btn" onClick={markModuleComplete}>
             {allModules.findIndex(m => m.id === module.id) + 1 < allModules.length
-              ? (isArabic ? "الوحدة التالية" : "Next Module")
-              : (isArabic ? "إنهاء الدورة" : "Finish Course")}
+              ? (isArabic ? "إكمال الوحدة (اختبار مطلوب)" : "Complete Module (Quiz Required)")
+              : (isArabic ? "إنهاء الدورة (اختبار مطلوب)" : "Finish Course (Quiz Required)")}
           </button>
         )}
       </div>
@@ -459,7 +470,7 @@ const ModuleDetail: React.FC = () => {
 
       {/* Quiz Modal */}
       {showQuiz && (
-        <ModuleQuizSimple
+        <ModuleQuizDB
           moduleId={module.id}
           moduleTitle={module.title}
           onQuizComplete={handleQuizComplete}

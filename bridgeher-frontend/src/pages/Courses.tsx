@@ -14,6 +14,7 @@ interface Course {
   id: number;
   title: string;
   description: string;
+  description_ar?: string;
   category: string;
   level: string;
   duration: string;
@@ -177,6 +178,7 @@ const Courses: React.FC = () => {
               id={course.id}
               title={course.title}
               description={course.description}
+              descriptionAr={course.description_ar}
               category={course.category}
               level={course.level}
               duration={course.duration}

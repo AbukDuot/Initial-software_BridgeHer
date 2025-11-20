@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config/api';
 
 interface Question {
-  id: number;
+  id?: number;
   question: string;
   options: string[];
-  correct_answer: string;
-  points: number;
+  correct_answer?: string;
+  correctAnswer?: number;
+  points?: number;
 }
 
 interface Quiz {
@@ -147,7 +148,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleAnswer = (questionId: number, answer: string) => {
+  const handleAnswer = (questionId: number | string, answer: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: answer }));
   };
 
@@ -171,10 +172,12 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
     let correctAnswers = 0;
     let totalPoints = 0;
 
-    quiz.questions.forEach((q) => {
-      totalPoints += q.points;
-      if (answers[q.id] === q.correct_answer) {
-        correctAnswers += q.points;
+    quiz.questions.forEach((q, index) => {
+      totalPoints += (q.points || 1);
+      // Handle both correctAnswer (number) and correct_answer (string) formats
+      const correctAnswer = q.correct_answer || q.options[q.correctAnswer || 0];
+      if (answers[q.id || index] === correctAnswer) {
+        correctAnswers += (q.points || 1);
       }
     });
 
@@ -208,9 +211,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
     }
 
     const passed = percentage >= quiz.passing_score;
-    setTimeout(() => {
-      onQuizComplete(passed);
-    }, 2000);
+   
   };
 
   if (loading) {
@@ -266,7 +267,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
               : (isArabic ? ` تحتاج إلى ${quiz.passing_score}% للنجاح` : ` You need ${quiz.passing_score}% to pass`)
             }
           </p>
-          <p style={{fontSize: '14px', color: '#666', marginBottom: '20px'}}>
+          <p style={{fontSize: '14px', color: '#666', marginBottom: '10px'}}>
             {isArabic ? `المحاولة ${attemptNumber} من 3` : `Attempt ${attemptNumber} of 3`}
             {attemptsRemaining > 0 && score < quiz.passing_score && (
               <span style={{display: 'block', marginTop: '5px', color: '#4A148C'}}>
@@ -274,15 +275,45 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
               </span>
             )}
           </p>
-          <button 
-            onClick={onClose}
-            style={{
-              background: '#4A148C', color: 'white', border: 'none',
-              padding: '12px 30px', borderRadius: '5px', fontSize: '16px', cursor: 'pointer'
-            }}
-          >
-            {isArabic ? 'متابعة' : 'Continue'}
-          </button>
+          <div style={{background: '#f0f0f0', padding: '10px', borderRadius: '5px', fontSize: '12px', marginBottom: '10px'}}>
+            DEBUG: Score={score}, Passing={quiz.passing_score}, Attempts={attemptsRemaining}
+          </div>
+          {/* DEBUG: Always show buttons */}
+          <div style={{display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px'}}>
+            {/* Always show retake button for testing */}
+            <button 
+              onClick={() => {
+                alert('Retake button clicked!');
+                setShowResult(false);
+                setCurrentQuestion(0);
+                setAnswers({});
+                setTimeLeft(quiz.time_limit * 60);
+                fetchQuiz();
+              }}
+              style={{
+                background: '#E53935', color: 'white', border: '2px solid #E53935',
+                padding: '12px 30px', borderRadius: '8px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold'
+              }}
+            >
+              🔄 RETAKE QUIZ
+            </button>
+            
+            {/* Always show back button */}
+            <button 
+              onClick={() => {
+                alert('Back to Module clicked!');
+                const passed = score >= quiz.passing_score;
+                onQuizComplete(passed);
+                onClose();
+              }}
+              style={{
+                background: '#FFD700', color: '#4A148C', border: '2px solid #4A148C',
+                padding: '12px 30px', borderRadius: '8px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold'
+              }}
+            >
+              ← BACK TO MODULE
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -337,16 +368,16 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
             {question.options.map((option, index) => (
               <button
                 key={index}
-                onClick={() => handleAnswer(question.id, option)}
+                onClick={() => handleAnswer(question.id || currentQuestion, option))
                 style={{
                   display: 'flex', alignItems: 'center', padding: '15px', border: '2px solid',
-                  borderColor: answers[question.id] === option ? '#4A148C' : '#CCC',
-                  borderRadius: '8px', background: answers[question.id] === option ? '#F3E5F5' : 'white',
+                  borderColor: answers[question.id || currentQuestion] === option ? '#4A148C' : '#CCC',
+                  borderRadius: '8px', background: answers[question.id || currentQuestion] === option ? '#F3E5F5' : 'white',
                   cursor: 'pointer', textAlign: 'left', fontSize: '16px'
                 }}
               >
                 <span style={{
-                  background: answers[question.id] === option ? '#4A148C' : '#CCC',
+                  background: answers[question.id || currentQuestion] === option ? '#4A148C' : '#CCC',
                   color: 'white', borderRadius: '50%', width: '24px', height: '24px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   marginRight: '15px', fontSize: '14px', fontWeight: 'bold'
@@ -375,11 +406,11 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
 
           <button
             onClick={handleNext}
-            disabled={!answers[question.id]}
+            disabled={!answers[question.id || currentQuestion]}
             style={{
-              background: answers[question.id] ? '#4A148C' : '#CCC',
+              background: answers[question.id || currentQuestion] ? '#4A148C' : '#CCC',
               color: 'white', border: 'none', padding: '10px 20px', borderRadius: '5px',
-              cursor: answers[question.id] ? 'pointer' : 'not-allowed'
+              cursor: answers[question.id || currentQuestion] ? 'pointer' : 'not-allowed'
             }}
           >
             {currentQuestion === quiz.questions.length - 1 

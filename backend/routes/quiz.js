@@ -4,6 +4,27 @@ import { requireAuth, requireRole } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Test endpoint to check quiz status
+router.get('/status', async (req, res) => {
+  try {
+    const { rows: quizCount } = await pool.query('SELECT COUNT(*) as count FROM quizzes');
+    const { rows: sampleQuizzes } = await pool.query('SELECT id, module_id, title, time_limit, passing_score FROM quizzes LIMIT 5');
+    
+    res.json({
+      totalQuizzes: quizCount[0].count,
+      sampleQuizzes: sampleQuizzes.map(q => ({
+        id: q.id,
+        moduleId: q.module_id,
+        title: q.title,
+        timeLimit: q.time_limit,
+        passingScore: q.passing_score
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get quiz for a module
 router.get('/module/:moduleId', requireAuth, async (req, res) => {
   try {

@@ -19,56 +19,18 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Fetch event with video caching
+// Fetch event - simplified
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-  
-  // Handle video requests (Cloudinary or local videos)
-  if (event.request.url.includes('cloudinary.com') || 
-      event.request.url.includes('/video/') ||
-      event.request.url.match(/\.(mp4|webm|ogg)$/)) {
-    event.respondWith(
-      caches.open(VIDEO_CACHE).then(cache => {
-        return cache.match(event.request).then(response => {
-          if (response) {
-            console.log('[SW] Serving video from cache:', event.request.url);
-            return response;
-          }
-          
-          // Fetch and cache video
-          return fetch(event.request).then(networkResponse => {
-            // Only cache successful responses
-            if (networkResponse && networkResponse.status === 200) {
-              cache.put(event.request, networkResponse.clone());
-            }
-            return networkResponse;
-          }).catch(() => {
-            // Return offline message if video not cached
-            return new Response('Video not available offline', {
-              status: 503,
-              statusText: 'Service Unavailable'
-            });
-          });
-        });
-      })
-    );
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
     return;
   }
   
-  // Handle other requests
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).catch(() => {
-          // Return offline page for navigation requests
-          if (event.request.mode === 'navigate') {
-            return caches.match('/offline.html');
-          }
-        });
-      })
+    fetch(event.request).catch(() => {
+      // Return cached version if network fails
+      return caches.match(event.request);
+    })
   );
 });
 

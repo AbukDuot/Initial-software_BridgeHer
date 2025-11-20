@@ -64,7 +64,7 @@ const VideoQualitySelector: React.FC<VideoQualitySelectorProps> = ({
         onClick={() => setShowDropdown(!showDropdown)}
         aria-label={t.quality}
       >
-        <span className="quality-icon">⚙️</span>
+        <span className="quality-icon"></span>
         <span className="quality-text">{selectedQuality}</span>
         <span className="dropdown-arrow">▼</span>
       </button>

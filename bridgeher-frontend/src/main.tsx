@@ -14,7 +14,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
 );
 
 
-serviceWorker.register({
-  onSuccess: () => console.log('Offline mode enabled'),
-  onUpdate: () => console.log('New version available')
-});
+// Temporarily disabled service worker
+// serviceWorker.register({
+//   onSuccess: () => console.log('Offline mode enabled'),
+//   onUpdate: () => console.log('New version available')
+// });
