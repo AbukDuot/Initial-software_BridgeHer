@@ -378,6 +378,9 @@ const Mentorship: React.FC = () => {
     }
     
     try {
+      console.log('📤 Sending mentorship request:', requestData);
+      console.log('🔑 Token:', token ? 'Present' : 'Missing');
+      
       const res = await fetch(`${API_BASE_URL}/api/mentorship`, {
         method: "POST",
         headers: {
@@ -387,10 +390,11 @@ const Mentorship: React.FC = () => {
         body: JSON.stringify(requestData)
       });
       
+      console.log('📥 Response status:', res.status);
+      
       if (res.ok) {
         const newRequest = await res.json();
-        console.log('🔍 After request - Response:', newRequest);
-        console.log('🔍 After request - User in localStorage:', JSON.parse(localStorage.getItem("user") || '{}'));
+        console.log('✅ Request created:', newRequest);
         
         const session = sessionDate && sessionTime ? `${sessionDate} ${sessionTime}` : "-";
         setRequests((prev) => [
@@ -404,10 +408,11 @@ const Mentorship: React.FC = () => {
         setSessionTime("");
       } else {
         const error = await res.json();
+        console.error('❌ Request failed:', error);
         alert(lang === "ar" ? `فشل الإرسال: ${error.error || 'خطأ'}` : `Failed to send: ${error.error || 'Error'}`);
       }
     } catch (err) {
-      console.error("Failed to send request", err);
+      console.error("❌ Request error:", err);
       alert(lang === "ar" ? "خطأ في الاتصال" : "Connection error");
     }
   };

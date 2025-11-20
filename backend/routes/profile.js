@@ -47,19 +47,51 @@ router.get("/", protect, async (req, res) => {
 });
 
 router.put("/", protect, async (req, res) => {
-  const { name, phone, bio, location } = req.body;
+  const { name, email, phone, bio, location } = req.body;
   try {
     console.log('Updating profile for user:', req.user.id, req.body);
+    
+    const updates = [];
+    const values = [];
+    let paramCount = 1;
+    
+    if (name !== undefined && name !== null && name !== '') {
+      updates.push(`name = $${paramCount++}`);
+      values.push(name);
+    }
+    if (email !== undefined && email !== null && email !== '') {
+      updates.push(`email = $${paramCount++}`);
+      values.push(email);
+    }
+    if (phone !== undefined && phone !== null) {
+      updates.push(`phone = $${paramCount++}`);
+      values.push(phone);
+    }
+    if (bio !== undefined && bio !== null) {
+      updates.push(`bio = $${paramCount++}`);
+      values.push(bio);
+    }
+    if (location !== undefined && location !== null) {
+      updates.push(`location = $${paramCount++}`);
+      values.push(location);
+    }
+    
+    if (updates.length === 0) {
+      return res.status(400).json({ error: "No fields to update" });
+    }
+    
+    values.push(req.user.id);
+    
     const { rows } = await pool.query(
-      `UPDATE users SET name = $1, phone = $2, bio = $3, location = $4
-       WHERE id = $5 RETURNING id, name, email, role, phone, bio, location, profile_pic`,
-      [name, phone, bio, location, req.user.id]
+      `UPDATE users SET ${updates.join(', ')}
+       WHERE id = $${paramCount} RETURNING id, name, email, role, phone, bio, location, profile_pic`,
+      values
     );
-    console.log('Profile updated successfully');
-    res.json({ message: "Profile updated", user: rows[0] });
+    console.log('Profile updated successfully:', rows[0]);
+    res.json(rows[0]);
   } catch (err) {
     console.error('Profile update error:', err.message);
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 

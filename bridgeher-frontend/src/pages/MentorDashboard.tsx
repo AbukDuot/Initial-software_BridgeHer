@@ -447,18 +447,36 @@ const MentorDashboard: React.FC = () => {
       <header className="dashboard-header">
         <div className="header-left" style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
           {mentorUser && (
-            <img 
-              src={mentorUser.profile_pic || "/default-profile.png"} 
-              alt="Profile" 
-              key={mentorUser.profile_pic}
-              style={{
+            mentorUser.profile_pic ? (
+              <img 
+                src={mentorUser.profile_pic} 
+                alt="Profile" 
+                key={mentorUser.profile_pic}
+                style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '3px solid #FFD700'
+                }}
+              />
+            ) : (
+              <div style={{
                 width: '60px',
                 height: '60px',
                 borderRadius: '50%',
-                objectFit: 'cover',
+                backgroundColor: '#4A148C',
+                color: '#FFD700',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px',
+                fontWeight: 'bold',
                 border: '3px solid #FFD700'
-              }}
-            />
+              }}>
+                {mentorUser.name ? mentorUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) : '??'}
+              </div>
+            )
           )}
           <div>
             <h1 className="app-title">{t.title}</h1>

@@ -15,10 +15,38 @@ const Profile: React.FC = () => {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    phone: '',
-    bio: '',
-    location: '',
+    phone: user?.phone || '',
+    bio: user?.bio || '',
+    location: user?.location || '',
   });
+
+  React.useEffect(() => {
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+          setFormData({
+            name: userData.name || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            bio: userData.bio || '',
+            location: userData.location || '',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+      }
+    };
+    
+    fetchUserProfile();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -30,6 +58,8 @@ const Profile: React.FC = () => {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('💾 Saving profile:', formData);
+      
       const response = await fetch(`${API_BASE_URL}/api/profile`, {
         method: 'PUT',
         headers: {
@@ -39,20 +69,28 @@ const Profile: React.FC = () => {
         body: JSON.stringify(formData),
       });
 
+      console.log('📥 Response status:', response.status);
+
       if (response.ok) {
         const updatedUser = await response.json();
+        console.log('✅ Profile updated:', updatedUser);
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
         setEditing(false);
         alert(isArabic ? 'تم حفظ التغييرات بنجاح' : 'Profile updated successfully');
+      } else {
+        const error = await response.json();
+        console.error('❌ Update failed:', error);
+        alert(isArabic ? `فشل: ${error.error || 'خطأ'}` : `Failed: ${error.error || 'Error'}`);
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('❌ Error updating profile:', error);
       alert(isArabic ? 'فشل في حفظ التغييرات' : 'Failed to update profile');
     }
   };
 
   const getInitials = (name: string) => {
+    if (!name) return '??';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
