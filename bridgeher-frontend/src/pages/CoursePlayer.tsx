@@ -269,7 +269,7 @@ const CoursePlayer: React.FC = () => {
             className={`module-item ${currentModule?.id === mod.id ? "active" : ""}`}
             onClick={() => selectModule(mod)}
           >
-            <span>{mod.order_index + 1}. {mod.title}</span>
+            <span>{mod.order_index}. {mod.title}</span>
             <span className="duration">{mod.duration}min</span>
           </div>
         ))}
@@ -333,24 +333,6 @@ const CoursePlayer: React.FC = () => {
                   </div>
                 )}
                 
-                <button 
-                  onClick={() => setShowQuiz(true)}
-                  style={{
-                    background: '#FFD700',
-                    color: '#4A148C',
-                    border: '3px solid #4A148C',
-                    padding: '15px 25px',
-                    borderRadius: '8px',
-                    fontSize: '18px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                    margin: '10px'
-                  }}
-                >
-                  TAKE QUIZ
-                </button>
-                
                 <button onClick={markComplete} className="complete-btn">Complete Module (Quiz Required)</button>
                 <button onClick={downloadForOffline} className="download-btn">Download for Offline</button>
               </div>
@@ -382,7 +364,7 @@ const CoursePlayer: React.FC = () => {
                   }}
                 >
                   <span>Module Notes</span>
-                  <span>{notesExpanded ? '' : ''}</span>
+                  <span>{notesExpanded ? '▼' : '▶'}</span>
                 </button>
                 
                 {notesExpanded && (

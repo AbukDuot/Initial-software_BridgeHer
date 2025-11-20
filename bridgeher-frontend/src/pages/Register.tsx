@@ -46,6 +46,13 @@ const Register: React.FC = () => {
       return;
     }
 
+    const validDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com', 'live.com', 'aol.com', 'protonmail.com'];
+    const emailDomain = form.email.split('@')[1]?.toLowerCase();
+    if (!emailDomain || !validDomains.includes(emailDomain)) {
+      showToast(isArabic ? "يرجى استخدام بريد إلكتروني حقيقي (Gmail, Yahoo, Outlook, إلخ)" : "Please use a real email address (Gmail, Yahoo, Outlook, etc.)", "error");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -147,6 +154,7 @@ const Register: React.FC = () => {
             <select name="role" value={form.role} onChange={handleChange}>
               <option value="Learner">{isArabic ? "متعلم" : "Learner"}</option>
               <option value="Mentor">{isArabic ? "مرشد" : "Mentor"}</option>
+              <option value="Admin">{isArabic ? "مسؤول" : "Admin"}</option>
             </select>
 
             <div className="terms-checkbox">
