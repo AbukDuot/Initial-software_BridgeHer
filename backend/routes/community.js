@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.get("/announcements", async (req, res) => {
   try {
+    console.log('📢 GET /api/community/announcements called');
     const { rows } = await pool.query(`
       SELECT a.*, u.name as author_name
       FROM announcements a
@@ -14,6 +15,7 @@ router.get("/announcements", async (req, res) => {
       ORDER BY a.pinned DESC, a.created_at DESC
       LIMIT 5
     `);
+    console.log(`✅ Found ${rows.length} announcements`);
     res.json(rows);
   } catch (err) {
     console.error('❌ Announcements error:', err.message);
@@ -39,6 +41,63 @@ router.post("/announcements", requireAuth, async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error('❌ Create announcement error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put("/announcements/:id", requireAuth, async (req, res) => {
+  try {
+    console.log('📝 PUT /api/community/announcements/:id called', req.params.id);
+    console.log('User role:', req.user?.role);
+    
+    if (req.user.role !== 'Admin') {
+      console.log('❌ Access denied - not admin');
+      return res.status(403).json({ error: "Admin only" });
+    }
+    
+    const { id } = req.params;
+    const { title, content, pinned } = req.body;
+    console.log('Update data:', { title, content, pinned });
+    
+    const { rows } = await pool.query(
+      `UPDATE announcements SET title = $1, content = $2, pinned = $3 WHERE id = $4 RETURNING *`,
+      [title, content, pinned, id]
+    );
+    
+    if (!rows[0]) {
+      console.log('❌ Announcement not found:', id);
+      return res.status(404).json({ error: "Announcement not found" });
+    }
+    console.log('✅ Announcement updated successfully');
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('❌ Update announcement error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/announcements/:id", requireAuth, async (req, res) => {
+  try {
+    console.log('🗑️ DELETE /api/community/announcements/:id called', req.params.id);
+    console.log('User role:', req.user?.role);
+    
+    if (req.user.role !== 'Admin') {
+      console.log('❌ Access denied - not admin');
+      return res.status(403).json({ error: "Admin only" });
+    }
+    
+    const { id } = req.params;
+    const result = await pool.query(`DELETE FROM announcements WHERE id = $1 RETURNING id`, [id]);
+    
+    if (result.rowCount === 0) {
+      console.log('❌ Announcement not found:', id);
+      return res.status(404).json({ error: "Announcement not found" });
+    }
+    
+    console.log('✅ Announcement deleted successfully');
+    res.json({ success: true });
+  } catch (err) {
+    console.error('❌ Delete announcement error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
