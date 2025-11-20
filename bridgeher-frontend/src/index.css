@@ -181,3 +181,217 @@ footer {
     gap: 0.8rem;
   }
 }
+
+/* Dark Mode Styles - Universal */
+body.dark-mode {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode *:not(.hero):not(.hero *) {
+  color: #e0e0e0;
+}
+
+body.dark-mode *:not(.btn.primary):not(.btn.danger):not(img):not(svg):not(path):not(.hero):not(.hero *) {
+  background-color: inherit;
+}
+
+body.dark-mode .navbar {
+  background-color: #2d2d2d !important;
+}
+
+body.dark-mode .navbar * {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .auth-card,
+body.dark-mode .settings-container,
+body.dark-mode .profile-container,
+body.dark-mode .course-card,
+body.dark-mode .settings-section,
+body.dark-mode .profile-section,
+body.dark-mode .dashboard-card,
+body.dark-mode .modal-content,
+body.dark-mode .card {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode h1:not(.hero h1),
+body.dark-mode h2:not(.hero h2),
+body.dark-mode h3:not(.hero h3),
+body.dark-mode h4:not(.hero h4),
+body.dark-mode h5:not(.hero h5),
+body.dark-mode h6:not(.hero h6),
+body.dark-mode p:not(.hero p),
+body.dark-mode span:not(.hero span),
+body.dark-mode label:not(.hero label),
+body.dark-mode div:not(.hero):not(.hero div) {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background-color: #3a3a3a !important;
+  color: #e0e0e0 !important;
+  border-color: #555 !important;
+}
+
+body.dark-mode .btn.secondary {
+  background-color: #3a3a3a;
+  color: #e0e0e0;
+}
+
+body.dark-mode .courses-page,
+body.dark-mode .settings-page,
+body.dark-mode .profile-page,
+body.dark-mode main {
+  background-color: #1a1a1a !important;
+}
+
+body.dark-mode .setting-item,
+body.dark-mode .form-group {
+  border-color: #444 !important;
+}
+
+body.dark-mode .filters-container,
+body.dark-mode .courses-header {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+/* Dashboard and specific pages */
+body.dark-mode .learner-dashboard,
+body.dark-mode .mentor-dashboard,
+body.dark-mode .admin-dashboard,
+body.dark-mode .community-page,
+body.dark-mode .mentorship-page {
+  background-color: #1a1a1a !important;
+}
+
+/* Tables and lists */
+body.dark-mode table,
+body.dark-mode .table,
+body.dark-mode .list-item {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode table th,
+body.dark-mode table td {
+  border-color: #444 !important;
+  color: #e0e0e0 !important;
+}
+
+/* Buttons */
+body.dark-mode .btn:not(.primary):not(.danger) {
+  background-color: #3a3a3a !important;
+  color: #e0e0e0 !important;
+}
+
+/* Links */
+body.dark-mode a:not(.btn) {
+  color: #9c9cff !important;
+}
+
+/* Modals and overlays */
+body.dark-mode .modal,
+body.dark-mode .overlay {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Course player and video sections */
+body.dark-mode .course-player,
+body.dark-mode .video-section,
+body.dark-mode .module-list {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+/* Forum and community */
+body.dark-mode .topic-card,
+body.dark-mode .reply-card,
+body.dark-mode .comment {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-color: #444 !important;
+}
+
+/* Sidebar and navigation */
+body.dark-mode .sidebar,
+body.dark-mode .side-nav {
+  background-color: #2d2d2d !important;
+}
+
+/* Stats and metrics */
+body.dark-mode .stat-card,
+body.dark-mode .metric-box {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+/* Home and About pages */
+body.dark-mode .home,
+body.dark-mode .about-page,
+body.dark-mode .features,
+body.dark-mode .testimonials {
+  background-color: #1a1a1a !important;
+}
+
+/* Hero section - keep image bright and unchanged in dark mode */
+body.dark-mode .hero {
+  background: url('/src/assets/images/BridgeHer.jpg') center/cover no-repeat !important;
+  background-color: transparent !important;
+  color: white !important;
+}
+
+body.dark-mode .hero * {
+  filter: none !important;
+}
+
+body.dark-mode .hero h1,
+body.dark-mode .hero p {
+  color: white !important;
+}
+
+/* Keep all hero buttons with original colors */
+body.dark-mode .hero .btn.primary {
+  background-color: #4A148C !important;
+  color: white !important;
+}
+
+body.dark-mode .hero .btn.secondary {
+  background-color: #f3e5f5 !important;
+  color: #4A148C !important;
+}
+
+/* Bookmarks page */
+body.dark-mode .bookmarks-page,
+body.dark-mode .bookmark-card {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+/* Mentor cards */
+body.dark-mode .mentor-card,
+body.dark-mode .mentor-profile {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-color: #444 !important;
+}
+
+/* Section backgrounds */
+body.dark-mode section:not(.hero),
+body.dark-mode .section:not(.hero) {
+  background-color: #1a1a1a !important;
+}
+
+/* White backgrounds override */
+body.dark-mode [style*="background-color: white"],
+body.dark-mode [style*="background-color: #fff"],
+body.dark-mode [style*="background-color: #ffffff"],
+body.dark-mode [style*="background: white"],
+body.dark-mode [style*="background: #fff"] {
+  background-color: #2d2d2d !important;
+}

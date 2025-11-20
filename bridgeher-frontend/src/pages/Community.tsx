@@ -77,6 +77,8 @@ const Community: React.FC = () => {
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<number | null>(null);
+  const [editAnnouncementData, setEditAnnouncementData] = useState({ title: "", content: "", pinned: false });
 
   useEffect(() => {
     fetchTopics();
@@ -281,6 +283,81 @@ const Community: React.FC = () => {
     }
   };
 
+  const handleUpdateAnnouncement = async (id: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      console.log('Updating announcement:', id, editAnnouncementData);
+      const url = `${API_BASE_URL}/api/community/announcements/${id}`;
+      console.log('PUT URL:', url);
+
+      const res = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(editAnnouncementData)
+      });
+
+      console.log('Response status:', res.status);
+      if (res.ok) {
+        setEditingAnnouncement(null);
+        fetchAnnouncements();
+        alert(isArabic ? "تم التحديث بنجاح!" : "Updated successfully!");
+      } else {
+        const error = await res.json();
+        console.error('Update error:', error);
+        alert(error.error || (isArabic ? "فشل التحديث" : "Update failed"));
+      }
+    } catch (err) {
+      console.error("Failed to update announcement", err);
+      alert(isArabic ? "خطأ في الاتصال" : "Connection error");
+    }
+  };
+
+  const handleDeleteAnnouncement = async (id: number) => {
+    if (!confirm(isArabic ? "هل أنت متأكد من حذف هذا الإعلان؟" : "Are you sure you want to delete this announcement?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        return;
+      }
+
+      console.log('Deleting announcement:', id);
+      const url = `${API_BASE_URL}/api/community/announcements/${id}`;
+      console.log('DELETE URL:', url);
+
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      console.log('Response status:', res.status);
+      if (res.ok) {
+        fetchAnnouncements();
+        alert(isArabic ? "تم الحذف بنجاح!" : "Deleted successfully!");
+      } else {
+        const error = await res.json();
+        console.error('Delete error:', error);
+        alert(error.error || (isArabic ? "فشل الحذف" : "Delete failed"));
+      }
+    } catch (err) {
+      console.error("Failed to delete announcement", err);
+      alert(isArabic ? "خطأ في الاتصال" : "Connection error");
+    }
+  };
+
   const handleCreateTopic = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTopic.title.trim() || !newTopic.category || !newTopic.description.trim()) {
@@ -345,9 +422,49 @@ const Community: React.FC = () => {
               <div className="announcements-list">
                 {announcements.map((ann) => (
                   <div key={ann.id} className="announcement-item">
-                    <h4>{ann.title}</h4>
-                    <p>{ann.content}</p>
-                    <small>{new Date(ann.created_at).toLocaleDateString()}</small>
+                    {editingAnnouncement === ann.id ? (
+                      <div>
+                        <input
+                          type="text"
+                          value={editAnnouncementData.title}
+                          onChange={(e) => setEditAnnouncementData({...editAnnouncementData, title: e.target.value})}
+                          style={{width: '100%', marginBottom: '5px'}}
+                        />
+                        <textarea
+                          value={editAnnouncementData.content}
+                          onChange={(e) => setEditAnnouncementData({...editAnnouncementData, content: e.target.value})}
+                          style={{width: '100%', marginBottom: '5px'}}
+                          rows={3}
+                        />
+                        <div style={{display: 'flex', gap: '5px'}}>
+                          <button onClick={() => handleUpdateAnnouncement(ann.id)} style={{fontSize: '12px', padding: '3px 8px'}}>
+                            {isArabic ? "حفظ" : "Save"}
+                          </button>
+                          <button onClick={() => setEditingAnnouncement(null)} style={{fontSize: '12px', padding: '3px 8px'}}>
+                            {isArabic ? "إلغاء" : "Cancel"}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <h4>{ann.title}</h4>
+                        <p>{ann.content}</p>
+                        <small>{new Date(ann.created_at).toLocaleDateString()}</small>
+                        {JSON.parse(localStorage.getItem("user") || '{}').role === 'Admin' && (
+                          <div style={{display: 'flex', gap: '5px', marginTop: '5px'}}>
+                            <button onClick={() => {
+                              setEditingAnnouncement(ann.id);
+                              setEditAnnouncementData({title: ann.title, content: ann.content, pinned: ann.pinned});
+                            }} style={{fontSize: '11px', padding: '2px 6px'}}>
+                              {isArabic ? "تعديل" : "Edit"}
+                            </button>
+                            <button onClick={() => handleDeleteAnnouncement(ann.id)} style={{fontSize: '11px', padding: '2px 6px', background: '#E53935'}}>
+                              {isArabic ? "حذف" : "Delete"}
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 ))}
               </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { useUser } from '../hooks/useUser';
 import '../styles/settings.css';
@@ -20,6 +20,20 @@ const Settings: React.FC = () => {
     showEmail: false,
     showPhone: false,
   });
+
+  const [darkMode, setDarkMode] = useState<boolean>(
+    () => localStorage.getItem('theme') === 'dark'
+  );
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
 
   const handleNotificationChange = (key: string) => {
     setNotifications(prev => ({
@@ -44,9 +58,25 @@ const Settings: React.FC = () => {
         </div>
 
         <div className="settings-content">
-          {/* Language Settings */}
+          {/* Appearance Settings */}
           <div className="settings-section">
-            <h3>{isArabic ? 'اللغة' : 'Language'}</h3>
+            <h3>{isArabic ? 'المظهر' : 'Appearance'}</h3>
+            
+            <div className="setting-item">
+              <div className="setting-info">
+                <label>{isArabic ? 'الوضع الداكن' : 'Dark Mode'}</label>
+                <p>{isArabic ? 'تفعيل الوضع الداكن للتطبيق' : 'Enable dark mode for the app'}</p>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={darkMode}
+                  onChange={() => setDarkMode(!darkMode)}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+
             <div className="setting-item">
               <label>{isArabic ? 'لغة التطبيق' : 'App Language'}</label>
               <select 

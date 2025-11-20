@@ -256,13 +256,13 @@ const Profile: React.FC = () => {
               )}
             </div>
 
-            {editing && (
-              <div className="form-actions">
+            <div className="form-actions">
+              {editing && (
                 <button className="save-btn" onClick={handleSave}>
                   {isArabic ? 'حفظ التغييرات' : 'Save Changes'}
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
 

@@ -75,6 +75,31 @@
   font-size: 11px;
 }
 
+.announcement-item input,
+.announcement-item textarea {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #333;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.announcement-item button {
+  background: #FFD700;
+  color: #4A148C;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.announcement-item button:hover {
+  background: white;
+  color: #4A148C;
+}
+
 .category-list {
   list-style: none;
   padding: 0;
