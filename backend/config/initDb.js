@@ -304,6 +304,9 @@ const initDatabase = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+      ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS email VARCHAR(100);
+
       CREATE TABLE IF NOT EXISTS notifications (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,

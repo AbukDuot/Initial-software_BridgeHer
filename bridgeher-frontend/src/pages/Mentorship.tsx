@@ -174,9 +174,10 @@ const Mentorship: React.FC = () => {
             "Aguil": aguilImg,
             "Kuir juach": kuirImg,
             "Kuir Juach": kuirImg,
-            "Abraham Madol": abrahamImg
+            "Abraham Madol": abrahamImg,
+            "Abuk Debby": priscillaImg
           };
-          const mapped = data.map((m: { id: number; name: string; video_intro?: string; expertise?: string; expertise_ar?: string; location?: string; badges?: string; avatar_url?: string; rating?: number }) => {
+          const mapped = data.map((m: { id: number; name: string; video_intro?: string; expertise?: string; expertise_ar?: string; location?: string; badges?: string; avatar_url?: string; profile_pic?: string; rating?: number }) => {
             let videoUrl = "";
             if (m.video_intro && m.video_intro.trim()) {
               const rawUrl = m.video_intro.trim();
@@ -233,7 +234,7 @@ const Mentorship: React.FC = () => {
               expertise: expertiseArray,
               location: m.location || "Juba, South Sudan",
               badges: (m.badges && typeof m.badges === 'string') ? m.badges.split(",").map((b: string) => b.trim()) : (Array.isArray(m.badges) ? m.badges : ["Mentor"]),
-              avatar: m.avatar_url || avatarMap[m.name] || priscillaImg,
+              avatar: m.profile_pic || m.avatar_url || avatarMap[m.name] || priscillaImg,
               rating: m.rating || 4.8,
               available: true,
               calendar: [],
@@ -559,7 +560,7 @@ const Mentorship: React.FC = () => {
                 <span style={{color: r.status === 'accepted' ? 'green' : r.status === 'declined' ? 'red' : 'orange'}}>
                   Status: {r.status}
                 </span>
-                {r.status === 'accepted' && (
+                {(r.status === 'accepted' || r.status === 'pending') && (
                   <button onClick={() => openFeedbackModal(r)} style={{marginLeft: '10px', padding: '5px 10px', background: '#4A148C', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer'}}>Rate Mentor</button>
                 )}
               </li>
