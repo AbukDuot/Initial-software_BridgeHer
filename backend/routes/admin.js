@@ -76,10 +76,10 @@ router.get('/enrollments', protect, async (req, res) => {
 router.post('/add-mentor-videos', protect, async (req, res) => {
   try {
     const sampleVideos = [
-      'https://youtu.be/example1', 
-      'https://youtu.be/example2', 
-      'https://youtu.be/example3', 
-      'https://youtu.be/example4'  
+      'https://www.youtube.com/watch?v=ZXsQAXx_ao0',
+      'https://www.youtube.com/watch?v=mgmVOuLgFB0',
+      'https://www.youtube.com/watch?v=Lp7E973zozc',
+      'https://www.youtube.com/watch?v=g-jwWYX7Jlo'
     ];
     
     
@@ -111,6 +111,18 @@ router.post('/add-mentor-videos', protect, async (req, res) => {
     });
   } catch (err) {
     console.error('Error adding mentor videos:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.post('/remove-duplicate-video', async (req, res) => {
+  try {
+    const result = await pool.query(
+      "UPDATE users SET video_intro = NULL WHERE id = (SELECT id FROM users WHERE role = 'Mentor' AND video_intro IS NOT NULL ORDER BY id DESC LIMIT 1) RETURNING name"
+    );
+    res.json({ message: `Removed video from ${result.rows[0]?.name || 'mentor'}` });
+  } catch (err) {
+    console.error('Error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

@@ -125,7 +125,6 @@ app.use((err, _req, res, _next) => {
   const timestamp = new Date().toISOString();
   console.error(`[${timestamp}] ERROR:`, err && err.stack ? err.stack : err);
   
-  // Handle CORS errors
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({ error: 'CORS policy violation' });
   }
@@ -137,7 +136,17 @@ const PORT = process.env.PORT || 5000;
 
 initDatabase()
   .then(() => {
-    const server = app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    const server = app.listen(PORT, () => console.log(` Server running on port ${PORT}`))
+      .on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+          console.error(` Port ${PORT} is already in use. Please kill the process or use a different port.`);
+          console.error('Run: netstat -ano | findstr :5000 to find the process');
+          process.exit(1);
+        } else {
+          console.error('Server error:', err);
+          process.exit(1);
+        }
+      });
     
     const shutdown = async () => {
       console.log("Shutting down...");
@@ -159,4 +168,9 @@ initDatabase()
 
 process.on("unhandledRejection", (reason) => {
   console.error("Unhandled Rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+  process.exit(1);
 });

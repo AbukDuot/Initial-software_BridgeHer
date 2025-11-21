@@ -37,7 +37,7 @@ router.get("/mentors", async (req, res) => {
   try {
     const pool = (await import("../config/db.js")).default;
     const { rows } = await pool.query(
-      `SELECT id, name, email, bio, expertise, expertise_ar, video_intro, location, avatar_url, badges, rating, created_at
+      `SELECT id, name, email, bio, expertise, expertise_ar, video_intro, location, profile_pic, avatar_url, badges, rating, created_at
        FROM users
        WHERE role = 'Mentor'
        ORDER BY created_at DESC`
