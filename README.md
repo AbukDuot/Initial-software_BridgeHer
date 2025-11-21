@@ -44,8 +44,6 @@ BridgeHer addresses these challenges by creating an integrated digital learning 
 
 **Structured Mentorship**: Connects learners with mentors and peer networks, providing ongoing guidance and support beyond course completion
 
-**Culturally Relevant**: Designed specifically for the South Sudanese context, with content and features that respect local customs and address real community needs
-
 **Scalable Technology**: Built on cloud infrastructure (Vercel + Render + Cloudinary) that can grow from pilot users to national deployment
 
 **Gamification**: Uses badges, points, and progress tracking to maintain engagement and motivation
