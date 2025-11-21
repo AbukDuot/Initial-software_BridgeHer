@@ -16,7 +16,7 @@ export async function listMentors(req, res, next) {
     }
 
     params.push(Number(limit));
-    const sql = `SELECT id, name, email, bio, expertise, availability, created_at
+    const sql = `SELECT id, name, email, bio, expertise, phone, location, avatar_url, rating, created_at
                  FROM users
                  WHERE ${where.join(" AND ")}
                  ORDER BY name
@@ -32,7 +32,7 @@ export async function getMentor(req, res, next) {
   try {
     const { id } = req.params;
     const { rows: userRows } = await pool.query(
-      `SELECT id, name, email, bio, expertise, availability, created_at
+      `SELECT id, name, email, bio, expertise, phone, location, avatar_url, rating, created_at
        FROM users WHERE id = $1 AND role = 'Mentor'`,
       [id]
     );
@@ -65,7 +65,7 @@ export async function updateMentor(req, res, next) {
       return res.status(403).json({ error: "Forbidden" });
     }
 
-    const allowed = ["name", "bio", "expertise", "availability", "contact"];
+    const allowed = ["name", "bio", "expertise", "phone", "location"];
     const fields = {};
     for (const k of allowed) {
       if (req.body[k] !== undefined) fields[k] = req.body[k];
@@ -77,9 +77,9 @@ export async function updateMentor(req, res, next) {
     const params = keys.map((k) => fields[k]);
     params.push(id);
 
-    const sql = `UPDATE users SET ${sets.join(", ")}, updated_at = now()
+    const sql = `UPDATE users SET ${sets.join(", ")}
                  WHERE id = $${params.length} AND role = 'Mentor'
-                 RETURNING id, name, email, bio, expertise, availability, contact, updated_at`;
+                 RETURNING id, name, email, bio, expertise, phone, location, created_at`;
     const { rows } = await pool.query(sql, params);
     if (!rows[0]) return res.status(404).json({ error: "Mentor not found or not updated" });
     return res.json(rows[0]);
