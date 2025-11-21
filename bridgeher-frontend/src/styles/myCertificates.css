@@ -5,12 +5,38 @@
   min-height: 80vh;
 }
 
+.cert-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 .certificates-page h2 {
   color: #4a148c;
   font-size: 32px;
   font-weight: 700;
-  margin-bottom: 32px;
-  text-align: center;
+  margin: 0;
+}
+
+.btn-sample {
+  background: #FFD700;
+  color: #4A148C;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.btn-sample:hover {
+  background: #4A148C;
+  color: #FFD700;
+  transform: translateY(-2px);
 }
 
 .btn-back {

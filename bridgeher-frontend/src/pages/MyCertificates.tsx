@@ -4,6 +4,8 @@ import Certificate from "../components/Certificate";
 import LoadingSpinner from "../components/LoadingSpinner";
 import "../styles/myCertificates.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 interface CertificateData {
   id: string;
   learnerName: string;
@@ -68,12 +70,27 @@ const MyCertificates: React.FC = () => {
     );
   }
 
+  const viewSampleCertificate = () => {
+    setSelectedCert({
+      id: "sample",
+      learnerName: "Sample Learner",
+      courseTitle: "Financial Literacy 101",
+      mentor: "BridgeHer",
+      date: new Date().toISOString(),
+      score: 95
+    });
+  };
+
   return (
     <div className={`certificates-page ${isArabic ? "rtl" : ""}`}>
-      <h2>{isArabic ? "شهاداتي" : "My Certificates"}</h2>
+      <div className="cert-header-section">
+        <h2>{isArabic ? "شهاداتي" : "My Certificates"}</h2>
+        <button className="btn-sample" onClick={viewSampleCertificate}>
+          {isArabic ? "عرض نموذج الشهادة" : "View Sample Certificate"}
+        </button>
+      </div>
       {certificates.length === 0 ? (
         <div className="no-certificates">
-          <div className="empty-icon">📜</div>
           <h3>{isArabic ? "لا توجد شهادات" : "No Certificates Yet"}</h3>
           <p>{isArabic ? "أكمل دورة للحصول على شهادتك الأولى!" : "Complete a course to earn your first certificate!"}</p>
           <button className="btn primary" onClick={() => window.location.href = '/courses'}>

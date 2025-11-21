@@ -81,12 +81,6 @@ const Certificate: React.FC<CertificateProps> = ({
               </p>
               <h4 className="course-name">{courseName}</h4>
 
-              {score && (
-                <p className="score-text">
-                  {isArabic ? `بنتيجة: ${score}%` : `with a score of ${score}%`}
-                </p>
-              )}
-
               <p className="date-text">
                 {isArabic ? "تاريخ الإتمام: " : "Date of Completion: "}
                 <strong>{new Date(completionDate).toLocaleDateString(isArabic ? "ar" : "en", {

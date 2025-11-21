@@ -94,6 +94,7 @@ const initDatabase = async () => {
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+        score INTEGER DEFAULT 100,
         certificate_url TEXT,
         issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
@@ -306,6 +307,8 @@ const initDatabase = async () => {
 
       ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS name VARCHAR(100);
       ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS email VARCHAR(100);
+      
+      ALTER TABLE certificates ADD COLUMN IF NOT EXISTS score INTEGER DEFAULT 100;
 
       CREATE TABLE IF NOT EXISTS notifications (
         id SERIAL PRIMARY KEY,
