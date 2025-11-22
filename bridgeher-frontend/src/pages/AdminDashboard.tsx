@@ -8,7 +8,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import adminDashboardTranslations from "../i18n/adminDashboardTranslations";
 import { toArabicNumerals } from "../utils/numberUtils";
 import { API_BASE_URL } from "../config/api";
-import ModuleVideoManager from "../components/ModuleVideoManager";
+// import ModuleVideoManager from "../components/ModuleVideoManager";
 import "../styles/adminDashboard.css";
 
 const playUiSound = (enabled: boolean) => {
@@ -79,7 +79,7 @@ const AdminDashboard: React.FC = () => {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [userForm, setUserForm] = useState({ name: "", email: "", role: "Learner", status: "Active" });
   const [courseForm, setCourseForm] = useState({ title: "", enrollments: 0, status: "Active" });
-  const [showVideoManager, setShowVideoManager] = useState(false);
+  // const [showVideoManager, setShowVideoManager] = useState(false);
   const [adminUser, setAdminUser] = useState<{id: number; name: string; email: string; role: string; profile_pic?: string} | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
   const [deletingCourseId, setDeletingCourseId] = useState<number | null>(null);
@@ -493,9 +493,9 @@ const AdminDashboard: React.FC = () => {
             <button className="btn primary" onClick={() => navigate('/admin-course-upload')}>
                {isArabic ? 'رفع دورة بالفيديو' : 'Upload Course with Videos'}
             </button>
-            <button className="btn primary" onClick={() => setShowVideoManager(true)}>
+            {/* <button className="btn primary" onClick={() => setShowVideoManager(true)}>
                {isArabic ? 'إدارة فيديوهات الوحدات' : 'Manage Module Videos'}
-            </button>
+            </button> */}
             <button className="btn primary" onClick={handleAddCourse}>{t.addCourse}</button>
           </div>
         </div>
@@ -669,7 +669,7 @@ const AdminDashboard: React.FC = () => {
       </div>
     )}
     
-    {showVideoManager && (
+    {/* {showVideoManager && (
       <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10000, padding: '20px'}}>
         <div style={{width: '90%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto', background: 'white', borderRadius: '12px', padding: '20px', position: 'relative'}}>
           <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', position: 'sticky', top: 0, background: 'white', zIndex: 1, paddingBottom: '10px', borderBottom: '2px solid #eee'}}>
@@ -679,7 +679,7 @@ const AdminDashboard: React.FC = () => {
           <ModuleVideoManager />
         </div>
       </div>
-    )}
+    )} */}
 
     {deletingUserId !== null && (
       <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
