@@ -80,47 +80,7 @@ const ModuleVideoManager: React.FC = () => {
     }
   };
 
-  const setupComputerCourses = async () => {
-    console.log('Setup computer courses button clicked');
-    setUpdating(true);
-    try {
-      const token = localStorage.getItem('token');
-      console.log('Calling setup computer courses API...');
-      const res = await fetch(`${API_BASE_URL}/api/admin/setup-computer-courses`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      console.log('Setup response status:', res.status);
-      
-      if (res.status === 404) {
-        showToast('⚠️ Backend route not found. Please deploy the latest backend code to Render or run backend locally.', 'error');
-        console.error('404: The /api/setup/setup-computer-courses route does not exist on the production backend.');
-        console.error('Solution: Deploy backend/routes/setupTechCourse.js to Render');
-        return;
-      }
-      
-      if (res.ok) {
-        const result = await res.json();
-        console.log('Setup result:', result);
-        const totalModules = result.courses.reduce((sum: number, course: { modulesAdded: number }) => sum + course.modulesAdded, 0);
-        showToast(`Computer courses setup complete! Added ${totalModules} modules to ${result.courses.length} courses.`, 'success');
-        loadModulesWithoutVideos(); 
-      } else {
-        const error = await res.json();
-        console.error('Setup error response:', error);
-        showToast(`Error: ${error.error || 'Failed to setup courses'}`, 'error');
-      }
-    } catch (err) {
-      console.error('Setup exception:', err);
-      showToast('Failed to setup Computer courses', 'error');
-    } finally {
-      setUpdating(false);
-    }
-  };
+
 
   const addVideoToModule = async (moduleId: number, videoUrl: string) => {
     try {
@@ -182,23 +142,13 @@ const ModuleVideoManager: React.FC = () => {
     <div className={`module-video-manager ${isAr ? 'rtl' : ''}`}>
       <div className="manager-header">
         <h2>{t.title}</h2>
-        <div style={{display: 'flex', gap: '10px'}}>
-          <button 
-            onClick={setupComputerCourses}
-            disabled={updating}
-            className="auto-assign-btn"
-            style={{background: '#2196F3'}}
-          >
-            {updating ? '' : ''} {isAr ? 'إعداد دورات الحاسوب' : 'Setup Computer Courses'}
-          </button>
-          <button 
-            onClick={autoAssignVideos}
-            disabled={updating || modules.length === 0}
-            className="auto-assign-btn"
-          >
-            {updating ? '' : ''} {t.autoAssign}
-          </button>
-        </div>
+        <button 
+          onClick={autoAssignVideos}
+          disabled={updating || modules.length === 0}
+          className="auto-assign-btn"
+        >
+          {updating ? '' : ''} {t.autoAssign}
+        </button>
       </div>
 
       <div className="modules-count">
