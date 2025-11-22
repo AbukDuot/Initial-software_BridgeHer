@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { API_BASE_URL } from '../config/api';
+import { showToast } from '../utils/toast';
 import '../styles/help.css';
 
 const Help: React.FC = () => {
@@ -153,15 +154,15 @@ const Help: React.FC = () => {
       console.log('Support response:', response.status, response.ok);
 
       if (response.ok) {
-        alert(isArabic ? 'تم إرسال رسالتك بنجاح!' : 'Your message has been sent successfully!');
+        showToast(isArabic ? 'تم إرسال رسالتك بنجاح!' : 'Your message has been sent successfully!', 'success');
         setSupportForm({ subject: '', message: '', category: 'general' });
       } else {
         const error = await response.json();
-        alert(isArabic ? `فشل في الإرسال: ${error.error}` : `Failed to send: ${error.error}`);
+        showToast(isArabic ? `فشل في الإرسال: ${error.error}` : `Failed to send: ${error.error}`, 'error');
       }
     } catch (error) {
       console.error('Error sending support message:', error);
-      alert(isArabic ? 'فشل في إرسال الرسالة' : 'Failed to send message');
+      showToast(isArabic ? 'فشل في إرسال الرسالة' : 'Failed to send message', 'error');
     }
   };
 

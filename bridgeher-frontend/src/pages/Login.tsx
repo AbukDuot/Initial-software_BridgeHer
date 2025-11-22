@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { useUser } from "../hooks/useUser";
-import { useToast } from "../hooks/useToast";
-import Toast from "../components/Toast";
+import { showToast } from "../utils/toast";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { API_BASE_URL } from "../config/api";
 import "../styles/auth.css";
@@ -13,7 +12,7 @@ const Login: React.FC = () => {
   const { setUser } = useUser();
   const isArabic = language === "Arabic";
   const navigate = useNavigate();
-  const { toasts, showToast, removeToast } = useToast();
+
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showReset, setShowReset] = useState(false);
@@ -30,7 +29,7 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidEmail(form.email)) {
-      alert(isArabic ? "الرجاء إدخال بريد إلكتروني صالح!" : "Please enter a valid email!");
+      showToast(isArabic ? "الرجاء إدخال بريد إلكتروني صالح!" : "Please enter a valid email!", "error");
       return;
     }
 
@@ -69,7 +68,7 @@ const Login: React.FC = () => {
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidEmail(resetEmail)) {
-      alert(isArabic ? "الرجاء إدخال بريد إلكتروني صالح!" : "Please enter a valid email!");
+      showToast(isArabic ? "الرجاء إدخال بريد إلكتروني صالح!" : "Please enter a valid email!", "error");
       return;
     }
 
@@ -103,14 +102,6 @@ const Login: React.FC = () => {
 
   return (
     <div className={`auth-page ${isArabic ? "rtl" : ""}`}>
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
       <div className="auth-card">
         {loading ? (
           <LoadingSpinner 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import { showToast } from "../utils/toast";
 import OfflineDownloadButton from "../components/OfflineDownloadButton";
 import CourseReviews from "../components/CourseReviews";
 import CoursePreview from "../components/CoursePreview";
@@ -249,7 +250,7 @@ const CourseDetail: React.FC = () => {
           localStorage.setItem('enrolledCourses', JSON.stringify(enrolledCourses));
         }
         setEnrolled(true);
-        alert(isAr ? 'تم التسجيل بنجاح!' : 'Successfully enrolled!');
+        showToast.success(isAr ? 'تم التسجيل بنجاح' : 'Successfully enrolled');
       }
     } catch {
       const enrolledCourses = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
@@ -258,7 +259,7 @@ const CourseDetail: React.FC = () => {
         localStorage.setItem('enrolledCourses', JSON.stringify(enrolledCourses));
       }
       setEnrolled(true);
-      alert(isAr ? 'تم التسجيل بنجاح!' : 'Successfully enrolled!');
+      showToast.success(isAr ? 'تم التسجيل بنجاح' : 'Successfully enrolled');
     }
   };
 

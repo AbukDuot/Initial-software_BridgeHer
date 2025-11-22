@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import { showToast } from "../utils/toast";
 import "../styles/createTopic.css";
 
 const CreateAnnouncement: React.FC = () => {
@@ -19,14 +20,14 @@ const CreateAnnouncement: React.FC = () => {
     e.preventDefault();
 
     if (!formData.title.trim() || !formData.content.trim()) {
-      alert(isArabic ? "الرجاء إدخال العنوان والمحتوى" : "Please enter title and content");
+      showToast(isArabic ? "الرجاء إدخال العنوان والمحتوى" : "Please enter title and content", "error");
       return;
     }
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول أولاً" : "Please login first");
+        showToast(isArabic ? "الرجاء تسجيل الدخول أولاً" : "Please login first", "error");
         navigate("/login");
         return;
       }
@@ -41,15 +42,15 @@ const CreateAnnouncement: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم إنشاء الإعلان بنجاح!" : "Announcement created successfully!");
+        showToast(isArabic ? "تم إنشاء الإعلان بنجاح!" : "Announcement created successfully!", "success");
         navigate("/community");
       } else {
         const error = await res.json();
-        alert(error.error || (isArabic ? "فشل في إنشاء الإعلان" : "Failed to create announcement"));
+        showToast(error.error || (isArabic ? "فشل في إنشاء الإعلان" : "Failed to create announcement"), "error");
       }
     } catch (err) {
       console.error("Failed to create announcement", err);
-      alert(isArabic ? "فشل في إنشاء الإعلان" : "Failed to create announcement");
+      showToast(isArabic ? "فشل في إنشاء الإعلان" : "Failed to create announcement", "error");
     }
   };
 

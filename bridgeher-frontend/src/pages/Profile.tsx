@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useUser } from '../hooks/useUser';
 import { useLanguage } from '../hooks/useLanguage';
 import { API_BASE_URL } from '../config/api';
+import { showToast } from '../utils/toast';
 import '../styles/profile.css';
 
 const Profile: React.FC = () => {
@@ -77,15 +78,15 @@ const Profile: React.FC = () => {
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
         setEditing(false);
-        alert(isArabic ? 'تم حفظ التغييرات بنجاح' : 'Profile updated successfully');
+        showToast(isArabic ? 'تم حفظ التغييرات بنجاح' : 'Profile updated successfully', 'success');
       } else {
         const error = await response.json();
         console.error('❌ Update failed:', error);
-        alert(isArabic ? `فشل: ${error.error || 'خطأ'}` : `Failed: ${error.error || 'Error'}`);
+        showToast(isArabic ? `فشل: ${error.error || 'خطأ'}` : `Failed: ${error.error || 'Error'}`, 'error');
       }
     } catch (error) {
       console.error('❌ Error updating profile:', error);
-      alert(isArabic ? 'فشل في حفظ التغييرات' : 'Failed to update profile');
+      showToast(isArabic ? 'فشل في حفظ التغييرات' : 'Failed to update profile', 'error');
     }
   };
 
@@ -100,13 +101,13 @@ const Profile: React.FC = () => {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert(isArabic ? 'يرجى اختيار ملف صورة صالح' : 'Please select a valid image file');
+      showToast(isArabic ? 'يرجى اختيار ملف صورة صالح' : 'Please select a valid image file', 'error');
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert(isArabic ? 'حجم الصورة كبير جداً (الحد الأقصى 5 ميجابايت)' : 'Image size too large (max 5MB)');
+      showToast(isArabic ? 'حجم الصورة كبير جداً (الحد الأقصى 5 ميجابايت)' : 'Image size too large (max 5MB)', 'error');
       return;
     }
 
@@ -137,7 +138,7 @@ const Profile: React.FC = () => {
         const updatedUser = { ...user, profile_pic: result.imageUrl };
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        alert(isArabic ? 'تم تحديث الصورة بنجاح' : 'Profile image updated successfully');
+        showToast(isArabic ? 'تم تحديث الصورة بنجاح' : 'Profile image updated successfully', 'success');
         
         // Trigger navbar refresh
         window.dispatchEvent(new Event('storage'));
@@ -149,12 +150,12 @@ const Profile: React.FC = () => {
         } catch {
           errorMessage = `HTTP ${response.status} - ${response.statusText}`;
         }
-        alert(isArabic ? `فشل في رفع الصورة: ${errorMessage}` : `Failed to upload image: ${errorMessage}`);
+        showToast(isArabic ? `فشل في رفع الصورة: ${errorMessage}` : `Failed to upload image: ${errorMessage}`, 'error');
       }
     } catch (error) {
       console.error('Error uploading image:', error);
       const errorMessage = error instanceof Error ? error.message : 'Network error';
-      alert(isArabic ? `فشل في رفع الصورة: ${errorMessage}` : `Failed to upload image: ${errorMessage}`);
+      showToast(isArabic ? `فشل في رفع الصورة: ${errorMessage}` : `Failed to upload image: ${errorMessage}`, 'error');
     } finally {
       setUploading(false);
     }

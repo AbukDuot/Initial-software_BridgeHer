@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { API_BASE_URL } from '../config/api';
+import { showToast } from '../utils/toast';
 import VideoQualitySelector from './VideoQualitySelector';
 import { cacheVideoForOffline, isVideoCached } from '../utils/videoCache';
 import '../styles/enhancedVideoPlayer.css';
@@ -82,13 +83,13 @@ const EnhancedVideoPlayer: React.FC<EnhancedVideoPlayerProps> = ({
       const success = await cacheVideoForOffline(videoUrl);
       if (success) {
         setIsVideoDownloaded(true);
-        alert(isAr ? '✅ تم تنزيل الفيديو للاستخدام دون اتصال!' : '✅ Video downloaded for offline use!');
+        showToast(isAr ? 'تم تنزيل الفيديو للاستخدام دون اتصال!' : 'Video downloaded for offline use!', 'success');
       } else {
-        alert(isAr ? '❌ فشل تنزيل الفيديو' : '❌ Failed to download video');
+        showToast(isAr ? 'فشل تنزيل الفيديو' : 'Failed to download video', 'error');
       }
     } catch (error) {
       console.error('Download error:', error);
-      alert(isAr ? '❌ حدث خطأ أثناء التنزيل' : '❌ Error during download');
+      showToast(isAr ? 'حدث خطأ أثناء التنزيل' : 'Error during download', 'error');
     } finally {
       setIsVideoDownloading(false);
     }

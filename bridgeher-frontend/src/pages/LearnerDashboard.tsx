@@ -15,6 +15,7 @@ import {
 import { Bar, Doughnut } from "react-chartjs-2";
 import { useLanguage } from "../hooks/useLanguage";
 import { toArabicNumerals } from "../utils/numberUtils";
+import { showToast } from "../utils/toast";
 import { API_BASE_URL } from "../config/api";
 import "../styles/learnerdashboard.css";
 
@@ -227,7 +228,7 @@ const LearnerDashboard: React.FC = () => {
         
         if (data.user && storedUser.email && data.user.email !== storedUser.email) {
           console.error('⚠️ User mismatch! Stored:', storedUser.email, 'API returned:', data.user.email);
-          alert('Session error detected. Please login again.');
+          showToast('Session error detected. Please login again.', 'error');
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           window.location.href = '/login';
@@ -518,7 +519,7 @@ const LearnerDashboard: React.FC = () => {
               onClick={() => {
                 console.log('Notification button clicked');
                 if (!('Notification' in window)) {
-                  alert(isAr ? 'المتصفح لا يدعم التنبيهات' : 'Browser does not support notifications');
+                  showToast(isAr ? 'المتصفح لا يدعم التنبيهات' : 'Browser does not support notifications', 'error');
                   return;
                 }
                 
@@ -533,10 +534,10 @@ const LearnerDashboard: React.FC = () => {
                     playUiSound(sound, 'success');
                   } catch (err) {
                     console.error('Notification error:', err);
-                    alert('Notification failed: ' + (err as Error).message);
+                    showToast('Notification failed: ' + (err as Error).message, 'error');
                   }
                 } else if (Notification.permission === 'denied') {
-                  alert(isAr ? 'التنبيهات محظورة. يرجى تفعيلها من إعدادات المتصفح' : 'Notifications blocked. Please enable in browser settings');
+                  showToast(isAr ? 'التنبيهات محظورة. يرجى تفعيلها من إعدادات المتصفح' : 'Notifications blocked. Please enable in browser settings', 'error');
                 } else {
                   Notification.requestPermission().then(permission => {
                     console.log('Permission result:', permission);
@@ -549,14 +550,14 @@ const LearnerDashboard: React.FC = () => {
                         playUiSound(sound, 'success');
                       } catch (err) {
                         console.error('Notification error:', err);
-                        alert('Notification failed: ' + (err as Error).message);
+                        showToast('Notification failed: ' + (err as Error).message, 'error');
                       }
                     } else {
-                      alert(isAr ? 'تم رفض التنبيهات' : 'Notification permission denied');
+                      showToast(isAr ? 'تم رفض التنبيهات' : 'Notification permission denied', 'error');
                     }
                   }).catch(err => {
                     console.error('Permission error:', err);
-                    alert('Error: ' + (err as Error).message);
+                    showToast('Error: ' + (err as Error).message, 'error');
                   });
                 }
               }}

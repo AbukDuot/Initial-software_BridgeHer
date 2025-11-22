@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
 import { timeAgo } from "../utils/timeAgo";
+import { showToast } from "../utils/toast";
 import "../styles/community.css";
 import "../styles/modal.css";
 
@@ -17,6 +18,8 @@ interface Topic {
   likes: number;
   created_at: string;
   tags?: string[];
+  image_url?: string;
+  video_url?: string;
 }
 
 interface Activity {
@@ -79,6 +82,7 @@ const Community: React.FC = () => {
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [editingAnnouncement, setEditingAnnouncement] = useState<number | null>(null);
   const [editAnnouncementData, setEditAnnouncementData] = useState({ title: "", content: "", pinned: false });
+  const [deletingAnnouncement, setDeletingAnnouncement] = useState<number | null>(null);
 
   useEffect(() => {
     fetchTopics();
@@ -210,7 +214,7 @@ const Community: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -227,7 +231,7 @@ const Community: React.FC = () => {
         fetchTopics(); // Refresh topics to show updated vote counts
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to vote", err);
@@ -261,11 +265,16 @@ const Community: React.FC = () => {
   const uploadTopicMedia = async (topicId: number, file: File) => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
 
       const formData = new FormData();
       formData.append('media', file);
       formData.append('topicId', topicId.toString());
+
+      console.log('Uploading file:', file.name, 'Type:', file.type, 'Size:', file.size);
 
       const res = await fetch(`${API_BASE_URL}/api/community/topics/${topicId}/media`, {
         method: "POST",
@@ -275,11 +284,17 @@ const Community: React.FC = () => {
         body: formData
       });
 
-      if (!res.ok) {
-        console.error('Failed to upload media');
+      if (res.ok) {
+        const result = await res.json();
+        console.log('Media upload successful:', result);
+      } else {
+        const error = await res.json();
+        console.error('Failed to upload media:', error);
+        showToast(isArabic ? "فشل رفع الملف" : "Failed to upload file", "error");
       }
     } catch (err) {
       console.error('Error uploading media:', err);
+      showToast(isArabic ? "خطأ في رفع الملف" : "Error uploading file", "error");
     }
   };
 
@@ -287,7 +302,7 @@ const Community: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -308,27 +323,23 @@ const Community: React.FC = () => {
       if (res.ok) {
         setEditingAnnouncement(null);
         fetchAnnouncements();
-        alert(isArabic ? "تم التحديث بنجاح!" : "Updated successfully!");
+        showToast(isArabic ? "تم التحديث بنجاح!" : "Updated successfully!", "success");
       } else {
         const error = await res.json();
         console.error('Update error:', error);
-        alert(error.error || (isArabic ? "فشل التحديث" : "Update failed"));
+        showToast(error.error || (isArabic ? "فشل التحديث" : "Update failed"), "error");
       }
     } catch (err) {
       console.error("Failed to update announcement", err);
-      alert(isArabic ? "خطأ في الاتصال" : "Connection error");
+      showToast(isArabic ? "خطأ في الاتصال" : "Connection error", "error");
     }
   };
 
   const handleDeleteAnnouncement = async (id: number) => {
-    if (!confirm(isArabic ? "هل أنت متأكد من حذف هذا الإعلان؟" : "Are you sure you want to delete this announcement?")) {
-      return;
-    }
-
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -345,30 +356,31 @@ const Community: React.FC = () => {
 
       console.log('Response status:', res.status);
       if (res.ok) {
+        setDeletingAnnouncement(null);
         fetchAnnouncements();
-        alert(isArabic ? "تم الحذف بنجاح!" : "Deleted successfully!");
+        showToast(isArabic ? "تم الحذف بنجاح!" : "Deleted successfully!", "success");
       } else {
         const error = await res.json();
         console.error('Delete error:', error);
-        alert(error.error || (isArabic ? "فشل الحذف" : "Delete failed"));
+        showToast(error.error || (isArabic ? "فشل الحذف" : "Delete failed"), "error");
       }
     } catch (err) {
       console.error("Failed to delete announcement", err);
-      alert(isArabic ? "خطأ في الاتصال" : "Connection error");
+      showToast(isArabic ? "خطأ في الاتصال" : "Connection error", "error");
     }
   };
 
   const handleCreateTopic = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTopic.title.trim() || !newTopic.category || !newTopic.description.trim()) {
-      alert(isArabic ? "الرجاء ملء جميع الحقول المطلوبة" : "Please fill all required fields");
+      showToast(isArabic ? "الرجاء ملء جميع الحقول المطلوبة" : "Please fill all required fields", "error");
       return;
     }
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -391,22 +403,26 @@ const Community: React.FC = () => {
         
         // Upload media if selected
         if (selectedFile && data.topicId) {
+          console.log('Uploading media for topic:', data.topicId);
           await uploadTopicMedia(data.topicId, selectedFile);
+          console.log('Media upload completed');
+          // Wait a bit for the upload to be processed
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
         
         setShowCreateModal(false);
         setNewTopic({ title: "", category: "", description: "", tags: "" });
         setSelectedFile(null);
         setFilePreview(null);
-        fetchTopics(); // Refresh topics list
-        alert(isArabic ? "تم إنشاء الموضوع بنجاح!" : "Topic created successfully!");
+        await fetchTopics(); // Refresh topics list
+        showToast(isArabic ? "تم إنشاء الموضوع بنجاح!" : "Topic created successfully!", "success");
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to create topic", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
@@ -458,7 +474,7 @@ const Community: React.FC = () => {
                             }} style={{fontSize: '11px', padding: '2px 6px'}}>
                               {isArabic ? "تعديل" : "Edit"}
                             </button>
-                            <button onClick={() => handleDeleteAnnouncement(ann.id)} style={{fontSize: '11px', padding: '2px 6px', background: '#E53935'}}>
+                            <button onClick={() => setDeletingAnnouncement(ann.id)} style={{fontSize: '11px', padding: '2px 6px', background: '#E53935'}}>
                               {isArabic ? "حذف" : "Delete"}
                             </button>
                           </div>
@@ -810,6 +826,33 @@ const Community: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingAnnouncement && (
+        <div className="modal-overlay" onClick={() => setDeletingAnnouncement(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px', textAlign: 'center'}}>
+            <div className="modal-header">
+              <h2>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h2>
+              <button className="close-btn" onClick={() => setDeletingAnnouncement(null)}>×</button>
+            </div>
+            <p style={{margin: '20px 0', fontSize: '16px'}}>
+              {isArabic ? "هل أنت متأكد من حذف هذا الإعلان؟" : "Are you sure you want to delete this announcement?"}
+            </p>
+            <div className="modal-actions" style={{justifyContent: 'center', gap: '10px'}}>
+              <button 
+                onClick={() => handleDeleteAnnouncement(deletingAnnouncement)} 
+                className="btn-primary" 
+                style={{background: '#E53935'}}
+              >
+                {isArabic ? "حذف" : "Delete"}
+              </button>
+              <button onClick={() => setDeletingAnnouncement(null)} className="btn-cancel">
+                {isArabic ? "إلغاء" : "Cancel"}
+              </button>
+            </div>
           </div>
         </div>
       )}

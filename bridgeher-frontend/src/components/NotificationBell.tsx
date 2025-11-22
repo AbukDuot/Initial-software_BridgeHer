@@ -44,7 +44,7 @@ const NotificationBell: React.FC = () => {
         setUnreadCount(data.count);
       }
     } catch (err) {
-      console.error("Failed to fetch unread count", err);
+      // Silently fail - backend may be sleeping on free tier
     }
   };
 
@@ -62,7 +62,7 @@ const NotificationBell: React.FC = () => {
         setNotifications(data);
       }
     } catch (err) {
-      console.error("Failed to fetch notifications", err);
+      // Silently fail
     }
   };
 

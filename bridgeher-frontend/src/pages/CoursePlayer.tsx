@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { getOfflineCourse, isCourseOffline } from "../utils/offline";
 import { API_BASE_URL } from "../config/api";
+import { showToast } from "../utils/toast";
 
 import DatabaseQuiz from "../components/DatabaseQuiz";
 import "../styles/courseplayer.css";
@@ -154,7 +155,7 @@ const CoursePlayer: React.FC = () => {
         const { saveProgress } = await import("../utils/offline");
         saveProgress(Number(courseId), progressPercent, completedCount);
         
-        alert("Module completed successfully!");
+        showToast("Module completed successfully!", "success");
         setShowQuiz(false);
         
         const nextModule = modules.find(m => m.order_index === currentModule.order_index + 1);
@@ -163,7 +164,7 @@ const CoursePlayer: React.FC = () => {
         console.error("Failed to mark complete", err);
       }
     } else {
-      alert("You must pass the quiz to complete this module. Try again!");
+      showToast("You must pass the quiz to complete this module. Try again!", "error");
     }
   };
 
@@ -206,11 +207,11 @@ const CoursePlayer: React.FC = () => {
         console.log('Backend tracking failed, but offline save succeeded');
       }
       
-      alert("Course downloaded successfully!\n\n  To test offline mode:\n1. Open DevTools (F12)\n2. Go to Network tab\n3. Check 'Offline' checkbox\n4. Refresh this page\n\nThe course will load from cache!");
+      showToast("Course downloaded successfully for offline use!", "success");
       setOfflineMode(true);
     } catch (err) {
       console.error("Failed to download", err);
-      alert(" Download failed: " + (err as Error).message);
+      showToast("Download failed: " + (err as Error).message, "error");
     }
   };
 
@@ -228,7 +229,7 @@ const CoursePlayer: React.FC = () => {
       });
       
       if (res.ok) {
-        alert("Assignment submitted successfully!");
+        showToast("Assignment submitted successfully!", "success");
         setSubmissionText("");
         setSubmissionFile(null);
       }
@@ -409,7 +410,7 @@ const CoursePlayer: React.FC = () => {
                           }
                         }
                       } catch {
-                        alert('Failed to download PDF');
+                        showToast('Failed to download PDF', 'error');
                       }
                     }}
                     className="pdf-download-btn"

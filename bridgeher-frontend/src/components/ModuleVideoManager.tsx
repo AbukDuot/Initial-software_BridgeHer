@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
 import { API_BASE_URL } from '../config/api';
+import { showToast } from '../utils/toast';
 import '../styles/moduleVideoManager.css';
 
 interface ModuleWithoutVideo {
@@ -53,15 +54,15 @@ const ModuleVideoManager: React.FC = () => {
       
       if (res.ok) {
         const result = await res.json();
-        alert(`✅ ${result.message}`);
+        showToast(result.message, 'success');
         loadModulesWithoutVideos(); 
       } else {
         const error = await res.json();
-        alert(`❌ Error: ${error.error || 'Failed to auto-assign videos'}`);
+        showToast(`Error: ${error.error || 'Failed to auto-assign videos'}`, 'error');
       }
     } catch (err) {
       console.error('Auto-assign error:', err);
-      alert('❌ Failed to auto-assign videos');
+      showToast('Failed to auto-assign videos', 'error');
     } finally {
       setUpdating(false);
     }
@@ -82,11 +83,11 @@ const ModuleVideoManager: React.FC = () => {
       if (res.ok) {
         const result = await res.json();
         const totalModules = result.courses.reduce((sum: number, course: { modulesAdded: number }) => sum + course.modulesAdded, 0);
-        alert(` Computer courses setup complete! Added ${totalModules} modules to ${result.courses.length} courses.`);
+        showToast(`Computer courses setup complete! Added ${totalModules} modules to ${result.courses.length} courses.`, 'success');
         loadModulesWithoutVideos(); 
       }
     } catch {
-      alert(' Failed to setup Computer courses');
+      showToast('Failed to setup Computer courses', 'error');
     } finally {
       setUpdating(false);
     }
@@ -108,11 +109,11 @@ const ModuleVideoManager: React.FC = () => {
       });
       
       if (res.ok) {
-        alert(' Video added successfully!');
+        showToast('Video added successfully!', 'success');
         loadModulesWithoutVideos(); 
       }
     } catch {
-      alert(' Failed to add video');
+      showToast('Failed to add video', 'error');
     }
   };
 

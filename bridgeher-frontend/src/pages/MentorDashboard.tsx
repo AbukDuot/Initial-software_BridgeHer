@@ -14,6 +14,7 @@ import {
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Bar, Pie } from "react-chartjs-2";
 import { toArabicNumerals } from "../utils/numberUtils";
+import { showToast } from "../utils/toast";
 import "../styles/mentorDashboard.css";
 
 ChartJS.register(
@@ -421,11 +422,11 @@ const MentorDashboard: React.FC = () => {
         playToastSound(theme, "reschedule", soundEnabled);
         setShowModal(false);
       } else {
-        alert("Failed to reschedule");
+        showToast("Failed to reschedule", "error");
       }
     } catch (err) {
       console.error("Failed to reschedule", err);
-      alert("Connection error");
+      showToast("Connection error", "error");
     }
   };
 

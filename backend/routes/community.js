@@ -1463,6 +1463,22 @@ router.get("/reputation/:userId/history", async (req, res) => {
 });
 
 // ========== ADVANCED FEATURE 8: TOPIC SUBSCRIPTIONS ==========
+router.get("/topics/:id/subscription", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    const { rows } = await pool.query(
+      `SELECT * FROM topic_subscriptions WHERE topic_id = $1 AND user_id = $2`,
+      [id, userId]
+    );
+    
+    res.json({ subscribed: rows.length > 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post("/topics/:id/subscribe", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -1592,3 +1608,77 @@ router.post("/topics/from-template", requireAuth, async (req, res) => {
 });
 
 export default router;
+
+
+// ========== MEDIA UPLOAD FOR TOPICS ==========
+import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
+
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+});
+
+router.post("/topics/:id/media", requireAuth, upload.single('media'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+    
+    // Check if user owns the topic
+    const { rows: topicCheck } = await pool.query(
+      `SELECT user_id FROM community_topics WHERE id = $1`,
+      [id]
+    );
+    
+    if (!topicCheck[0]) {
+      return res.status(404).json({ error: "Topic not found" });
+    }
+    
+    if (topicCheck[0].user_id !== userId && req.user.role !== 'Admin') {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+    
+    // Upload to Cloudinary
+    const uploadPromise = new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: req.file.mimetype.startsWith('video/') ? 'video' : 'image',
+          folder: 'community_media'
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(req.file.buffer);
+    });
+    
+    const result = await uploadPromise;
+    
+    // Update topic with media URL
+    const mediaType = req.file.mimetype.startsWith('video/') ? 'video' : 'image';
+    const mediaField = mediaType === 'video' ? 'video_url' : 'image_url';
+    
+    const { rows } = await pool.query(
+      `UPDATE community_topics 
+       SET ${mediaField} = $1, media_type = $2 
+       WHERE id = $3 RETURNING *`,
+      [result.secure_url, mediaType, id]
+    );
+    
+    res.json({ 
+      success: true, 
+      mediaUrl: result.secure_url,
+      mediaType,
+      topic: rows[0]
+    });
+  } catch (err) {
+    console.error('Media upload error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});

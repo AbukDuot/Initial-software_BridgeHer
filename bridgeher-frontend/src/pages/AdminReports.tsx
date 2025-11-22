@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import { showToast } from "../utils/toast";
 import "../styles/adminReports.css";
 
 interface Report {
@@ -22,6 +23,7 @@ const AdminReports: React.FC = () => {
 
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingReportId, setDeletingReportId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchReports();
@@ -61,7 +63,7 @@ const AdminReports: React.FC = () => {
 
       if (res.ok) {
         setReports(reports.filter(r => r.id !== reportId));
-        alert(isArabic ? "تم حل البلاغ" : "Report resolved");
+        showToast(isArabic ? "تم حل البلاغ" : "Report resolved", "success");
       }
     } catch (err) {
       console.error("Failed to resolve report", err);
@@ -69,8 +71,6 @@ const AdminReports: React.FC = () => {
   };
 
   const handleDelete = async (reportId: number) => {
-    if (!confirm(isArabic ? "هل تريد حذف هذا البلاغ؟" : "Delete this report?")) return;
-    
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE_URL}/api/community/reports/${reportId}`, {
@@ -79,8 +79,9 @@ const AdminReports: React.FC = () => {
       });
 
       if (res.ok) {
+        setDeletingReportId(null);
         setReports(reports.filter(r => r.id !== reportId));
-        alert(isArabic ? "تم حذف البلاغ" : "Report deleted");
+        showToast(isArabic ? "تم حذف البلاغ" : "Report deleted", "success");
       }
     } catch (err) {
       console.error("Failed to delete report", err);
@@ -127,7 +128,7 @@ const AdminReports: React.FC = () => {
                   <button onClick={() => handleResolve(report.id)} className="btn-resolve">
                     {isArabic ? "حل" : "Resolve"}
                   </button>
-                  <button onClick={() => handleDelete(report.id)} className="btn-delete">
+                  <button onClick={() => setDeletingReportId(report.id)} className="btn-delete">
                     {isArabic ? "حذف" : "Delete"}
                   </button>
                 </div>
@@ -136,6 +137,23 @@ const AdminReports: React.FC = () => {
           </div>
         )}
       </div>
+
+      {deletingReportId && (
+        <div className="modal-overlay" onClick={() => setDeletingReportId(null)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}}>
+          <div style={{background: 'white', padding: '30px', borderRadius: '8px', maxWidth: '400px', textAlign: 'center'}}>
+            <h3 style={{marginBottom: '15px', color: '#4A148C'}}>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h3>
+            <p style={{marginBottom: '20px', color: '#666'}}>{isArabic ? "هل تريد حذف هذا البلاغ؟" : "Delete this report?"}</p>
+            <div style={{display: 'flex', gap: '10px', justifyContent: 'center'}}>
+              <button onClick={() => handleDelete(deletingReportId)} style={{background: '#E53935', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'}}>
+                {isArabic ? "حذف" : "Delete"}
+              </button>
+              <button onClick={() => setDeletingReportId(null)} style={{background: '#ccc', color: '#333', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer'}}>
+                {isArabic ? "إلغاء" : "Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

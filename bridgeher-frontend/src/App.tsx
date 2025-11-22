@@ -40,6 +40,8 @@ import Footer from "./components/Footer";
 import CookieBanner from "./components/CookieBanner";
 import ErrorBoundary from "./components/ErrorBoundary";
 import OfflineIndicator from "./components/OfflineIndicator";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -161,6 +163,7 @@ function App() {
             </main>
 
             <Footer />
+            <ToastContainer />
             </Router>
           </UserProvider>
         </LanguageProvider>

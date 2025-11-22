@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { useToast } from "../hooks/useToast";
+import { showToast } from "../utils/toast";
 import Toast from "../components/Toast";
 import LoadingSpinner from "../components/LoadingSpinner";
 import adminDashboardTranslations from "../i18n/adminDashboardTranslations";
@@ -80,6 +81,8 @@ const AdminDashboard: React.FC = () => {
   const [courseForm, setCourseForm] = useState({ title: "", enrollments: 0, status: "Active" });
   const [showVideoManager, setShowVideoManager] = useState(false);
   const [adminUser, setAdminUser] = useState<{id: number; name: string; email: string; role: string; profile_pic?: string} | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
+  const [deletingCourseId, setDeletingCourseId] = useState<number | null>(null);
   
   interface SupportMessage {
     id: number;
@@ -224,20 +227,19 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteUser = async (id: number) => {
     playUiSound(sound);
-    if (confirm(isArabic ? "هل أنت متأكد من حذف هذا المستخدم؟" : "Are you sure you want to delete this user?")) {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/api/admin/users/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          await fetchData();
-          addToast(isArabic ? "تم حذف المستخدم بنجاح" : "User deleted successfully", "success");
-        }
-      } catch {
-        addToast(isArabic ? "فشل في حذف المستخدم" : "Failed to delete user", "error");
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/admin/users/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setDeletingUserId(null);
+        await fetchData();
+        addToast(isArabic ? "تم حذف المستخدم بنجاح" : "User deleted successfully", "success");
       }
+    } catch {
+      addToast(isArabic ? "فشل في حذف المستخدم" : "Failed to delete user", "error");
     }
   };
 
@@ -296,20 +298,19 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteCourse = async (id: number) => {
     playUiSound(sound);
-    if (confirm(isArabic ? "هل أنت متأكد من حذف هذه الدورة؟" : "Are you sure you want to delete this course?")) {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/api/courses/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          await fetchData();
-          addToast(isArabic ? "تم حذف الدورة بنجاح" : "Course deleted successfully", "success");
-        }
-      } catch {
-        addToast(isArabic ? "فشل في حذف الدورة" : "Failed to delete course", "error");
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/courses/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setDeletingCourseId(null);
+        await fetchData();
+        addToast(isArabic ? "تم حذف الدورة بنجاح" : "Course deleted successfully", "success");
       }
+    } catch {
+      addToast(isArabic ? "فشل في حذف الدورة" : "Failed to delete course", "error");
     }
   };
 
@@ -348,9 +349,9 @@ const AdminDashboard: React.FC = () => {
   const handleReplyEmail = (email: string) => {
     playUiSound(sound);
     const message = isArabic 
-      ? `البريد الإلكتروني للمتعلم:\n\n${email}\n\nانسخ هذا البريد وارسل ردك عبر Gmail أو Outlook`
-      : `Learner's Email:\n\n${email}\n\nCopy this email and send your reply via Gmail or Outlook`;
-    alert(message);
+      ? `البريد الإلكتروني للمتعلم: ${email}`
+      : `Learner's Email: ${email}`;
+    showToast(message, "info");
   };
 
   if (loading) {
@@ -461,7 +462,7 @@ const AdminDashboard: React.FC = () => {
                 <td>{user.status || "Active"}</td>
                 <td>
                   <button className="btn-small" onClick={() => handleEditUser(user)}>{t.edit}</button>
-                  <button className="btn-small danger" onClick={() => handleDeleteUser(user.id)}>{t.delete}</button>
+                  <button className="btn-small danger" onClick={() => setDeletingUserId(user.id)}>{t.delete}</button>
                 </td>
               </tr>
             ))}
@@ -507,7 +508,7 @@ const AdminDashboard: React.FC = () => {
                 <td>{course.status}</td>
                 <td>
                   <button className="btn-small" onClick={() => handleEditCourse(course)}>{t.edit}</button>
-                  <button className="btn-small danger" onClick={() => handleDeleteCourse(course.id)}>{t.delete}</button>
+                  <button className="btn-small danger" onClick={() => setDeletingCourseId(course.id)}>{t.delete}</button>
                 </td>
               </tr>
             ))}
@@ -660,6 +661,32 @@ const AdminDashboard: React.FC = () => {
             <button onClick={() => setShowVideoManager(false)} style={{background: 'none', border: 'none', fontSize: '32px', cursor: 'pointer', color: '#333'}}>×</button>
           </div>
           <ModuleVideoManager />
+        </div>
+      </div>
+    )}
+
+    {deletingUserId && (
+      <div className="modal-overlay" onClick={() => setDeletingUserId(null)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
+        <div className="modal" onClick={(e) => e.stopPropagation()} style={{textAlign: 'center'}}>
+          <h3>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h3>
+          <p style={{margin: '20px 0'}}>{isArabic ? "هل أنت متأكد من حذف هذا المستخدم؟" : "Are you sure you want to delete this user?"}</p>
+          <div className="modal-actions">
+            <button className="btn danger" onClick={() => handleDeleteUser(deletingUserId)}>{isArabic ? "حذف" : "Delete"}</button>
+            <button className="btn" onClick={() => setDeletingUserId(null)}>{isArabic ? "إلغاء" : "Cancel"}</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {deletingCourseId && (
+      <div className="modal-overlay" onClick={() => setDeletingCourseId(null)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
+        <div className="modal" onClick={(e) => e.stopPropagation()} style={{textAlign: 'center'}}>
+          <h3>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h3>
+          <p style={{margin: '20px 0'}}>{isArabic ? "هل أنت متأكد من حذف هذه الدورة؟" : "Are you sure you want to delete this course?"}</p>
+          <div className="modal-actions">
+            <button className="btn danger" onClick={() => handleDeleteCourse(deletingCourseId)}>{isArabic ? "حذف" : "Delete"}</button>
+            <button className="btn" onClick={() => setDeletingCourseId(null)}>{isArabic ? "إلغاء" : "Cancel"}</button>
+          </div>
         </div>
       </div>
     )}

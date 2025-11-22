@@ -56,3 +56,20 @@ api-test.http
 # Scripts
 *.bat
 run-*.bat
+
+# Test files
+backend/test-*.js
+backend/tests/
+bridgeher-frontend/test/
+*.test.js
+*.test.ts
+*.test.tsx
+jest.config.js
+vitest.config.ts
+setupTests.ts
+
+# PowerShell scripts
+*.ps1
+
+# Test results
+test-results.txt

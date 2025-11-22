@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { API_BASE_URL } from "../config/api";
+import { showToast } from "../utils/toast";
 import "../styles/admincourse.css";
 
 interface Assignment {
@@ -81,7 +82,7 @@ const AdminCourseUpload: React.FC = () => {
 
   const addModule = () => {
     if (!currentModule.title || !currentModule.video) {
-      alert("Module title and video are required");
+      showToast("Module title and video are required", "error");
       return;
     }
     const moduleToAdd = { 
@@ -101,12 +102,12 @@ const AdminCourseUpload: React.FC = () => {
 
   const uploadCourse = async () => {
     if (!courseData.title) {
-      alert("Please enter a course title");
+      showToast("Please enter a course title", "error");
       return;
     }
     
     if (modules.length === 0) {
-      alert("Please add at least one module by clicking 'Add Module' button");
+      showToast("Please add at least one module by clicking 'Add Module' button", "error");
       return;
     }
 
@@ -189,13 +190,13 @@ const AdminCourseUpload: React.FC = () => {
       }
 
       setUploadProgress("Upload complete!");
-      alert("Course uploaded successfully!");
+      showToast("Course uploaded successfully!", "success");
       setCourseData({ title: "", description: "", category: "Technology", level: "Beginner", duration: "" });
       setCourseImage(null);
       setModules([]);
       setUploadProgress("");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Upload failed");
+      showToast(err instanceof Error ? err.message : "Upload failed", "error");
       setUploadProgress("");
     } finally {
       setUploading(false);

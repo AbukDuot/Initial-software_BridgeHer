@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../hooks/useLanguage';
+import { showToast } from '../utils/toast';
 import '../styles/helpFAQ.css';
 
 const HelpFAQ: React.FC = () => {
@@ -75,15 +76,15 @@ const HelpFAQ: React.FC = () => {
       });
       
       if (res.ok) {
-        alert(language === 'Arabic' 
+        showToast(language === 'Arabic' 
           ? 'شكراً لك! سنتواصل معك قريباً.'
-          : 'Thank you! We\'ll get back to you soon.');
+          : 'Thank you! We\'ll get back to you soon.', 'success');
         setContactForm({ name: '', email: '', message: '' });
       } else {
-        alert(language === 'Arabic' ? 'فشل الإرسال' : 'Failed to send');
+        showToast(language === 'Arabic' ? 'فشل الإرسال' : 'Failed to send', 'error');
       }
     } catch (err) {
-      alert(language === 'Arabic' ? 'خطأ في الاتصال' : 'Connection error');
+      showToast(language === 'Arabic' ? 'خطأ في الاتصال' : 'Connection error', 'error');
     }
   };
 

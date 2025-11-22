@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { showToast } from '../utils/toast';
 import { downloadCourseForOffline } from '../serviceWorker';
 
 interface OfflineDownloadButtonProps {
@@ -25,9 +26,9 @@ const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({ courseId,
         setDownloading(false);
         if (data.success) {
           setDownloaded(true);
-          alert(` ${courseName} is now available offline!\n\n📱 You can now:\n• Turn off your internet\n• Access this course anytime\n• Watch videos offline\n\nJust visit this course page when offline!`);
+          showToast(`${courseName} is now available offline! You can now access this course anytime, even without internet.`, 'success');
         } else {
-          alert(` Download failed: ${data.message}`);
+          showToast(`Download failed: ${data.message}`, 'error');
         }
         navigator.serviceWorker.removeEventListener('message', handleMessage);
       }
@@ -44,7 +45,7 @@ const OfflineDownloadButton: React.FC<OfflineDownloadButtonProps> = ({ courseId,
     } catch (error) {
       console.error('Download error:', error);
       setDownloading(false);
-      alert(' Download failed. Please try again.');
+      showToast('Download failed. Please try again.', 'error');
       navigator.serviceWorker.removeEventListener('message', handleMessage);
     }
   };

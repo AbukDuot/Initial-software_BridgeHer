@@ -4,6 +4,7 @@ import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
 import { timeAgo } from "../utils/timeAgo";
 import RichTextEditor from "../components/RichTextEditor";
+import { showToast } from "../utils/toast";
 import "../styles/topicDetail.css";
 import "../styles/toggleComments.css";
 
@@ -74,15 +75,23 @@ const TopicDetail: React.FC = () => {
   const [editingAnswer, setEditingAnswer] = useState<number | null>(null);
   const [editQuestionText, setEditQuestionText] = useState("");
   const [editAnswerText, setEditAnswerText] = useState("");
+  const [deletingTopic, setDeletingTopic] = useState(false);
+  const [deletingReply, setDeletingReply] = useState<number | null>(null);
+  const [deletingQuestion, setDeletingQuestion] = useState<number | null>(null);
+  const [deletingAnswer, setDeletingAnswer] = useState<number | null>(null);
 
   useEffect(() => {
     fetchTopic();
     fetchCurrentUser();
     fetchReactions();
     fetchAttachments();
-    checkBookmark();
     fetchQuestions();
-    checkSubscription();
+    
+    const token = localStorage.getItem("token");
+    if (token) {
+      checkBookmark();
+      checkSubscription();
+    }
   }, [id]);
   
   const checkBookmark = async () => {
@@ -99,15 +108,15 @@ const TopicDetail: React.FC = () => {
         setIsBookmarked(data.bookmarked);
       }
     } catch (err) {
-      console.error("Failed to check bookmark", err);
+      // Silently fail
     }
   };
   
   const checkSubscription = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      
       const res = await fetch(`${API_BASE_URL}/api/community/topics/${id}/subscription`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -117,7 +126,7 @@ const TopicDetail: React.FC = () => {
         setIsSubscribed(data.subscribed);
       }
     } catch (err) {
-      console.error("Failed to check subscription", err);
+      // Silently fail
     }
   };
 
@@ -125,7 +134,7 @@ const TopicDetail: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
       
@@ -137,17 +146,17 @@ const TopicDetail: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         setIsSubscribed(data.subscribed);
-        alert(data.subscribed 
+        showToast(data.subscribed 
           ? (isArabic ? "تم الاشتراك في الموضوع" : "Subscribed to topic")
-          : (isArabic ? "تم إلغاء الاشتراك" : "Unsubscribed from topic")
+          : (isArabic ? "تم إلغاء الاشتراك" : "Unsubscribed from topic"), "success"
         );
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to subscribe", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
@@ -155,7 +164,7 @@ const TopicDetail: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
       
@@ -167,17 +176,17 @@ const TopicDetail: React.FC = () => {
       if (res.ok) {
         const data = await res.json();
         setIsBookmarked(data.bookmarked);
-        alert(data.bookmarked 
+        showToast(data.bookmarked 
           ? (isArabic ? "تمت إضافة الإشارة المرجعية" : "Bookmark added")
-          : (isArabic ? "تمت إزالة الإشارة المرجعية" : "Bookmark removed")
+          : (isArabic ? "تمت إزالة الإشارة المرجعية" : "Bookmark removed"), "success"
         );
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to bookmark", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
@@ -210,10 +219,6 @@ const TopicDetail: React.FC = () => {
     if (user) {
       const parsedUser = JSON.parse(user);
       setCurrentUser(parsedUser);
-      console.log('Current user:', parsedUser);
-      console.log('Topic user_id:', topic?.user_id);
-    } else {
-      console.log('No user found in localStorage');
     }
   };
 
@@ -297,14 +302,14 @@ const TopicDetail: React.FC = () => {
     e.preventDefault();
 
     if (!replyText.trim()) {
-      alert(isArabic ? "الرجاء كتابة رد" : "Please write a reply");
+      showToast(isArabic ? "الرجاء كتابة رد" : "Please write a reply", "error");
       return;
     }
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         navigate("/login");
         return;
       }
@@ -321,21 +326,19 @@ const TopicDetail: React.FC = () => {
       if (res.ok) {
         setReplyText("");
         await fetchTopic();
-        alert(isArabic ? "تم إضافة الرد بنجاح!" : "Reply added successfully!");
+        showToast(isArabic ? "تم إضافة الرد بنجاح!" : "Reply added successfully!", "success");
       }
     } catch (err) {
       console.error("Failed to submit reply", err);
-      alert(isArabic ? "فشل في إضافة الرد" : "Failed to add reply");
+      showToast(isArabic ? "فشل في إضافة الرد" : "Failed to add reply", "error");
     }
   };
 
   const handleDeleteTopic = async () => {
-    if (!confirm(isArabic ? "هل تريد حذف هذا الموضوع؟" : "Delete this topic?")) return;
-
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
       
@@ -345,21 +348,20 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم حذف الموضوع" : "Topic deleted");
+        setDeletingTopic(false);
+        showToast(isArabic ? "تم حذف الموضوع" : "Topic deleted", "success");
         navigate("/community");
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to delete topic", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
   const handleDeleteReply = async (replyId: number) => {
-    if (!confirm(isArabic ? "هل تريد حذف هذا الرد؟" : "Delete this reply?")) return;
-
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE_URL}/api/community/replies/${replyId}`, {
@@ -368,7 +370,8 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم حذف الرد" : "Reply deleted");
+        setDeletingReply(null);
+        showToast(isArabic ? "تم حذف الرد" : "Reply deleted", "success");
         await fetchTopic();
       }
     } catch (err) {
@@ -380,7 +383,7 @@ const TopicDetail: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
       
@@ -398,16 +401,16 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم تحديث الموضوع" : "Topic updated");
+        showToast(isArabic ? "تم تحديث الموضوع" : "Topic updated", "success");
         setEditingTopic(false);
         await fetchTopic();
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to edit topic", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
@@ -424,7 +427,7 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم تحديث الرد" : "Reply updated");
+        showToast(isArabic ? "تم تحديث الرد" : "Reply updated", "success");
         setEditingReply(null);
         await fetchTopic();
       }
@@ -442,7 +445,7 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم تحديث التثبيت" : "Pin status updated");
+        showToast(isArabic ? "تم تحديث التثبيت" : "Pin status updated", "success");
         await fetchTopic();
       }
     } catch (err) {
@@ -456,7 +459,7 @@ const TopicDetail: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -474,7 +477,7 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم إرسال البلاغ" : "Report submitted");
+        showToast(isArabic ? "تم إرسال البلاغ" : "Report submitted", "success");
         setShowReportModal(false);
         setReportData({ type: "", id: 0, reason: "" });
       }
@@ -496,7 +499,7 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم تحديث الحالة" : "Status updated");
+        showToast(isArabic ? "تم تحديث الحالة" : "Status updated", "success");
         await fetchTopic();
       }
     } catch (err) {
@@ -513,7 +516,7 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم تحديث القفل" : "Lock status updated");
+        showToast(isArabic ? "تم تحديث القفل" : "Lock status updated", "success");
         await fetchTopic();
       }
     } catch (err) {
@@ -527,7 +530,7 @@ const TopicDetail: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -545,11 +548,11 @@ const TopicDetail: React.FC = () => {
         setShowEmojiPicker(null);
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to react", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
@@ -557,7 +560,7 @@ const TopicDetail: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -592,7 +595,7 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم تحديد أفضل إجابة" : "Best answer marked");
+        showToast(isArabic ? "تم تحديد أفضل إجابة" : "Best answer marked", "success");
         await fetchTopic();
       }
     } catch (err) {
@@ -604,7 +607,7 @@ const TopicDetail: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -621,11 +624,11 @@ const TopicDetail: React.FC = () => {
         await fetchTopic(); 
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to vote", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
@@ -645,14 +648,14 @@ const TopicDetail: React.FC = () => {
   const handleSubmitQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!questionText.trim()) {
-      alert(isArabic ? "الرجاء كتابة سؤال" : "Please write a question");
+      showToast(isArabic ? "الرجاء كتابة سؤال" : "Please write a question", "error");
       return;
     }
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -668,27 +671,27 @@ const TopicDetail: React.FC = () => {
       if (res.ok) {
         setQuestionText("");
         await fetchQuestions();
-        alert(isArabic ? "تم إضافة السؤال بنجاح!" : "Question added successfully!");
+        showToast(isArabic ? "تم إضافة السؤال بنجاح!" : "Question added successfully!", "success");
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to submit question", err);
-      alert(isArabic ? "فشل في إضافة السؤال" : "Failed to add question");
+      showToast(isArabic ? "فشل في إضافة السؤال" : "Failed to add question", "error");
     }
   };
 
   const handleAnswerQuestion = async (questionId: number, answerText: string) => {
     if (!answerText.trim()) {
-      alert(isArabic ? "الرجاء كتابة إجابة" : "Please write an answer");
+      showToast(isArabic ? "الرجاء كتابة إجابة" : "Please write an answer", "error");
       return;
     }
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -703,27 +706,27 @@ const TopicDetail: React.FC = () => {
 
       if (res.ok) {
         await fetchQuestions();
-        alert(isArabic ? "تم إضافة الإجابة بنجاح!" : "Answer added successfully!");
+        showToast(isArabic ? "تم إضافة الإجابة بنجاح!" : "Answer added successfully!", "success");
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to submit answer", err);
-      alert(isArabic ? "فشل في إضافة الإجابة" : "Failed to add answer");
+      showToast(isArabic ? "فشل في إضافة الإجابة" : "Failed to add answer", "error");
     }
   };
 
   const handleNestedReply = async (parentId: number) => {
     if (!nestedReplyText.trim()) {
-      alert(isArabic ? "الرجاء كتابة تعليق" : "Please write a comment");
+      showToast(isArabic ? "الرجاء كتابة تعليق" : "Please write a comment", "error");
       return;
     }
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
 
@@ -740,14 +743,14 @@ const TopicDetail: React.FC = () => {
         setNestedReplyText("");
         setReplyingTo(null);
         await fetchTopic();
-        alert(isArabic ? "تم إضافة التعليق!" : "Comment added!");
+        showToast(isArabic ? "تم إضافة التعليق!" : "Comment added!", "success");
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to add nested reply", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
@@ -755,7 +758,7 @@ const TopicDetail: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
       
@@ -771,24 +774,22 @@ const TopicDetail: React.FC = () => {
       if (res.ok) {
         setEditingQuestion(null);
         await fetchQuestions();
-        alert(isArabic ? "تم تحديث السؤال" : "Question updated");
+        showToast(isArabic ? "تم تحديث السؤال" : "Question updated", "success");
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to edit question", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
   const handleDeleteQuestion = async (questionId: number) => {
-    if (!confirm(isArabic ? "هل تريد حذف هذا السؤال؟" : "Delete this question?")) return;
-
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
       
@@ -798,15 +799,16 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
+        setDeletingQuestion(null);
         await fetchQuestions();
-        alert(isArabic ? "تم حذف السؤال" : "Question deleted");
+        showToast(isArabic ? "تم حذف السؤال" : "Question deleted", "success");
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to delete question", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
@@ -814,7 +816,7 @@ const TopicDetail: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
       
@@ -830,24 +832,22 @@ const TopicDetail: React.FC = () => {
       if (res.ok) {
         setEditingAnswer(null);
         await fetchQuestions();
-        alert(isArabic ? "تم تحديث الإجابة" : "Answer updated");
+        showToast(isArabic ? "تم تحديث الإجابة" : "Answer updated", "success");
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to edit answer", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
   const handleDeleteAnswer = async (answerId: number) => {
-    if (!confirm(isArabic ? "هل تريد حذف هذه الإجابة؟" : "Delete this answer?")) return;
-
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول" : "Please login");
+        showToast(isArabic ? "الرجاء تسجيل الدخول" : "Please login", "error");
         return;
       }
       
@@ -857,15 +857,16 @@ const TopicDetail: React.FC = () => {
       });
 
       if (res.ok) {
+        setDeletingAnswer(null);
         await fetchQuestions();
-        alert(isArabic ? "تم حذف الإجابة" : "Answer deleted");
+        showToast(isArabic ? "تم حذف الإجابة" : "Answer deleted", "success");
       } else {
         const error = await res.json();
-        alert(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`);
+        showToast(isArabic ? `فشل: ${error.error}` : `Failed: ${error.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to delete answer", err);
-      alert(isArabic ? "حدث خطأ" : "An error occurred");
+      showToast(isArabic ? "حدث خطأ" : "An error occurred", "error");
     }
   };
 
@@ -1013,10 +1014,7 @@ const TopicDetail: React.FC = () => {
             </button>
           )}
           {currentUser && (
-            <button className="delete-btn" onClick={() => {
-              console.log('Delete button clicked');
-              handleDeleteTopic();
-            }}>
+            <button className="delete-btn" onClick={() => setDeletingTopic(true)}>
 {isArabic ? "حذف" : "Delete Topic"}
             </button>
           )}
@@ -1163,7 +1161,7 @@ const TopicDetail: React.FC = () => {
                             }}>
                               {isArabic ? "تعديل" : "Edit"}
                             </button>
-                            <button className="delete-btn-small" onClick={() => handleDeleteReply(reply.id)}>
+                            <button className="delete-btn-small" onClick={() => setDeletingReply(reply.id)}>
                               {isArabic ? "حذف" : "Delete"}
                             </button>
                             <button className="reply-btn-small" onClick={() => setReplyingTo(reply.id)}>
@@ -1212,7 +1210,7 @@ const TopicDetail: React.FC = () => {
                                     }}>
                                       {isArabic ? "تعديل" : "Edit"}
                                     </button>
-                                    <button className="delete-btn-tiny" onClick={() => handleDeleteReply(nestedReply.id)}>
+                                    <button className="delete-btn-tiny" onClick={() => setDeletingReply(nestedReply.id)}>
                                       {isArabic ? "حذف" : "Delete"}
                                     </button>
                                   </div>
@@ -1324,7 +1322,7 @@ const TopicDetail: React.FC = () => {
                           }}>
                             {isArabic ? "تعديل" : "Edit"}
                           </button>
-                          <button className="delete-btn-small" onClick={() => handleDeleteQuestion(question.id)}>
+                          <button className="delete-btn-small" onClick={() => setDeletingQuestion(question.id)}>
                             {isArabic ? "حذف" : "Delete"}
                           </button>
                         </div>
@@ -1360,7 +1358,7 @@ const TopicDetail: React.FC = () => {
                                 }}>
                                   {isArabic ? "تعديل" : "Edit"}
                                 </button>
-                                <button className="delete-btn-small" onClick={() => handleDeleteAnswer(answer.id)}>
+                                <button className="delete-btn-small" onClick={() => setDeletingAnswer(answer.id)}>
                                   {isArabic ? "حذف" : "Delete"}
                                 </button>
                               </div>
@@ -1434,6 +1432,98 @@ const TopicDetail: React.FC = () => {
             <div className="modal-actions">
               <button onClick={handleReport} className="btn-primary">{isArabic ? "إرسال" : "Submit"}</button>
               <button onClick={() => setShowReportModal(false)} className="btn-cancel">{isArabic ? "إلغاء" : "Cancel"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Topic Modal */}
+      {deletingTopic && (
+        <div className="modal-overlay" onClick={() => setDeletingTopic(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px', textAlign: 'center'}}>
+            <div className="modal-header">
+              <h2>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h2>
+              <button className="close-btn" onClick={() => setDeletingTopic(false)}>×</button>
+            </div>
+            <p style={{margin: '20px 0', fontSize: '16px'}}>
+              {isArabic ? "هل تريد حذف هذا الموضوع؟" : "Delete this topic?"}
+            </p>
+            <div className="modal-actions" style={{justifyContent: 'center', gap: '10px'}}>
+              <button onClick={handleDeleteTopic} className="btn-primary" style={{background: '#E53935'}}>
+                {isArabic ? "حذف" : "Delete"}
+              </button>
+              <button onClick={() => setDeletingTopic(false)} className="btn-cancel">
+                {isArabic ? "إلغاء" : "Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Reply Modal */}
+      {deletingReply && (
+        <div className="modal-overlay" onClick={() => setDeletingReply(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px', textAlign: 'center'}}>
+            <div className="modal-header">
+              <h2>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h2>
+              <button className="close-btn" onClick={() => setDeletingReply(null)}>×</button>
+            </div>
+            <p style={{margin: '20px 0', fontSize: '16px'}}>
+              {isArabic ? "هل تريد حذف هذا الرد؟" : "Delete this reply?"}
+            </p>
+            <div className="modal-actions" style={{justifyContent: 'center', gap: '10px'}}>
+              <button onClick={() => handleDeleteReply(deletingReply)} className="btn-primary" style={{background: '#E53935'}}>
+                {isArabic ? "حذف" : "Delete"}
+              </button>
+              <button onClick={() => setDeletingReply(null)} className="btn-cancel">
+                {isArabic ? "إلغاء" : "Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Question Modal */}
+      {deletingQuestion && (
+        <div className="modal-overlay" onClick={() => setDeletingQuestion(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px', textAlign: 'center'}}>
+            <div className="modal-header">
+              <h2>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h2>
+              <button className="close-btn" onClick={() => setDeletingQuestion(null)}>×</button>
+            </div>
+            <p style={{margin: '20px 0', fontSize: '16px'}}>
+              {isArabic ? "هل تريد حذف هذا السؤال؟" : "Delete this question?"}
+            </p>
+            <div className="modal-actions" style={{justifyContent: 'center', gap: '10px'}}>
+              <button onClick={() => handleDeleteQuestion(deletingQuestion)} className="btn-primary" style={{background: '#E53935'}}>
+                {isArabic ? "حذف" : "Delete"}
+              </button>
+              <button onClick={() => setDeletingQuestion(null)} className="btn-cancel">
+                {isArabic ? "إلغاء" : "Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Answer Modal */}
+      {deletingAnswer && (
+        <div className="modal-overlay" onClick={() => setDeletingAnswer(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '400px', textAlign: 'center'}}>
+            <div className="modal-header">
+              <h2>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h2>
+              <button className="close-btn" onClick={() => setDeletingAnswer(null)}>×</button>
+            </div>
+            <p style={{margin: '20px 0', fontSize: '16px'}}>
+              {isArabic ? "هل تريد حذف هذه الإجابة؟" : "Delete this answer?"}
+            </p>
+            <div className="modal-actions" style={{justifyContent: 'center', gap: '10px'}}>
+              <button onClick={() => handleDeleteAnswer(deletingAnswer)} className="btn-primary" style={{background: '#E53935'}}>
+                {isArabic ? "حذف" : "Delete"}
+              </button>
+              <button onClick={() => setDeletingAnswer(null)} className="btn-cancel">
+                {isArabic ? "إلغاء" : "Cancel"}
+              </button>
             </div>
           </div>
         </div>

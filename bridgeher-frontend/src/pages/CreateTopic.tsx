@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import { showToast } from "../utils/toast";
 import RichTextEditor from "../components/RichTextEditor";
 import "../styles/createTopic.css";
 
@@ -25,14 +26,14 @@ const CreateTopic: React.FC = () => {
     e.preventDefault();
 
     if (!formData.title.trim()) {
-      alert(isArabic ? "الرجاء إدخال عنوان" : "Please enter a title");
+      showToast(isArabic ? "الرجاء إدخال عنوان" : "Please enter a title", "error");
       return;
     }
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert(isArabic ? "الرجاء تسجيل الدخول أولاً" : "Please login first");
+        showToast(isArabic ? "الرجاء تسجيل الدخول أولاً" : "Please login first", "error");
         navigate("/login");
         return;
       }
@@ -108,18 +109,18 @@ const CreateTopic: React.FC = () => {
           }
         }
         
-        alert(isArabic ? "تم إنشاء الموضوع بنجاح!" : "Topic created successfully!");
+        showToast(isArabic ? "تم إنشاء الموضوع بنجاح!" : "Topic created successfully!", "success");
         navigate("/community");
         return;
       }
 
       if (!res.ok) {
         const error = await res.json();
-        alert(error.error || (isArabic ? "فشل في إنشاء الموضوع" : "Failed to create topic"));
+        showToast(error.error || (isArabic ? "فشل في إنشاء الموضوع" : "Failed to create topic"), "error");
       }
     } catch (err) {
       console.error("Failed to create topic", err);
-      alert(isArabic ? "فشل في إنشاء الموضوع" : "Failed to create topic");
+      showToast(isArabic ? "فشل في إنشاء الموضوع" : "Failed to create topic", "error");
     }
   };
 

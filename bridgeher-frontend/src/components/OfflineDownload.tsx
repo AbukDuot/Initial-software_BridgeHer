@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config/api';
+import { showToast } from '../utils/toast';
 import { downloadCourseOffline, isCourseDownloaded, deleteOfflineCourse, getStorageUsage } from '../utils/offlineStorage';
 
 interface OfflineDownloadProps {
@@ -16,6 +17,7 @@ const OfflineDownload: React.FC<OfflineDownloadProps> = ({ courseId }) => {
   const [downloading, setDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [storage, setStorage] = useState({ used: 0, quota: 0 });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     checkDownloadStatus();
@@ -61,10 +63,10 @@ const OfflineDownload: React.FC<OfflineDownloadProps> = ({ courseId }) => {
       await downloadCourseOffline(courseId, modules);
       
       setIsDownloaded(true);
-      alert('Course downloaded successfully for offline access!');
+      showToast('Course downloaded successfully for offline access!', 'success');
     } catch (error) {
       console.error('Download failed:', error);
-      alert('Failed to download course. Please try again.');
+      showToast('Failed to download course. Please try again.', 'error');
     } finally {
       setDownloading(false);
       setProgress(0);
@@ -91,16 +93,15 @@ const OfflineDownload: React.FC<OfflineDownloadProps> = ({ courseId }) => {
   };
 
   const handleDelete = async () => {
-    if (!confirm('Delete offline course? You will need internet to re-download.')) return;
-
     try {
       await deleteOfflineCourse(courseId);
       setIsDownloaded(false);
-      alert('Offline course deleted successfully!');
+      setShowDeleteModal(false);
+      showToast('Offline course deleted successfully!', 'success');
       checkStorage();
     } catch (error) {
       console.error('Delete failed:', error);
-      alert('Failed to delete offline course.');
+      showToast('Failed to delete offline course.', 'error');
     }
   };
 
@@ -140,9 +141,26 @@ const OfflineDownload: React.FC<OfflineDownloadProps> = ({ courseId }) => {
       ) : (
         <div className="offline-actions">
           <span className="downloaded-badge">✅ Available Offline</span>
-          <button className="btn delete-btn" onClick={handleDelete}>
+          <button className="btn delete-btn" onClick={() => setShowDeleteModal(true)}>
             🗑️ Delete Offline Copy
           </button>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000}}>
+          <div style={{background: 'white', padding: '30px', borderRadius: '8px', maxWidth: '400px', textAlign: 'center'}}>
+            <h3 style={{marginBottom: '15px'}}>Delete Offline Course?</h3>
+            <p style={{marginBottom: '20px', color: '#666'}}>You will need internet to re-download.</p>
+            <div style={{display: 'flex', gap: '10px', justifyContent: 'center'}}>
+              <button onClick={handleDelete} style={{background: '#E53935', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer'}}>
+                Delete
+              </button>
+              <button onClick={() => setShowDeleteModal(false)} style={{background: '#ccc', color: '#333', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer'}}>
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

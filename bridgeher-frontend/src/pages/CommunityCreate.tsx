@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import { showToast } from "../utils/toast";
 import RichTextEditor from "../components/RichTextEditor";
 import "../styles/community.css";
 
@@ -31,7 +32,7 @@ const CommunityCreate: React.FC = () => {
     const isVideo = file.type.startsWith('video/');
     
     if (!isImage && !isVideo) {
-      alert(isArabic ? "يرجى اختيار صورة أو فيديو" : "Please select an image or video");
+      showToast(isArabic ? "يرجى اختيار صورة أو فيديو" : "Please select an image or video", "error");
       return;
     }
     
@@ -44,7 +45,7 @@ const CommunityCreate: React.FC = () => {
     e.preventDefault();
     
     if (!form.title || !form.description) {
-      alert(isArabic ? "الرجاء ملء جميع الحقول المطلوبة" : "Please fill all required fields");
+      showToast(isArabic ? "الرجاء ملء جميع الحقول المطلوبة" : "Please fill all required fields", "error");
       return;
     }
 
@@ -93,15 +94,15 @@ const CommunityCreate: React.FC = () => {
       });
 
       if (res.ok) {
-        alert(isArabic ? "تم نشر الموضوع بنجاح!" : "Topic posted successfully!");
+        showToast(isArabic ? "تم نشر الموضوع بنجاح!" : "Topic posted successfully!", "success");
         navigate("/community");
       } else {
         const data = await res.json();
-        alert(data.error || (isArabic ? "فشل نشر الموضوع" : "Failed to post topic"));
+        showToast(data.error || (isArabic ? "فشل نشر الموضوع" : "Failed to post topic"), "error");
       }
     } catch (err) {
       console.error("Failed to create topic", err);
-      alert(isArabic ? "حدث خطأ أثناء النشر" : "An error occurred while posting");
+      showToast(isArabic ? "حدث خطأ أثناء النشر" : "An error occurred while posting", "error");
     } finally {
       setLoading(false);
     }

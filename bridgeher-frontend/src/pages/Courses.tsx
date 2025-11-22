@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useLanguage } from "../hooks/useLanguage";
-import { useToast } from "../hooks/useToast";
-import Toast from "../components/Toast";
+import { showToast } from "../utils/toast";
 import CoursePreview from "../components/CoursePreview";
 import EnhancedSearch from "../components/EnhancedSearch";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -25,7 +24,7 @@ interface Course {
 
 const Courses: React.FC = () => {
   const { language } = useLanguage();
-  const { toasts, removeToast } = useToast();
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [level, setLevel] = useState("All");
@@ -68,7 +67,7 @@ const Courses: React.FC = () => {
   const handleEnroll = async (courseId: number) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert(language === "Arabic" ? "يرجى تسجيل الدخول أولاً" : "Please login first");
+      showToast(language === "Arabic" ? "يرجى تسجيل الدخول أولاً" : "Please login first", "error");
       return;
     }
     
@@ -81,12 +80,12 @@ const Courses: React.FC = () => {
       
       if (res.ok) {
         setCourses(courses.map(c => c.id === courseId ? { ...c, enrolled: true } : c));
-        alert(language === "Arabic" ? "تم التسجيل بنجاح!" : "Enrolled successfully!");
+        showToast(language === "Arabic" ? "تم التسجيل بنجاح!" : "Enrolled successfully!", "success");
       } else {
-        alert(language === "Arabic" ? "فشل التسجيل" : "Enrollment failed");
+        showToast(language === "Arabic" ? "فشل التسجيل" : "Enrollment failed", "error");
       }
     } catch {
-      alert(language === "Arabic" ? "خطأ في الاتصال" : "Connection error");
+      showToast(language === "Arabic" ? "خطأ في الاتصال" : "Connection error", "error");
     } finally {
       setEnrolling(null);
     }
@@ -118,15 +117,6 @@ const Courses: React.FC = () => {
         <h2>{t.pageTitle}</h2>
         <p>{t.intro}</p>
       </div>
-
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
 
       <div className="filters-container">
         <EnhancedSearch

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config/api';
+import { showToast } from '../utils/toast';
 
 interface Question {
   id: number;
@@ -99,11 +100,11 @@ const DatabaseQuiz: React.FC<DatabaseQuizProps> = ({ moduleId, onQuizComplete, o
       } else {
         const errorData = await response.json();
         console.error('Submit error:', errorData);
-        alert('Failed to submit quiz: ' + (errorData.error || 'Unknown error'));
+        showToast('Failed to submit quiz: ' + (errorData.error || 'Unknown error'), 'error');
       }
     } catch (error) {
       console.error('Error submitting quiz:', error);
-      alert('Error submitting quiz: ' + (error as Error).message);
+      showToast('Error submitting quiz: ' + (error as Error).message, 'error');
     }
   };
 

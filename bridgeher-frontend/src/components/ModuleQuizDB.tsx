@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config/api';
+import { showToast } from '../utils/toast';
 
 interface Question {
   id?: number;
@@ -71,7 +72,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
         const data = await response.json();
         
         if (data.attemptCount >= data.maxAttempts) {
-          alert(isArabic ? 'لقد وصلت إلى الحد الأقصى من المحاولات (3)' : 'You have reached the maximum attempts (3) for this quiz');
+          showToast(isArabic ? 'لقد وصلت إلى الحد الأقصى من المحاولات (3)' : 'You have reached the maximum attempts (3) for this quiz', 'error');
           onClose();
           return;
         }

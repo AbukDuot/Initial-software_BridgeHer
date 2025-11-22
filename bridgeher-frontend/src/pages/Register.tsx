@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { useUser } from "../hooks/useUser";
-import { useToast } from "../hooks/useToast";
-import Toast from "../components/Toast";
+import { showToast } from "../utils/toast";
 import LoadingSpinner from "../components/LoadingSpinner";
 import TermsModal from "../components/TermsModal";
 import { API_BASE_URL } from "../config/api";
@@ -14,7 +13,7 @@ const Register: React.FC = () => {
   const { setUser } = useUser();
   const navigate = useNavigate();
   const isArabic = language === "Arabic";
-  const { toasts, showToast, removeToast } = useToast();
+
 
   const [form, setForm] = useState({
     name: "",
@@ -93,14 +92,6 @@ const Register: React.FC = () => {
 
   return (
     <div className={`auth-page ${isArabic ? "rtl" : ""}`}>
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
       <div className="auth-card">
         <h2>{isArabic ? "إنشاء حساب جديد" : "Create an Account"}</h2>
         <p>{isArabic ? "انضم إلى BridgeHer لتطوير مهاراتك الرقمية" : "Join BridgeHer to grow your digital skills"}</p>

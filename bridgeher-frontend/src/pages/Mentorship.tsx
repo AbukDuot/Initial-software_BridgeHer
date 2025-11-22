@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import { showToast } from "../utils/toast";
 import "../styles/mentorship.css";
 
 import priscillaImg from "../assets/images/priscilla.jpg";
@@ -339,13 +340,13 @@ const Mentorship: React.FC = () => {
         })
       });
       if (res.ok) {
-        alert(lang === "ar" ? "شكراً لتقييمك!" : "Thank you for your feedback!");
+        showToast(lang === "ar" ? "شكراً لتقييمك!" : "Thank you for your feedback!", "success");
         setFeedbackModal(null);
       } else {
-        alert(lang === "ar" ? "فشل الإرسال" : "Failed to submit");
+        showToast(lang === "ar" ? "فشل الإرسال" : "Failed to submit", "error");
       }
     } catch {
-      alert(lang === "ar" ? "خطأ في الاتصال" : "Connection error");
+      showToast(lang === "ar" ? "خطأ في الاتصال" : "Connection error", "error");
     }
   };
 
@@ -354,7 +355,7 @@ const Mentorship: React.FC = () => {
     
     const token = localStorage.getItem("token");
     if (!token) {
-      alert(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please login first");
+      showToast(lang === "ar" ? "يرجى تسجيل الدخول أولاً" : "Please login first", "error");
       return;
     }
     
@@ -373,7 +374,7 @@ const Mentorship: React.FC = () => {
         data: { ...requestData, mentorName: modalMentor.name },
         timestamp: new Date().toISOString()
       });
-      alert(lang === "ar" ? " تم حفظ الطلب. سيتم إرساله عند الاتصال بالإنترنت." : " Request queued. Will send when online.");
+      showToast(lang === "ar" ? "تم حفظ الطلب. سيتم إرساله عند الاتصال بالإنترنت." : "Request queued. Will send when online.", "info");
       setModalMentor(null);
       return;
     }
@@ -402,7 +403,7 @@ const Mentorship: React.FC = () => {
           ...prev,
           { id: newRequest.id, mentor: modalMentor.name, mentor_id: modalMentor.id, date: new Date().toLocaleString(), session, status: 'pending' },
         ]);
-        alert(lang === "ar" ? "تم إرسال الطلب بنجاح!" : "Request sent successfully!");
+        showToast(lang === "ar" ? "تم إرسال الطلب بنجاح!" : "Request sent successfully!", "success");
         setModalMentor(null);
         setMessage("");
         setSessionDate("");
@@ -410,11 +411,11 @@ const Mentorship: React.FC = () => {
       } else {
         const error = await res.json();
         console.error('❌ Request failed:', error);
-        alert(lang === "ar" ? `فشل الإرسال: ${error.error || 'خطأ'}` : `Failed to send: ${error.error || 'Error'}`);
+        showToast(lang === "ar" ? `فشل الإرسال: ${error.error || 'خطأ'}` : `Failed to send: ${error.error || 'Error'}`, "error");
       }
     } catch (err) {
       console.error("❌ Request error:", err);
-      alert(lang === "ar" ? "خطأ في الاتصال" : "Connection error");
+      showToast(lang === "ar" ? "خطأ في الاتصال" : "Connection error", "error");
     }
   };
 
@@ -501,16 +502,16 @@ const Mentorship: React.FC = () => {
                   
                   if (res.ok) {
                     const result = await res.json();
-                    alert(`✅ ${result.message}`);
+                    showToast(result.message, 'success');
                     // Refresh the page to load new videos
                     window.location.reload();
                   } else {
                     const error = await res.json();
-                    alert(`❌ Error: ${error.error}`);
+                    showToast(`Error: ${error.error}`, 'error');
                   }
                 } catch (err) {
                   console.error('Error adding videos:', err);
-                  alert('❌ Failed to add videos');
+                  showToast('Failed to add videos', 'error');
                 }
               }}
               style={{

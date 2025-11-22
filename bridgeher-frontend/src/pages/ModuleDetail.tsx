@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLanguage } from "../hooks/useLanguage";
 import { API_BASE_URL } from "../config/api";
+import { showToast } from "../utils/toast";
 import ModuleQuizDB from "../components/ModuleQuizDB";
 import { cacheVideoForOffline, isVideoCached, getCachedVideo } from "../utils/videoCache";
 import "../styles/moduleDetail.css";
@@ -78,13 +79,13 @@ const ModuleDetail: React.FC = () => {
       
       if (success) {
         setIsVideoDownloaded(true);
-        alert(isArabic ? '✅ تم تنزيل الفيديو للاستخدام دون اتصال' : 'Video downloaded for offline use!');
+        showToast(isArabic ? 'تم تنزيل الفيديو للاستخدام دون اتصال' : 'Video downloaded for offline use!', 'success');
       } else {
-        alert(isArabic ? '❌ فشل تنزيل الفيديو' : ' Failed to download video');
+        showToast(isArabic ? 'فشل تنزيل الفيديو' : 'Failed to download video', 'error');
       }
     } catch (error) {
       console.error('Download error:', error);
-      alert(isArabic ? '❌ حدث خطأ أثناء التنزيل' : ' Error during download');
+      showToast(isArabic ? 'حدث خطأ أثناء التنزيل' : 'Error during download', 'error');
     } finally {
       setIsVideoDownloading(false);
     }
@@ -171,7 +172,7 @@ const ModuleDetail: React.FC = () => {
           body: JSON.stringify({ completed: true }),
         });
         
-        alert(isArabic ? "تم إكمال الوحدة!" : "Module completed!");
+        showToast(isArabic ? "تم إكمال الوحدة!" : "Module completed!", "success");
         setShowQuiz(false);
         handleNextModule();
       } catch (err) {
@@ -185,7 +186,7 @@ const ModuleDetail: React.FC = () => {
   const submitAssignment = async () => {
     if (!assignment) return;
     if (!submissionText.trim()) {
-      alert(isArabic ? "يرجى كتابة إجابة" : "Please write an answer");
+      showToast(isArabic ? "يرجى كتابة إجابة" : "Please write an answer", "error");
       return;
     }
     
@@ -203,17 +204,17 @@ const ModuleDetail: React.FC = () => {
       });
       
       if (res.ok) {
-        alert(isArabic ? "تم تقديم الواجب بنجاح!" : "Assignment submitted successfully!");
+        showToast(isArabic ? "تم تقديم الواجب بنجاح!" : "Assignment submitted successfully!", "success");
         setAssignment({ ...assignment, submitted: true });
         setSubmissionText("");
         setSubmissionFile(null);
       } else {
         const data = await res.json();
-        alert(data.error || (isArabic ? "فشل التقديم" : "Submission failed"));
+        showToast(data.error || (isArabic ? "فشل التقديم" : "Submission failed"), "error");
       }
     } catch (err) {
       console.error("Failed to submit assignment", err);
-      alert(isArabic ? "خطأ في الاتصال" : "Connection error");
+      showToast(isArabic ? "خطأ في الاتصال" : "Connection error", "error");
     }
   };
 
