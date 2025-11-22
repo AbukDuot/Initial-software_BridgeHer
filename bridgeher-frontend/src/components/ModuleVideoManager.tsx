@@ -41,9 +41,11 @@ const ModuleVideoManager: React.FC = () => {
   };
 
   const autoAssignVideos = async () => {
+    console.log('Auto-assign button clicked');
     setUpdating(true);
     try {
       const token = localStorage.getItem('token');
+      console.log('Calling auto-assign API...');
       const res = await fetch(`${API_BASE_URL}/api/module-videos/auto-assign-videos`, {
         method: 'POST',
         headers: {
@@ -52,16 +54,26 @@ const ModuleVideoManager: React.FC = () => {
         }
       });
       
+      console.log('Auto-assign response status:', res.status);
+      
+      if (res.status === 404) {
+        showToast('⚠️ Backend route not found. Please deploy the latest backend code to Render or run backend locally.', 'error');
+        console.error('404: The /api/module-videos/auto-assign-videos route does not exist on the production backend.');
+        return;
+      }
+      
       if (res.ok) {
         const result = await res.json();
+        console.log('Auto-assign result:', result);
         showToast(result.message, 'success');
         loadModulesWithoutVideos(); 
       } else {
         const error = await res.json();
+        console.error('Auto-assign error response:', error);
         showToast(`Error: ${error.error || 'Failed to auto-assign videos'}`, 'error');
       }
     } catch (err) {
-      console.error('Auto-assign error:', err);
+      console.error('Auto-assign exception:', err);
       showToast('Failed to auto-assign videos', 'error');
     } finally {
       setUpdating(false);
@@ -69,9 +81,11 @@ const ModuleVideoManager: React.FC = () => {
   };
 
   const setupComputerCourses = async () => {
+    console.log('Setup computer courses button clicked');
     setUpdating(true);
     try {
       const token = localStorage.getItem('token');
+      console.log('Calling setup computer courses API...');
       const res = await fetch(`${API_BASE_URL}/api/setup/setup-computer-courses`, {
         method: 'POST',
         headers: {
@@ -80,13 +94,28 @@ const ModuleVideoManager: React.FC = () => {
         }
       });
       
+      console.log('Setup response status:', res.status);
+      
+      if (res.status === 404) {
+        showToast('⚠️ Backend route not found. Please deploy the latest backend code to Render or run backend locally.', 'error');
+        console.error('404: The /api/setup/setup-computer-courses route does not exist on the production backend.');
+        console.error('Solution: Deploy backend/routes/setupTechCourse.js to Render');
+        return;
+      }
+      
       if (res.ok) {
         const result = await res.json();
+        console.log('Setup result:', result);
         const totalModules = result.courses.reduce((sum: number, course: { modulesAdded: number }) => sum + course.modulesAdded, 0);
         showToast(`Computer courses setup complete! Added ${totalModules} modules to ${result.courses.length} courses.`, 'success');
         loadModulesWithoutVideos(); 
+      } else {
+        const error = await res.json();
+        console.error('Setup error response:', error);
+        showToast(`Error: ${error.error || 'Failed to setup courses'}`, 'error');
       }
-    } catch {
+    } catch (err) {
+      console.error('Setup exception:', err);
       showToast('Failed to setup Computer courses', 'error');
     } finally {
       setUpdating(false);

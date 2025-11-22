@@ -225,21 +225,29 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = async (id: number) => {
-    playUiSound(sound);
+  const confirmDeleteUser = async () => {
+    if (!deletingUserId) return;
+    
+    const id = deletingUserId;
+    setDeletingUserId(null);
+    
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE_URL}/api/admin/users/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
+      
       if (res.ok) {
-        setDeletingUserId(null);
         await fetchData();
-        addToast(isArabic ? "تم حذف المستخدم بنجاح" : "User deleted successfully", "success");
+        playUiSound(sound);
+        showToast(isArabic ? "تم حذف المستخدم بنجاح" : "User deleted successfully", "success");
+      } else {
+        const error = await res.json();
+        showToast(error.details || error.error || "Failed to delete user", "error");
       }
     } catch {
-      addToast(isArabic ? "فشل في حذف المستخدم" : "Failed to delete user", "error");
+      showToast("Failed to delete user", "error");
     }
   };
 
@@ -296,21 +304,29 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteCourse = async (id: number) => {
-    playUiSound(sound);
+  const confirmDeleteCourse = async () => {
+    if (!deletingCourseId) return;
+    
+    const id = deletingCourseId;
+    setDeletingCourseId(null);
+    
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`${API_BASE_URL}/api/courses/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
+      
       if (res.ok) {
-        setDeletingCourseId(null);
         await fetchData();
-        addToast(isArabic ? "تم حذف الدورة بنجاح" : "Course deleted successfully", "success");
+        playUiSound(sound);
+        showToast(isArabic ? "تم حذف الدورة بنجاح" : "Course deleted successfully", "success");
+      } else {
+        const error = await res.json();
+        showToast(error.details || error.error || "Failed to delete course", "error");
       }
     } catch {
-      addToast(isArabic ? "فشل في حذف الدورة" : "Failed to delete course", "error");
+      showToast("Failed to delete course", "error");
     }
   };
 
@@ -462,7 +478,7 @@ const AdminDashboard: React.FC = () => {
                 <td>{user.status || "Active"}</td>
                 <td>
                   <button className="btn-small" onClick={() => handleEditUser(user)}>{t.edit}</button>
-                  <button className="btn-small danger" onClick={(e) => { e.stopPropagation(); setDeletingUserId(user.id); }}>{t.delete}</button>
+                  <button className="btn-small danger" onClick={() => setDeletingUserId(user.id)}>{t.delete}</button>
                 </td>
               </tr>
             ))}
@@ -654,38 +670,62 @@ const AdminDashboard: React.FC = () => {
     )}
     
     {showVideoManager && (
-      <div className="modal-overlay" onClick={() => setShowVideoManager(false)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10000, padding: '20px'}}>
-        <div onClick={(e) => e.stopPropagation()} style={{width: '90%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto', background: 'white', borderRadius: '12px', padding: '20px'}}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+      <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10000, padding: '20px'}}>
+        <div style={{width: '90%', maxWidth: '1200px', maxHeight: '90vh', overflow: 'auto', background: 'white', borderRadius: '12px', padding: '20px', position: 'relative'}}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', position: 'sticky', top: 0, background: 'white', zIndex: 1, paddingBottom: '10px', borderBottom: '2px solid #eee'}}>
             <h3 style={{margin: 0}}>{isArabic ? 'إدارة فيديوهات الوحدات' : 'Module Video Manager'}</h3>
-            <button onClick={() => setShowVideoManager(false)} style={{background: 'none', border: 'none', fontSize: '32px', cursor: 'pointer', color: '#333'}}>×</button>
+            <button onClick={() => setShowVideoManager(false)} style={{background: '#E53935', color: 'white', border: 'none', fontSize: '20px', cursor: 'pointer', width: '35px', height: '35px', borderRadius: '50%', fontWeight: 'bold'}}>×</button>
           </div>
           <ModuleVideoManager />
         </div>
       </div>
     )}
 
-    {deletingUserId && (
-      <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
-        <div className="modal" style={{textAlign: 'center'}}>
-          <h3>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h3>
-          <p style={{margin: '20px 0'}}>{isArabic ? "هل أنت متأكد من حذف هذا المستخدم؟" : "Are you sure you want to delete this user?"}</p>
-          <div className="modal-actions">
-            <button className="btn danger" onClick={() => handleDeleteUser(deletingUserId)}>{isArabic ? "حذف" : "Delete"}</button>
-            <button className="btn" onClick={() => setDeletingUserId(null)}>{isArabic ? "إلغاء" : "Cancel"}</button>
+    {deletingUserId !== null && (
+      <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
+        <div style={{textAlign: 'center', padding: '30px', background: 'white', borderRadius: '8px', minWidth: '300px', maxWidth: '500px'}}>
+          <h3 style={{marginBottom: '20px', color: '#333'}}>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h3>
+          <p style={{margin: '20px 0', color: '#666'}}>{isArabic ? "هل أنت متأكد من حذف هذا المستخدم؟" : "Are you sure you want to delete this user?"}</p>
+          <div style={{display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px'}}>
+            <button 
+              type="button"
+              onClick={confirmDeleteUser}
+              style={{padding: '10px 20px', background: '#E53935', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: '600'}}
+            >
+              {isArabic ? "حذف" : "Delete"}
+            </button>
+            <button 
+              type="button"
+              onClick={() => setDeletingUserId(null)}
+              style={{padding: '10px 20px', background: '#666', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer'}}
+            >
+              {isArabic ? "إلغاء" : "Cancel"}
+            </button>
           </div>
         </div>
       </div>
     )}
 
-    {deletingCourseId && (
-      <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
-        <div className="modal" style={{textAlign: 'center'}}>
-          <h3>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h3>
-          <p style={{margin: '20px 0'}}>{isArabic ? "هل أنت متأكد من حذف هذه الدورة؟" : "Are you sure you want to delete this course?"}</p>
-          <div className="modal-actions">
-            <button className="btn danger" onClick={() => handleDeleteCourse(deletingCourseId)}>{isArabic ? "حذف" : "Delete"}</button>
-            <button className="btn" onClick={() => setDeletingCourseId(null)}>{isArabic ? "إلغاء" : "Cancel"}</button>
+    {deletingCourseId !== null && (
+      <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
+        <div style={{textAlign: 'center', padding: '30px', background: 'white', borderRadius: '8px', minWidth: '300px', maxWidth: '500px'}}>
+          <h3 style={{marginBottom: '20px', color: '#333'}}>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h3>
+          <p style={{margin: '20px 0', color: '#666'}}>{isArabic ? "هل أنت متأكد من حذف هذه الدورة؟" : "Are you sure you want to delete this course?"}</p>
+          <div style={{display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px'}}>
+            <button 
+              type="button"
+              onClick={confirmDeleteCourse}
+              style={{padding: '10px 20px', background: '#E53935', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: '600'}}
+            >
+              {isArabic ? "حذف" : "Delete"}
+            </button>
+            <button 
+              type="button"
+              onClick={() => setDeletingCourseId(null)}
+              style={{padding: '10px 20px', background: '#666', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer'}}
+            >
+              {isArabic ? "إلغاء" : "Cancel"}
+            </button>
           </div>
         </div>
       </div>
