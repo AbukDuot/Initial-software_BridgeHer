@@ -462,7 +462,7 @@ const AdminDashboard: React.FC = () => {
                 <td>{user.status || "Active"}</td>
                 <td>
                   <button className="btn-small" onClick={() => handleEditUser(user)}>{t.edit}</button>
-                  <button className="btn-small danger" onClick={() => setDeletingUserId(user.id)}>{t.delete}</button>
+                  <button className="btn-small danger" onClick={(e) => { e.stopPropagation(); setDeletingUserId(user.id); }}>{t.delete}</button>
                 </td>
               </tr>
             ))}
@@ -666,8 +666,8 @@ const AdminDashboard: React.FC = () => {
     )}
 
     {deletingUserId && (
-      <div className="modal-overlay" onClick={() => setDeletingUserId(null)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
-        <div className="modal" onClick={(e) => e.stopPropagation()} style={{textAlign: 'center'}}>
+      <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
+        <div className="modal" style={{textAlign: 'center'}}>
           <h3>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h3>
           <p style={{margin: '20px 0'}}>{isArabic ? "هل أنت متأكد من حذف هذا المستخدم؟" : "Are you sure you want to delete this user?"}</p>
           <div className="modal-actions">
@@ -679,8 +679,8 @@ const AdminDashboard: React.FC = () => {
     )}
 
     {deletingCourseId && (
-      <div className="modal-overlay" onClick={() => setDeletingCourseId(null)} style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
-        <div className="modal" onClick={(e) => e.stopPropagation()} style={{textAlign: 'center'}}>
+      <div className="modal-overlay" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10001}}>
+        <div className="modal" style={{textAlign: 'center'}}>
           <h3>{isArabic ? "تأكيد الحذف" : "Confirm Delete"}</h3>
           <p style={{margin: '20px 0'}}>{isArabic ? "هل أنت متأكد من حذف هذه الدورة؟" : "Are you sure you want to delete this course?"}</p>
           <div className="modal-actions">
