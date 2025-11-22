@@ -86,7 +86,7 @@ const ModuleVideoManager: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
       console.log('Calling setup computer courses API...');
-      const res = await fetch(`${API_BASE_URL}/api/setup/setup-computer-courses`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/setup-computer-courses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
