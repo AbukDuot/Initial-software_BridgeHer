@@ -2,8 +2,16 @@ import express from "express";
 import pool from "../config/db.js";
 import { requireAuth } from "../middleware/authMiddleware.js";
 import { checkAndAwardBadges } from "../utils/badgeAwarder.js";
+import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
 
 const router = express.Router();
+
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+});
 
 router.get("/announcements", async (req, res) => {
   try {
@@ -1607,19 +1615,7 @@ router.post("/topics/from-template", requireAuth, async (req, res) => {
   }
 });
 
-export default router;
-
-
 // ========== MEDIA UPLOAD FOR TOPICS ==========
-import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
-
-const storage = multer.memoryStorage();
-const upload = multer({ 
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
-});
-
 router.post("/topics/:id/media", requireAuth, upload.single('media'), async (req, res) => {
   try {
     const { id } = req.params;
@@ -1682,3 +1678,5 @@ router.post("/topics/:id/media", requireAuth, upload.single('media'), async (req
     res.status(500).json({ error: err.message });
   }
 });
+
+export default router;
