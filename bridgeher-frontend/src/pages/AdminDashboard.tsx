@@ -364,10 +364,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleReplyEmail = (email: string) => {
     playUiSound(sound);
-    const message = isArabic 
-      ? `البريد الإلكتروني للمتعلم: ${email}`
-      : `Learner's Email: ${email}`;
-    showToast(message, "info");
+    window.location.href = `mailto:${email}`;
   };
 
   if (loading) {
