@@ -37,6 +37,8 @@ interface Reply {
   parent_reply_id?: number;
   best_answer?: boolean;
   user_id: number;
+  upvotes?: number;
+  downvotes?: number;
 }
 
 const TopicDetail: React.FC = () => {
