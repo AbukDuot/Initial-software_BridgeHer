@@ -70,7 +70,6 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
       if (response.ok) {
         const data = await response.json();
         
-        // Check if max attempts reached
         if (data.attemptCount >= data.maxAttempts) {
           alert(isArabic ? 'لقد وصلت إلى الحد الأقصى من المحاولات (3)' : 'You have reached the maximum attempts (3) for this quiz');
           onClose();
@@ -82,7 +81,6 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
         setAttemptsRemaining(data.attemptsRemaining);
         setTimeLeft(data.time_limit * 60); 
       } else {
-        
         const fallbackQuiz = {
           id: 0,
           title: `${moduleTitle} Quiz`,
@@ -174,7 +172,6 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
 
     quiz.questions.forEach((q, index) => {
       totalPoints += (q.points || 1);
-      // Handle both correctAnswer (number) and correct_answer (string) formats
       const correctAnswer = q.correct_answer || q.options[q.correctAnswer || 0];
       if (answers[q.id || index] === correctAnswer) {
         correctAnswers += (q.points || 1);
@@ -185,7 +182,6 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
     setScore(percentage);
     setShowResult(true);
 
-    
     if (quiz.id > 0) {
       try {
         const token = localStorage.getItem('token');
@@ -209,9 +205,6 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
         console.error('Error submitting quiz:', error);
       }
     }
-
-    const passed = percentage >= quiz.passing_score;
-   
   };
 
   if (loading) {
@@ -275,15 +268,9 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
               </span>
             )}
           </p>
-          <div style={{background: '#f0f0f0', padding: '10px', borderRadius: '5px', fontSize: '12px', marginBottom: '10px'}}>
-            DEBUG: Score={score}, Passing={quiz.passing_score}, Attempts={attemptsRemaining}
-          </div>
-          {/* DEBUG: Always show buttons */}
           <div style={{display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '20px'}}>
-            {/* Always show retake button for testing */}
             <button 
               onClick={() => {
-                alert('Retake button clicked!');
                 setShowResult(false);
                 setCurrentQuestion(0);
                 setAnswers({});
@@ -295,13 +282,11 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
                 padding: '12px 30px', borderRadius: '8px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold'
               }}
             >
-              🔄 RETAKE QUIZ
+              🔄 {isArabic ? 'إعادة المحاولة' : 'RETAKE QUIZ'}
             </button>
             
-            {/* Always show back button */}
             <button 
               onClick={() => {
-                alert('Back to Module clicked!');
                 const passed = score >= quiz.passing_score;
                 onQuizComplete(passed);
                 onClose();
@@ -311,7 +296,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
                 padding: '12px 30px', borderRadius: '8px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold'
               }}
             >
-              ← BACK TO MODULE
+              ← {isArabic ? 'العودة إلى الوحدة' : 'BACK TO MODULE'}
             </button>
           </div>
         </div>
@@ -329,7 +314,6 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
       <div style={{
         background: 'white', padding: '20px', borderRadius: '8px', width: '90%', maxWidth: '600px', maxHeight: '90vh', overflow: 'auto'
       }}>
-        {/* Header */}
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid #4A148C', paddingBottom: '15px', flexWrap: 'wrap', gap: '10px'}}>
           <div>
             <h2 style={{color: '#4A148C', margin: 0}}>
@@ -345,7 +329,6 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
           </div>
         </div>
 
-        {/* Progress */}
         <div style={{marginBottom: '20px'}}>
           <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px'}}>
             <span>{isArabic ? 'السؤال' : 'Question'} {currentQuestion + 1} {isArabic ? 'من' : 'of'} {quiz.questions.length}</span>
@@ -358,7 +341,6 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
           </div>
         </div>
 
-        {/* Question */}
         <div style={{marginBottom: '30px'}}>
           <h3 style={{marginBottom: '20px', fontSize: '18px', lineHeight: '1.5'}}>
             {question.question}
@@ -368,7 +350,7 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
             {question.options.map((option, index) => (
               <button
                 key={index}
-                onClick={() => handleAnswer(question.id || currentQuestion, option))
+                onClick={() => handleAnswer(question.id || currentQuestion, option)}
                 style={{
                   display: 'flex', alignItems: 'center', padding: '15px', border: '2px solid',
                   borderColor: answers[question.id || currentQuestion] === option ? '#4A148C' : '#CCC',
@@ -390,7 +372,6 @@ const ModuleQuizDB: React.FC<ModuleQuizDBProps> = ({
           </div>
         </div>
 
-        {/* Navigation */}
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <button
             onClick={handlePrevious}

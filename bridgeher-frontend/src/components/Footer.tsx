@@ -2,10 +2,14 @@ import React, { useState, useEffect } from "react";
 import { FaArrowUp, FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import { useLanguage } from "../hooks/useLanguage";
 import footerTranslations from "../i18n/footerTranslations";
+import PrivacyPolicy from "./PrivacyPolicy";
+import Accessibility from "./Accessibility";
 import "../styles/footer.css";
 
 const Footer: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showAccessibility, setShowAccessibility] = useState(false);
   const { language } = useLanguage();
   const t = footerTranslations[language];
   const isArabic = language === "Arabic";
@@ -65,6 +69,21 @@ const Footer: React.FC = () => {
       {/* Footer Bottom */}
       <div className="footer-bottom">
         <p>© {new Date().getFullYear()} BridgeHer — {t.rights}</p>
+        <div style={{ marginTop: '10px', display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => setShowPrivacy(true)}
+            style={{ background: 'none', border: 'none', color: '#FFD700', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
+          >
+            {isArabic ? 'سياسة الخصوصية' : 'Privacy Policy'}
+          </button>
+          <span style={{ color: '#FFD700' }}>|</span>
+          <button 
+            onClick={() => setShowAccessibility(true)}
+            style={{ background: 'none', border: 'none', color: '#FFD700', cursor: 'pointer', textDecoration: 'underline', fontSize: '14px' }}
+          >
+            {isArabic ? 'إمكانية الوصول' : 'Accessibility'}
+          </button>
+        </div>
       </div>
 
       {/* Scroll-to-Top Button */}
@@ -77,6 +96,10 @@ const Footer: React.FC = () => {
           <FaArrowUp />
         </button>
       )}
+
+      {/* Popups */}
+      {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
+      {showAccessibility && <Accessibility onClose={() => setShowAccessibility(false)} />}
     </footer>
   );
 };
