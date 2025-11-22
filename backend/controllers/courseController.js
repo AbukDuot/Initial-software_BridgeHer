@@ -146,20 +146,39 @@ export async function updateCourse(req, res, next) {
 
 
 export async function deleteCourse(req, res, next) {
+  const client = await pool.connect();
   try {
     const { id } = req.params;
     const course = await modelGetById(id);
     if (!course) return res.status(404).json({ error: "Course not found" });
 
+    await client.query('BEGIN');
     
+    // Delete related data (CASCADE should handle most, but be explicit)
+    await client.query('DELETE FROM course_recommendations WHERE course_id = $1 OR recommended_course_id = $1', [id]);
+    
+    // Delete course (CASCADE will handle modules, assignments, etc.)
+    const { rowCount } = await client.query('DELETE FROM courses WHERE id = $1', [id]);
+    
+    if (rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: "Course not found" });
+    }
+    
+    await client.query('COMMIT');
+    
+    // Delete image file after successful DB deletion
     if (course.image) {
       const filePath = path.join(process.cwd(), course.image);
       fs.unlink(filePath, () => {});
     }
 
-    const ok = await modelRemove(id);
-    res.json({ success: ok });
+    res.json({ success: true, message: 'Course deleted successfully' });
   } catch (err) {
-    next(err);
+    await client.query('ROLLBACK');
+    console.error('Delete course error:', err);
+    res.status(500).json({ error: 'Server error', details: err.message });
+  } finally {
+    client.release();
   }
 }

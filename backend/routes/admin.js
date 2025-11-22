@@ -38,27 +38,36 @@ router.put('/users/:id', protect, async (req, res) => {
 });
 
 router.delete('/users/:id', protect, async (req, res) => {
+  const client = await pool.connect();
   try {
     const { id } = req.params;
     
+    await client.query('BEGIN');
     
-    await pool.query('DELETE FROM user_badges WHERE user_id = $1', [id]);
-    await pool.query('DELETE FROM enrollments WHERE user_id = $1', [id]);
-    await pool.query('DELETE FROM user_points WHERE user_id = $1', [id]);
-    await pool.query('DELETE FROM mentorship_requests WHERE requester_id = $1 OR mentor_id = $1', [id]);
-    await pool.query('DELETE FROM assignment_submissions WHERE user_id = $1', [id]);
-    await pool.query('DELETE FROM module_progress WHERE user_id = $1', [id]);
+    // Update tables without CASCADE (set created_by to NULL)
+    await client.query('UPDATE courses SET created_by = NULL WHERE created_by = $1', [id]);
+    await client.query('UPDATE announcements SET created_by = NULL WHERE created_by = $1', [id]);
     
-    const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
+    // Delete from tables that don't have CASCADE or need explicit deletion
+    await client.query('DELETE FROM question_answers WHERE user_id = $1', [id]);
+    await client.query('DELETE FROM topic_questions WHERE user_id = $1', [id]);
+    
+    // Delete user (CASCADE will handle most related tables automatically)
+    const result = await client.query('DELETE FROM users WHERE id = $1 RETURNING id', [id]);
     
     if (result.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'User not found' });
     }
     
+    await client.query('COMMIT');
     res.json({ message: 'User deleted successfully' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error' });
+    await client.query('ROLLBACK');
+    console.error('Error deleting user:', err);
+    res.status(500).json({ error: 'Server error', details: err.message });
+  } finally {
+    client.release();
   }
 });
 
