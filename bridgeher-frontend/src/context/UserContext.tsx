@@ -8,6 +8,10 @@ interface User {
   coursesCompleted: number;
   badges: number;
   posts: number;
+  phone?: string;
+  bio?: string;
+  location?: string;
+  profile_pic?: string;
   achievements: {
     title: string;
     titleAr?: string;
