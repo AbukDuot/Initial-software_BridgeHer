@@ -7,6 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import EnhancedCourseCard from "../components/EnhancedCourseCard";
 import coursesTranslations from "../i18n/coursesTranslations";
 import { API_BASE_URL } from "../config/api";
+import { getOfflineCourses } from "../utils/offline";
 import "../styles/courses.css";
 
 interface Course {
@@ -58,7 +59,24 @@ const Courses: React.FC = () => {
         setCourses(data);
       }
     } catch (err) {
-      console.error("Failed to fetch courses", err);
+      console.error("Failed to fetch courses, checking offline", err);
+      const offlineCourses = getOfflineCourses();
+      const offlineCoursesArray = Object.values(offlineCourses).map((course: any) => ({
+        id: course.id,
+        title: course.title,
+        description: course.description,
+        description_ar: course.description_ar,
+        category: course.category || "General",
+        level: course.level || "Beginner",
+        duration: course.duration || "N/A",
+        mentor: course.mentor || "Unknown",
+        image: course.image,
+        enrolled: true
+      }));
+      setCourses(offlineCoursesArray);
+      if (offlineCoursesArray.length > 0) {
+        showToast(language === "Arabic" ? "عرض الدورات المحفوظة" : "Showing offline courses", "info");
+      }
     } finally {
       setLoading(false);
     }
