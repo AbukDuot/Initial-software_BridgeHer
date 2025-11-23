@@ -5,6 +5,7 @@ import fs from "fs";
 import { Readable } from "stream";
 import pool from "../config/db.js";
 import { requireAuth, requireRole } from "../middleware/authMiddleware.js";
+import { addPoints, POINTS } from "../utils/pointsSystem.js";
 import { videoStorage as cloudinaryVideoStorage, pdfStorage as cloudinaryPdfStorage } from "../config/cloudinary.js";
 
 const router = express.Router();
@@ -369,11 +370,8 @@ router.post("/:id/complete", requireAuth, async (req, res) => {
       [userId, id]
     );
     
-    await pool.query(
-      `INSERT INTO user_points (user_id, total_points, level) VALUES ($1, 50, 1)
-       ON CONFLICT (user_id) DO UPDATE SET total_points = user_points.total_points + 50`,
-      [userId]
-    );
+    // Award points for module completion
+    await addPoints(userId, POINTS.MODULE_COMPLETE, 'Module completed');
     
     
     const { rows: moduleRows } = await pool.query(
