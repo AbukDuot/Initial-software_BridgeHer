@@ -562,7 +562,7 @@ VITE_API_BASE_URL=https://bridgeher-backend.onrender.com
 **Step 4**: Deploy and Verify
 - Click "Deploy"
 - Wait for build to complete
-- Test site: `https://bridgeher.vercel.app`
+- Test site: `https://bridgeher-platform.vercel.app`
 
 #### 3. Database Setup
 
@@ -614,7 +614,7 @@ Execute schema creation scripts for all tables (users, courses, modules, communi
 - Database monitoring via Render dashboard
 
 **Live URLs:**
-- Frontend: [https://bridgeher.vercel.app](https://bridgeher.vercel.app)
+- Frontend: [https://bridgeher-platform.vercel.app/](https://bridgeher-platform.vercel.app/p)
 - Backend: [https://bridgeher-backend.onrender.com](https://bridgeher-backend.onrender.com)
 
 ### Required Environment Variables on Render
