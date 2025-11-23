@@ -250,7 +250,7 @@ const CourseDetail: React.FC = () => {
           localStorage.setItem('enrolledCourses', JSON.stringify(enrolledCourses));
         }
         setEnrolled(true);
-        showToast.success(isAr ? 'تم التسجيل بنجاح' : 'Successfully enrolled');
+        showToast(isAr ? 'تم التسجيل بنجاح' : 'Successfully enrolled', 'success');
       }
     } catch {
       const enrolledCourses = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
@@ -259,7 +259,7 @@ const CourseDetail: React.FC = () => {
         localStorage.setItem('enrolledCourses', JSON.stringify(enrolledCourses));
       }
       setEnrolled(true);
-      showToast.success(isAr ? 'تم التسجيل بنجاح' : 'Successfully enrolled');
+      showToast(isAr ? 'تم التسجيل بنجاح' : 'Successfully enrolled', 'success');
     }
   };
 

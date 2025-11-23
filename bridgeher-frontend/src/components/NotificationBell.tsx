@@ -12,7 +12,11 @@ interface Notification {
   created_at: string;
 }
 
-const NotificationBell: React.FC = () => {
+interface NotificationBellProps {
+  isArabic?: boolean;
+}
+
+const NotificationBell: React.FC<NotificationBellProps> = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
