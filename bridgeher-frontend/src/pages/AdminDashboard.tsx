@@ -588,7 +588,7 @@ const AdminDashboard: React.FC = () => {
                           <button 
                             className="btn-small" 
                             onClick={() => handleResolveMessage(msg.id)}
-                            style={{background: '#4CAF50', color: 'white', margin: 0, width: '100%'}}
+                            style={{background: '#4CAF50', color: 'white', margin: 0, width: '100%', padding: '6px 12px', fontSize: '0.85rem', fontWeight: '600', border: 'none', borderRadius: '4px', cursor: 'pointer'}}
                           >
                             {isArabic ? 'حل' : 'Resolve'}
                           </button>
