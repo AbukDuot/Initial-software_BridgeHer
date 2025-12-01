@@ -201,7 +201,7 @@ BridgeHer's UI focuses on simplicity, inclusivity, and accessibility for both En
 
 ### Overview
 The **BridgeHer Style Guide** defines the visual language and design consistency of the BridgeHer Learning & Mentorship Platform.  
-It ensures every page — from login to dashboard — looks cohesive, accessible, and empowering.
+It ensures that every page, from login to dashboard, looks cohesive, accessible, and empowering.
 
 BridgeHer follows a **purple and gold** color identity, reflecting creativity, confidence, and empowerment.
 
